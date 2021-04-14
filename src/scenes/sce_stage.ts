@@ -74,7 +74,7 @@ export function scene_stage(game: Game) {
     // Cube 1.
     instantiate(game, [
         transform([-21, 0.5, -52]),
-        control_player(),
+        control_player(false, 0, 0),
         disable(Has.ControlPlayer),
         collide(true, Layer.None, Layer.None, [2, 2, 2]),
         pickable(),

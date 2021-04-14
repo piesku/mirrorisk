@@ -7,7 +7,9 @@ import {Camera} from "./components/com_camera.js";
 import {loop_start, loop_stop} from "./loop.js";
 import {sys_camera} from "./systems/sys_camera.js";
 import {sys_collide} from "./systems/sys_collide.js";
-import {sys_control_player} from "./systems/sys_control_player.js";
+import {sys_control_keyboard} from "./systems/sys_control_keyboard.js";
+import {sys_control_mouse} from "./systems/sys_control_mouse.js";
+import {sys_control_pick} from "./systems/sys_control_pick.js";
 import {sys_draw} from "./systems/sys_draw.js";
 import {sys_framerate} from "./systems/sys_framerate.js";
 import {sys_highlight} from "./systems/sys_highlight.js";
@@ -81,6 +83,16 @@ export class Game {
             this.InputDelta.MouseX = evt.movementX;
             this.InputDelta.MouseY = evt.movementY;
         });
+        window.addEventListener("keydown", (evt) => {
+            if (!evt.repeat) {
+                this.InputState[evt.code] = 1;
+                this.InputDelta[evt.code] = 1;
+            }
+        });
+        window.addEventListener("keyup", (evt) => {
+            this.InputState[evt.code] = 0;
+            this.InputDelta[evt.code] = -1;
+        });
 
         this.Gl.enable(GL_DEPTH_TEST);
         this.Gl.enable(GL_CULL_FACE);
@@ -100,7 +112,9 @@ export class Game {
         sys_pick(this, delta);
         sys_highlight(this, delta);
         sys_select(this, delta);
-        sys_control_player(this, delta);
+        sys_control_pick(this, delta);
+        sys_control_keyboard(this, delta);
+        sys_control_mouse(this, delta);
 
         // Game logic.
         sys_nav(this, delta);

@@ -3,7 +3,7 @@ import {Has} from "../world.js";
 
 const QUERY = Has.ControlPlayer | Has.NavAgent;
 
-export function sys_control_player(game: Game, delta: number) {
+export function sys_control_pick(game: Game, delta: number) {
     for (let i = 0; i < game.World.Signature.length; i++) {
         if ((game.World.Signature[i] & QUERY) == QUERY) {
             update(game, i);

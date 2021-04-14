@@ -1,6 +1,7 @@
 import {Camera} from "./components/com_camera.js";
 import {Children} from "./components/com_children.js";
 import {Collide} from "./components/com_collide.js";
+import {ControlPlayer} from "./components/com_control_player.js";
 import {Draw} from "./components/com_draw.js";
 import {Highlightable} from "./components/com_highlightable.js";
 import {Light} from "./components/com_light.js";
@@ -54,6 +55,7 @@ export class World {
     Camera: Array<Camera> = [];
     Children: Array<Children> = [];
     Collide: Array<Collide> = [];
+    ControlPlayer: Array<ControlPlayer> = [];
     Draw: Array<Draw> = [];
     Highlightable: Array<Highlightable> = [];
     Light: Array<Light> = [];
