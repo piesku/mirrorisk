@@ -1,4 +1,3 @@
-import {from_euler} from "../../common/quat.js";
 import {blueprint_camera} from "../blueprints/blu_camera.js";
 import {children} from "../components/com_children.js";
 import {collide} from "../components/com_collide.js";
@@ -47,10 +46,7 @@ export function scene_stage(game: Game) {
     game.Gl.clearColor(0.9, 0.9, 0.9, 1);
 
     // Camera.
-    instantiate(game, [
-        ...blueprint_camera(game),
-        transform([-15, 40, -25], from_euler([0, 0, 0, 0], 60, 180, 0)),
-    ]);
+    instantiate(game, [...blueprint_camera(game), transform([-16, 0, -40], [0, 1, 0, 0])]);
 
     // Directional light.
     instantiate(game, [transform([-1, 1, 1]), light_directional([1, 1, 1], 1.2)]);

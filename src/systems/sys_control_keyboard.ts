@@ -40,11 +40,11 @@ function update(game: Game, entity: Entity) {
         let move = game.World.Move[entity];
         if (game.InputState["ArrowLeft"]) {
             // Look left.
-            move.LocalRotations.push([0, 1, 0, 0]);
+            move.LocalRotations.push([0, -1, 0, 0]);
         }
         if (game.InputState["ArrowRight"]) {
             // Look right.
-            move.LocalRotations.push([0, -1, 0, 0]);
+            move.LocalRotations.push([0, 1, 0, 0]);
         }
     }
 
