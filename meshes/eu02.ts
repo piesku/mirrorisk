@@ -31,12 +31,12 @@ export function mesh_eu02(gl: WebGLRenderingContext): Mesh {
 
 // prettier-ignore
 let vertex_arr = Float32Array.from([
-    -9.89414, 0, -73.4668,
-    -11.7168, 0, -69.28,
-    -8.41699, 0, -68.3759,
-    -4.3812, 0, -71.2511,
-    -5.48907, 0, -73.8889,
-    -13.194, 0, -74.0544
+    9.89414, 0, -73.4668,
+    8.41699, 0, -68.3759,
+    11.7168, 0, -69.28,
+    4.3812, 0, -71.2511,
+    5.48907, 0, -73.8889,
+    13.194, 0, -74.0544
 ]);
 
 // prettier-ignore
@@ -54,8 +54,8 @@ let texcoord_arr = Float32Array.from([]);
 
 // prettier-ignore
 let index_arr = Uint16Array.from([
-    2, 0, 3,
-    1, 5, 0,
-    0, 4, 3,
+    0, 1, 3,
+    5, 2, 0,
+    4, 0, 3,
     2, 1, 0
 ]);

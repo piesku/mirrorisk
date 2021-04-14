@@ -49,7 +49,7 @@ export function scene_stage(game: Game) {
     // Camera.
     instantiate(game, [
         ...blueprint_camera(game),
-        transform([15, 40, -25], from_euler([0, 0, 0, 0], 60, 180, 0)),
+        transform([-15, 40, -25], from_euler([0, 0, 0, 0], 60, 180, 0)),
     ]);
 
     // Directional light.
@@ -73,7 +73,7 @@ export function scene_stage(game: Game) {
 
     // Cube 1.
     instantiate(game, [
-        transform([21, 0.5, -52]),
+        transform([-21, 0.5, -52]),
         control_player(),
         disable(Has.ControlPlayer),
         collide(true, Layer.None, Layer.None, [2, 2, 2]),
