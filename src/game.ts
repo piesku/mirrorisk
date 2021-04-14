@@ -95,18 +95,25 @@ export class Game {
 
     FrameUpdate(delta: number) {
         let now = performance.now();
+
+        // User input.
+        sys_pick(this, delta);
+        sys_highlight(this, delta);
+        sys_select(this, delta);
         sys_control_player(this, delta);
+
+        // Game logic.
         sys_nav(this, delta);
         sys_move(this, delta);
         sys_transform(this, delta);
         sys_collide(this, delta);
+
+        // Rendering.
         sys_camera(this, delta);
-        sys_pick(this, delta);
-        sys_highlight(this, delta);
-        sys_select(this, delta);
         sys_light(this, delta);
         sys_render(this, delta);
         sys_draw(this, delta);
+
         sys_framerate(this, delta, performance.now() - now);
     }
 }
