@@ -1,10 +1,7 @@
-import {Quat, Vec3} from "../../common/math.js";
 import {Entity, Game} from "../game.js";
 import {Has} from "../world.js";
 
 const QUERY = Has.Transform | Has.Move | Has.ControlPlayer;
-const AXIS_X: Vec3 = [1, 0, 0];
-const AXIS_Y: Vec3 = [0, 1, 0];
 
 export function sys_control_mouse(game: Game, delta: number) {
     for (let i = 0; i < game.World.Signature.length; i++) {
@@ -13,8 +10,6 @@ export function sys_control_mouse(game: Game, delta: number) {
         }
     }
 }
-
-let rotation: Quat = [0, 0, 0, 0];
 
 function update(game: Game, entity: Entity) {
     let control = game.World.ControlPlayer[entity];
