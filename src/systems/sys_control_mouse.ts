@@ -1,7 +1,7 @@
 import {Entity, Game} from "../game.js";
 import {Has} from "../world.js";
 
-const QUERY = Has.Transform | Has.Move | Has.ControlPlayer;
+const QUERY = Has.Move | Has.ControlPlayer;
 const SENSITIVITY = 0.1;
 
 export function sys_control_mouse(game: Game, delta: number) {
@@ -14,22 +14,21 @@ export function sys_control_mouse(game: Game, delta: number) {
 
 function update(game: Game, entity: Entity) {
     let control = game.World.ControlPlayer[entity];
-    let transform = game.World.Transform[entity];
+    let move = game.World.Move[entity];
 
     if (control.Move && game.InputState.Mouse0) {
         if (game.InputDelta.MouseX) {
-            transform.Translation[0] -= game.InputDelta.MouseX * SENSITIVITY;
-            transform.Dirty = true;
+            let amount = game.InputDelta.MouseX * SENSITIVITY;
+            move.Directions.push([amount, 0, 0]);
         }
 
         if (game.InputDelta.MouseY) {
-            transform.Translation[2] -= game.InputDelta.MouseY * SENSITIVITY;
-            transform.Dirty = true;
+            let amount = game.InputDelta.MouseY * SENSITIVITY;
+            move.Directions.push([0, 0, amount]);
         }
     }
 
-    if (game.InputDelta.WheelY) {
-        let move = game.World.Move[entity];
+    if (control.Zoom && game.InputDelta.WheelY) {
         move.Directions.push([0, 0, game.InputDelta.WheelY]);
     }
 }
