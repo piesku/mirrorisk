@@ -77,6 +77,7 @@ function update(game: Game, entity: Entity, pickables: Array<Collide>) {
                 if (hit) {
                     // Transform the intersection point back to the world space.
                     transform_point(hit.Point, hit.Point, transform.World);
+                    game.Pick.Entity = child;
                     game.Pick.Point = hit.Point;
                     game.Pick.TriIndex = hit.TriIndex;
                     return;

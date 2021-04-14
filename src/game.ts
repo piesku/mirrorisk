@@ -10,6 +10,7 @@ import {sys_collide} from "./systems/sys_collide.js";
 import {sys_control_player} from "./systems/sys_control_player.js";
 import {sys_draw} from "./systems/sys_draw.js";
 import {sys_framerate} from "./systems/sys_framerate.js";
+import {sys_highlight} from "./systems/sys_highlight.js";
 import {sys_light} from "./systems/sys_light.js";
 import {sys_move} from "./systems/sys_move.js";
 import {sys_nav} from "./systems/sys_nav.js";
@@ -101,6 +102,7 @@ export class Game {
         sys_collide(this, delta);
         sys_camera(this, delta);
         sys_pick(this, delta);
+        sys_highlight(this, delta);
         sys_select(this, delta);
         sys_light(this, delta);
         sys_render(this, delta);

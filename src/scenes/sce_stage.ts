@@ -5,6 +5,7 @@ import {collide} from "../components/com_collide.js";
 import {control_player} from "../components/com_control_player.js";
 import {disable} from "../components/com_disable.js";
 import {draw_selection} from "../components/com_draw.js";
+import {highlightable, HighlightableKind} from "../components/com_highlightable.js";
 import {light_directional} from "../components/com_light.js";
 import {move} from "../components/com_move.js";
 import {pickable} from "../components/com_pickable.js";
@@ -19,6 +20,7 @@ function blueprint_region(game: Game, idx: number) {
     return [
         transform(),
         pickable(game.Regions.Europe[idx]),
+        highlightable(HighlightableKind.Region),
         render_colored_diffuse(game.MaterialColoredDiffuseGouraud, game.Regions.Europe[idx], [
             0.3,
             0.3,
@@ -75,6 +77,7 @@ export function scene_stage(game: Game) {
         disable(Has.ControlPlayer),
         collide(true, Layer.None, Layer.None, [2, 2, 2]),
         pickable(),
+        highlightable(HighlightableKind.Unit),
         selectable(),
         move(10, 5),
         children(

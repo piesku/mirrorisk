@@ -1,4 +1,3 @@
-import {scale} from "../../common/vec3.js";
 import {Entity, Game} from "../game.js";
 import {Has} from "../world.js";
 
@@ -13,19 +12,11 @@ export function sys_select(game: Game, delta: number) {
 }
 
 function update(game: Game, entity: Entity) {
-    let transform = game.World.Transform[entity];
     let children = game.World.Children[entity];
     let selectable = game.World.Selectable[entity];
 
     if (game.Pick?.Entity === entity) {
         // When the cursor is over the entity…
-
-        // …highlight it
-        if (!selectable.Highlighted) {
-            selectable.Highlighted = true;
-            scale(transform.Scale, transform.Scale, 1.3);
-            transform.Dirty = true;
-        }
 
         // …select it if the user clicks.
         if (!selectable.Selected && game.InputDelta["Mouse0"] === -1) {
@@ -38,13 +29,6 @@ function update(game: Game, entity: Entity) {
         }
     } else {
         // When the cursor is not over the entity…
-
-        // …remove the highlight
-        if (selectable.Highlighted) {
-            selectable.Highlighted = false;
-            scale(transform.Scale, transform.Scale, 1 / 1.3);
-            transform.Dirty = true;
-        }
 
         // …deselect it if the user clicks.
         if (selectable.Selected && game.InputDelta["Mouse0"] === -1) {
