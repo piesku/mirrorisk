@@ -74,7 +74,7 @@ function draw_text(game: Game, draw: DrawText) {
 }
 
 function draw_selection(game: Game, draw: DrawSelection) {
-    let size = game.ViewportHeight * 0.06;
+    let size = game.ViewportHeight * 0.1;
     game.Context2D.strokeStyle = draw.Color;
     game.Context2D.strokeRect(-size / 2, -size / 2, size, size);
 }

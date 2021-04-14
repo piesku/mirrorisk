@@ -8,6 +8,7 @@ import {draw_selection} from "../components/com_draw.js";
 import {highlightable, HighlightableKind} from "../components/com_highlightable.js";
 import {light_directional} from "../components/com_light.js";
 import {move} from "../components/com_move.js";
+import {nav_agent} from "../components/com_nav_agent.js";
 import {pickable} from "../components/com_pickable.js";
 import {render_colored_diffuse, render_colored_unlit} from "../components/com_render1.js";
 import {selectable} from "../components/com_selectable.js";
@@ -48,7 +49,7 @@ export function scene_stage(game: Game) {
     // Camera.
     instantiate(game, [
         ...blueprint_camera(game),
-        transform([0, 75, 25], from_euler([0, 0, 0, 0], 60, 180, 0)),
+        transform([15, 40, -25], from_euler([0, 0, 0, 0], 60, 180, 0)),
     ]);
 
     // Directional light.
@@ -72,13 +73,14 @@ export function scene_stage(game: Game) {
 
     // Cube 1.
     instantiate(game, [
-        transform([0, 0, 0]),
+        transform([21, 0.5, -52]),
         control_player(),
         disable(Has.ControlPlayer),
         collide(true, Layer.None, Layer.None, [2, 2, 2]),
         pickable(),
         highlightable(HighlightableKind.Unit),
         selectable(),
+        nav_agent(),
         move(10, 5),
         children(
             [transform(), draw_selection("#ff0"), disable(Has.Draw)],
@@ -86,7 +88,7 @@ export function scene_stage(game: Game) {
                 transform(undefined, undefined, [2, 2, 2]),
                 render_colored_diffuse(game.MaterialColoredDiffuseGouraud, game.MeshCube, [
                     1,
-                    0,
+                    1,
                     0,
                     1,
                 ]),
