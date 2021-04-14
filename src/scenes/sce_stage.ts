@@ -46,7 +46,7 @@ export function scene_stage(game: Game) {
     game.Gl.clearColor(0.9, 0.9, 0.9, 1);
 
     // Camera.
-    instantiate(game, [...blueprint_camera(game), transform([-16, 0, -40], [0, 1, 0, 0])]);
+    instantiate(game, [...blueprint_camera(game), transform([-25, 0, -50], [0, 1, 0, 0])]);
 
     // Directional light.
     instantiate(game, [transform([-1, 1, 1]), light_directional([1, 1, 1], 1.2)]);
@@ -70,7 +70,7 @@ export function scene_stage(game: Game) {
     // Cube 1.
     instantiate(game, [
         transform([-21, 0.5, -52]),
-        control_player(false, 0, 0),
+        control_player(false, false, false, false),
         disable(Has.ControlPlayer),
         collide(true, Layer.None, Layer.None, [2, 2, 2]),
         pickable(),

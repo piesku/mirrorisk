@@ -83,6 +83,9 @@ export class Game {
             this.InputDelta.MouseX = evt.movementX;
             this.InputDelta.MouseY = evt.movementY;
         });
+        this.Ui.addEventListener("wheel", (evt) => {
+            this.InputDelta.WheelY = evt.deltaY;
+        });
         window.addEventListener("keydown", (evt) => {
             if (!evt.repeat) {
                 this.InputState[evt.code] = 1;
