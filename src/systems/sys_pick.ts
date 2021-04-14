@@ -2,6 +2,7 @@ import {get_translation} from "../../common/mat4.js";
 import {Vec3} from "../../common/math.js";
 import {ray_intersect_aabb, ray_intersect_mesh} from "../../common/raycast.js";
 import {normalize, subtract, transform_direction, transform_point} from "../../common/vec3.js";
+import {query_all} from "../components/com_children.js";
 import {Collide} from "../components/com_collide.js";
 import {Entity, Game} from "../game.js";
 import {Has} from "../world.js";
@@ -59,25 +60,27 @@ function update(game: Game, entity: Entity, pickables: Array<Collide>) {
             Point: hit.Point,
         };
 
-        let pickable = game.World.Pickable[entity];
-        if (pickable.Mesh) {
-            // The ray in the pickable's self space.
-            let origin_self: Vec3 = [0, 0, 0];
-            let direction_self: Vec3 = [0, 0, 0];
+        for (let child of query_all(game.World, entity, Has.Pickable)) {
+            let pickable = game.World.Pickable[child];
+            if (pickable.Mesh) {
+                // The ray in the pickable's self space.
+                let origin_self: Vec3 = [0, 0, 0];
+                let direction_self: Vec3 = [0, 0, 0];
 
-            let transform = game.World.Transform[entity];
-            // Transform the ray to the pickable's space, which is cheaper than
-            // transforming all vertices of the pickable to the world space.
-            transform_point(origin_self, origin, transform.Self);
-            transform_direction(direction_self, direction, transform.Self);
+                let transform = game.World.Transform[entity];
+                // Transform the ray to the pickable's space, which is cheaper than
+                // transforming all vertices of the pickable to the world space.
+                transform_point(origin_self, origin, transform.Self);
+                transform_direction(direction_self, direction, transform.Self);
 
-            let hit = ray_intersect_mesh(pickable.Mesh, origin, direction);
-            if (hit) {
-                // Transform the intersection point back to the world space.
-                transform_point(hit.Point, hit.Point, transform.World);
-                game.Pick.Point = hit.Point;
-                game.Pick.TriIndex = hit.TriIndex;
-                return;
+                let hit = ray_intersect_mesh(pickable.Mesh, origin, direction);
+                if (hit) {
+                    // Transform the intersection point back to the world space.
+                    transform_point(hit.Point, hit.Point, transform.World);
+                    game.Pick.Point = hit.Point;
+                    game.Pick.TriIndex = hit.TriIndex;
+                    return;
+                }
             }
         }
     }

@@ -31,12 +31,14 @@ export function destroy_entity(world: World, entity: Entity) {
 }
 
 type Mixin = (game: Game, entity: Entity) => void;
-export type Blueprint = Array<Mixin>;
+export type Blueprint = Array<Mixin | false>;
 
 export function instantiate(game: Game, blueprint: Blueprint) {
     let entity = create_entity(game.World);
     for (let mixin of blueprint) {
-        mixin(game, entity);
+        if (mixin) {
+            mixin(game, entity);
+        }
     }
     return entity;
 }
