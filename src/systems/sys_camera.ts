@@ -14,14 +14,14 @@ export function sys_camera(game: Game, delta: number) {
         game.ViewportResized = true;
     }
 
-    game.Cameras = [];
+    game.Camera = undefined;
     for (let i = 0; i < game.World.Signature.length; i++) {
         if ((game.World.Signature[i] & QUERY) === QUERY) {
             let camera = game.World.Camera[i];
+            game.Camera = i;
 
             if (camera.Kind === CameraKind.Display) {
                 update_display(game, i, camera);
-                game.Cameras.push(camera);
             }
         }
     }

@@ -7,11 +7,16 @@ import {Collide} from "../components/com_collide.js";
 import {Entity, Game} from "../game.js";
 import {Has} from "../world.js";
 
-const QUERY = Has.Transform | Has.Camera | Has.Pick;
-const TARGET = Has.Transform | Has.Collide | Has.Pickable;
+const QUERY = Has.Pickable;
+const TARGET = Has.Transform | Has.Collide;
 
 export function sys_pick(game: Game, delta: number) {
-    game.Pick = undefined;
+    for (let i = 0; i < game.World.Signature.length; i++) {
+        if ((game.World.Signature[i] & QUERY) == QUERY) {
+            let pickable = game.World.Pickable[i];
+            pickable.Hover = false;
+        }
+    }
 
     let pickables: Array<Collide> = [];
     for (let i = 0; i < game.World.Signature.length; i++) {
@@ -20,10 +25,9 @@ export function sys_pick(game: Game, delta: number) {
         }
     }
 
-    for (let i = 0; i < game.World.Signature.length; i++) {
-        if ((game.World.Signature[i] & QUERY) == QUERY) {
-            update(game, i, pickables);
-        }
+    game.Picked = undefined;
+    if (game.Camera) {
+        update(game, game.Camera, pickables);
     }
 }
 
@@ -49,19 +53,14 @@ function update(game: Game, entity: Entity, pickables: Array<Collide>) {
     subtract(direction, target, origin);
     normalize(direction, direction);
 
-    let hit = ray_intersect_aabb(pickables, origin, direction);
-    if (hit) {
-        let collider = hit.Collider as Collide;
+    let hit_aabb = ray_intersect_aabb(pickables, origin, direction);
+    if (hit_aabb) {
+        let collider = hit_aabb.Collider as Collide;
         let entity = collider.Entity;
-
-        game.Pick = {
-            Entity: entity,
-            Collider: collider,
-            Point: hit.Point,
-        };
 
         for (let child of query_all(game.World, entity, Has.Pickable)) {
             let pickable = game.World.Pickable[child];
+
             if (pickable.Mesh) {
                 // The ray in the pickable's self space.
                 let origin_self: Vec3 = [0, 0, 0];
@@ -73,15 +72,24 @@ function update(game: Game, entity: Entity, pickables: Array<Collide>) {
                 transform_point(origin_self, origin, transform.Self);
                 transform_direction(direction_self, direction, transform.Self);
 
-                let hit = ray_intersect_mesh(pickable.Mesh, origin, direction);
-                if (hit) {
+                let hit_mesh = ray_intersect_mesh(pickable.Mesh, origin, direction);
+                if (hit_mesh) {
+                    pickable.Hover = true;
                     // Transform the intersection point back to the world space.
-                    transform_point(hit.Point, hit.Point, transform.World);
-                    game.Pick.Entity = child;
-                    game.Pick.Point = hit.Point;
-                    game.Pick.TriIndex = hit.TriIndex;
+                    transform_point(hit_mesh.Point, hit_mesh.Point, transform.World);
+                    game.Picked = {
+                        Entity: child,
+                        Point: hit_mesh.Point,
+                    };
                     return;
                 }
+            } else {
+                pickable.Hover = true;
+                game.Picked = {
+                    Entity: child,
+                    Point: hit_aabb.Point,
+                };
+                return;
             }
         }
     }
@@ -89,7 +97,5 @@ function update(game: Game, entity: Entity, pickables: Array<Collide>) {
 
 export interface Picked {
     Entity: Entity;
-    Collider: Collide;
     Point: Vec3;
-    TriIndex?: number;
 }

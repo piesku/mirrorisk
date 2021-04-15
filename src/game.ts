@@ -4,7 +4,6 @@ import {mat1_colored_diffuse_gouraud} from "../materials/mat1_colored_diffuse_go
 import {mat1_colored_unlit_line} from "../materials/mat1_colored_unlit_line.js";
 import {mesh_cube} from "../meshes/cube.js";
 import {mesh_soldier} from "../meshes/soldier.js";
-import {Camera} from "./components/com_camera.js";
 import {loop_start, loop_stop} from "./loop.js";
 import {sys_camera} from "./systems/sys_camera.js";
 import {sys_collide} from "./systems/sys_collide.js";
@@ -54,16 +53,17 @@ export class Game {
     MeshCube = mesh_cube(this.Gl);
     MeshSoldier = mesh_soldier(this.Gl);
 
-    Regions: Regions = {
-        Europe: [],
-    };
+    TerritoryMeshes: Array<Array<Mesh>> = [];
+    TerritoryGraph: Record<number, Array<number>> = {};
+    TerritoryEntities: Record<number, Entity> = {};
 
     // The rendering pipeline supports 8 lights.
     LightPositions = new Float32Array(4 * 8);
     LightDetails = new Float32Array(4 * 8);
-    Cameras: Array<Camera> = [];
 
-    Pick?: Picked;
+    Camera?: Entity;
+    Picked?: Picked;
+    Selected?: Entity;
 
     constructor() {
         document.addEventListener("visibilitychange", () =>
@@ -115,8 +115,8 @@ export class Game {
 
         // User input.
         sys_pick(this, delta);
-        sys_highlight(this, delta);
         sys_select(this, delta);
+        sys_highlight(this, delta);
         sys_control_pick(this, delta);
         sys_control_keyboard(this, delta);
         sys_control_mouse(this, delta);
@@ -139,8 +139,4 @@ export class Game {
 
 export const enum Layer {
     None = 0,
-}
-
-interface Regions {
-    Europe: Array<Mesh>;
 }

@@ -13,15 +13,15 @@ let game = new Game();
 // @ts-ignore
 window.game = game;
 
-game.Regions.Europe.push(
+game.TerritoryMeshes[0] = [
     mesh_eu01(game.Gl),
     mesh_eu02(game.Gl),
     mesh_eu03(game.Gl),
     mesh_eu04(game.Gl),
     mesh_eu05(game.Gl),
     mesh_eu06(game.Gl),
-    mesh_eu07(game.Gl)
-);
+    mesh_eu07(game.Gl),
+];
 
 scene_stage(game);
 loop_start(game);

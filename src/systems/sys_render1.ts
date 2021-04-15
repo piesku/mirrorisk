@@ -14,7 +14,7 @@ import {ColoredSpecularLayout} from "../../materials/layout_colored_specular.js"
 import {ColoredUnlitLayout} from "../../materials/layout_colored_unlit.js";
 import {TexturedDiffuseLayout} from "../../materials/layout_textured_diffuse.js";
 import {TexturedUnlitLayout} from "../../materials/layout_textured_unlit.js";
-import {CameraDisplay, CameraEye, CameraFramebuffer, CameraKind} from "../components/com_camera.js";
+import {CameraDisplay, CameraEye} from "../components/com_camera.js";
 import {
     Render,
     RenderColoredDiffuse,
@@ -40,15 +40,9 @@ interface Game1 extends Game {
 }
 
 export function sys_render(game: Game1, delta: number) {
-    for (let camera of game.Cameras) {
-        switch (camera.Kind) {
-            case CameraKind.Display:
-                render_display(game, camera);
-                break;
-            case CameraKind.Framebuffer:
-                render_framebuffer(game, camera);
-                break;
-        }
+    if (game.Camera) {
+        let camera = game.World.Camera[game.Camera];
+        render_display(game, camera);
     }
 }
 
@@ -58,14 +52,6 @@ function render_display(game: Game1, camera: CameraDisplay) {
     game.Gl.clearColor(...camera.ClearColor);
     game.Gl.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     render(game, camera);
-}
-
-function render_framebuffer(game: Game1, camera: CameraFramebuffer) {
-    game.Gl.bindFramebuffer(GL_FRAMEBUFFER, camera.Target);
-    game.Gl.viewport(0, 0, camera.ViewportWidth, camera.ViewportHeight);
-    game.Gl.clearColor(...camera.ClearColor);
-    game.Gl.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    render(game, camera, camera.RenderTexture);
 }
 
 function render(game: Game1, eye: CameraEye, current_target?: WebGLTexture) {
