@@ -108,7 +108,7 @@ export function scene_stage(game: Game) {
             control_player(false, false, false, false),
             disable(Has.ControlPlayer),
             collide(true, Layer.None, Layer.None, [2, 6, 2]),
-            pickable_unit([1, 1, 0, 1], [1, 0.5, 0, 1], [1, 0, 0, 1]),
+            // pickable_unit([1, 1, 0, 1], [1, 0.5, 0, 1], [1, 0, 0, 1]),
             selectable(),
             nav_agent(2),
             move(10, 5),
@@ -118,8 +118,8 @@ export function scene_stage(game: Game) {
                     transform(),
                     render_colored_diffuse(game.MaterialColoredDiffuseGouraud, game.MeshSoldier, [
                         1,
-                        1,
                         0,
+                        1,
                         1,
                     ]),
                 ]
