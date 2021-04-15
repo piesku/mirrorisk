@@ -1,6 +1,6 @@
-# New Project
+# Risk
 
-This project is based on [Goodluck](https://github.com/piesku/goodluck), a hackable template for creating small and fast browser games.
+Risk is based on [Goodluck](https://github.com/piesku/goodluck), a hackable template for creating small and fast browser games.
 
 ## Running Locally
 
@@ -25,3 +25,6 @@ If you have the 7-Zip command line utility installed (`p7zip-full` on Ubuntu), y
 
     make -C play index.zip
 
+## Deployed build
+
+https://michalbe.github.io/risk/index.html
