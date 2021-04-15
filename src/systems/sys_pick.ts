@@ -4,13 +4,17 @@ import {ray_intersect_aabb, ray_intersect_mesh} from "../../common/raycast.js";
 import {normalize, subtract, transform_direction, transform_point} from "../../common/vec3.js";
 import {query_all} from "../components/com_children.js";
 import {Collide} from "../components/com_collide.js";
-import {Entity, Game} from "../game.js";
+import {Entity, Game, Turn} from "../game.js";
 import {Has} from "../world.js";
 
 const QUERY = Has.Pickable;
 const TARGET = Has.Transform | Has.Collide;
 
 export function sys_pick(game: Game, delta: number) {
+    if (game.Turn !== Turn.Player) {
+        return;
+    }
+
     for (let i = 0; i < game.World.Signature.length; i++) {
         if ((game.World.Signature[i] & QUERY) == QUERY) {
             let pickable = game.World.Pickable[i];
