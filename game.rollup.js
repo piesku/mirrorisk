@@ -4323,7 +4323,7 @@
         cancelAnimationFrame(raf);
     }
 
-    function copy(out, a) {
+    function copy$1(out, a) {
         out[0] = a[0];
         out[1] = a[1];
         out[2] = a[2];
@@ -4563,13 +4563,13 @@
                 window.innerHeight;
             game.ViewportResized = true;
         }
-        game.Cameras = [];
+        game.Camera = undefined;
         for (let i = 0; i < game.World.Signature.length; i++) {
             if ((game.World.Signature[i] & QUERY$d) === QUERY$d) {
                 let camera = game.World.Camera[i];
+                game.Camera = i;
                 if (camera.Kind === 0 /* Display */) {
                     update_display(game, i, camera);
-                    game.Cameras.push(camera);
                 }
             }
         }
@@ -4744,11 +4744,11 @@
     function sys_control_keyboard(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
             if ((game.World.Signature[i] & QUERY$b) === QUERY$b) {
-                update$8(game, i);
+                update$7(game, i);
             }
         }
     }
-    function update$8(game, entity) {
+    function update$7(game, entity) {
         let control = game.World.ControlPlayer[entity];
         if (control.Yaw) {
             // Yaw is applied relative to the entity's local space; the Y axis is
@@ -4783,11 +4783,11 @@
     function sys_control_mouse(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
             if ((game.World.Signature[i] & QUERY$a) === QUERY$a) {
-                update$7(game, i);
+                update$6(game, i);
             }
         }
     }
-    function update$7(game, entity) {
+    function update$6(game, entity) {
         let control = game.World.ControlPlayer[entity];
         let move = game.World.Move[entity];
         if (control.Move && game.InputState.Mouse0) {
@@ -4809,15 +4809,19 @@
     function sys_control_pick(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
             if ((game.World.Signature[i] & QUERY$9) == QUERY$9) {
-                update$6(game, i);
+                update$5(game, i);
             }
         }
     }
-    function update$6(game, entity) {
+    function update$5(game, entity) {
         let agent = game.World.NavAgent[entity];
-        if (game.InputDelta["Mouse2"] === 1 && game.Pick) {
-            agent.Destination = game.Pick.Point;
+        if (game.InputDelta["Mouse2"] === 1 && game.Picked && agent.Actions > 0) {
+            let territory_entity = game.Picked.Entity;
+            let territory = game.World.Territory[territory_entity];
+            agent.TerritoryId = territory.Id;
+            agent.Destination = game.Picked.Point;
             agent.Destination[1] += 0.5;
+            agent.Actions -= 1;
         }
     }
 
@@ -4893,56 +4897,78 @@
         }
     }
 
-    const QUERY$7 = 32 /* Highlightable */;
+    function copy(out, a) {
+        out[0] = a[0];
+        out[1] = a[1];
+        out[2] = a[2];
+        out[3] = a[3];
+        return out;
+    }
+
+    const QUERY$7 = 512 /* Pickable */;
     function sys_highlight(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
             if ((game.World.Signature[i] & QUERY$7) == QUERY$7) {
-                update$5(game, i);
+                let pickable = game.World.Pickable[i];
+                switch (pickable.Kind) {
+                    case 0 /* Territory */: {
+                        update_territory(game, i);
+                        break;
+                    }
+                    case 1 /* Unit */: {
+                        update_unit(game, i);
+                        break;
+                    }
+                }
             }
         }
     }
-    function update$5(game, entity) {
-        var _a;
-        let highlightable = game.World.Highlightable[entity];
-        if (((_a = game.Pick) === null || _a === void 0 ? void 0 : _a.Entity) === entity) {
-            // When the cursor is over the entity…
-            // …highlight it.
-            if (!highlightable.Highlighted) {
-                highlightable.Highlighted = true;
-                switch (highlightable.Kind) {
-                    case 0 /* Region */: {
-                        let render = game.World.Render[entity];
-                        render.Color[0] += 0.5;
-                        break;
-                    }
-                    case 1 /* Unit */: {
-                        let mesh = game.World.Children[entity].Children[1];
-                        let render = game.World.Render[mesh];
-                        render.Color[0] += 1;
-                        break;
-                    }
+    function update_territory(game, entity) {
+        let pickable = game.World.Pickable[entity];
+        let render = game.World.Render[entity];
+        if (game.Selected) {
+            let nav_agent = game.World.NavAgent[game.Selected];
+            let territory = game.World.Territory[entity];
+            if (nav_agent.TerritoryId === territory.Id) {
+                // The selected unit is on this terrain tile.
+                copy(render.Color, pickable.ColorSelected);
+            }
+            else if (nav_agent.Actions > 0 &&
+                game.TerritoryGraph[territory.Id].includes(nav_agent.TerritoryId)) {
+                // The selected unit is on a neighboring tile. The current tile is a
+                // possible movement and attach target.
+                copy(render.Color, pickable.ColorReady);
+                if (pickable.Hover) {
+                    render.Color[1] += 0.2;
                 }
+            }
+            else {
+                copy(render.Color, pickable.ColorIdle);
             }
         }
+        else if (pickable.Hover) {
+            copy(render.Color, pickable.ColorHover);
+        }
         else {
-            // When the cursor is not over the entity…
-            // …remove the highlight.
-            if (highlightable.Highlighted) {
-                highlightable.Highlighted = false;
-                switch (highlightable.Kind) {
-                    case 0 /* Region */: {
-                        let render = game.World.Render[entity];
-                        render.Color[0] -= 0.5;
-                        break;
-                    }
-                    case 1 /* Unit */: {
-                        let mesh = game.World.Children[entity].Children[1];
-                        let render = game.World.Render[mesh];
-                        render.Color[0] -= 1;
-                        break;
-                    }
-                }
+            copy(render.Color, pickable.ColorIdle);
+        }
+    }
+    function update_unit(game, entity) {
+        let pickable = game.World.Pickable[entity];
+        let selectable = game.World.Selectable[entity];
+        let mesh_entity = game.World.Children[entity].Children[1];
+        let render = game.World.Render[mesh_entity];
+        if (selectable.Selected) {
+            copy(render.Color, pickable.ColorSelected);
+            if (pickable.Hover) {
+                render.Color[1] += 0.3;
             }
+        }
+        else if (pickable.Hover) {
+            copy(render.Color, pickable.ColorHover);
+        }
+        else {
+            copy(render.Color, pickable.ColorIdle);
         }
     }
 
@@ -5130,7 +5156,7 @@
         if (agent.Destination) {
             let transform = game.World.Transform[entity];
             let destination = [0, 0, 0];
-            copy(destination, agent.Destination);
+            copy$1(destination, agent.Destination);
             let position = [0, 0, 0];
             get_translation(position, transform.World);
             let distance_to_destination = distance_squared(position, agent.Destination);
@@ -5331,20 +5357,24 @@
         }
     }
 
-    const QUERY$3 = 8192 /* Transform */ | 1 /* Camera */ | 512 /* Pick */;
-    const TARGET = 8192 /* Transform */ | 4 /* Collide */ | 1024 /* Pickable */;
+    const QUERY$3 = 512 /* Pickable */;
+    const TARGET = 8192 /* Transform */ | 4 /* Collide */;
     function sys_pick(game, delta) {
-        game.Pick = undefined;
+        for (let i = 0; i < game.World.Signature.length; i++) {
+            if ((game.World.Signature[i] & QUERY$3) == QUERY$3) {
+                let pickable = game.World.Pickable[i];
+                pickable.Hover = false;
+            }
+        }
         let pickables = [];
         for (let i = 0; i < game.World.Signature.length; i++) {
             if ((game.World.Signature[i] & TARGET) == TARGET) {
                 pickables.push(game.World.Collide[i]);
             }
         }
-        for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$3) == QUERY$3) {
-                update$1(game, i, pickables);
-            }
+        game.Picked = undefined;
+        if (game.Camera) {
+            update$1(game, game.Camera, pickables);
         }
     }
     function update$1(game, entity, pickables) {
@@ -5364,16 +5394,11 @@
         let direction = [0, 0, 0];
         subtract(direction, target, origin);
         normalize(direction, direction);
-        let hit = ray_intersect_aabb(pickables, origin, direction);
-        if (hit) {
-            let collider = hit.Collider;
+        let hit_aabb = ray_intersect_aabb(pickables, origin, direction);
+        if (hit_aabb) {
+            let collider = hit_aabb.Collider;
             let entity = collider.Entity;
-            game.Pick = {
-                Entity: entity,
-                Collider: collider,
-                Point: hit.Point,
-            };
-            for (let child of query_all(game.World, entity, 1024 /* Pickable */)) {
+            for (let child of query_all(game.World, entity, 512 /* Pickable */)) {
                 let pickable = game.World.Pickable[child];
                 if (pickable.Mesh) {
                     // The ray in the pickable's self space.
@@ -5384,31 +5409,35 @@
                     // transforming all vertices of the pickable to the world space.
                     transform_point(origin_self, origin, transform.Self);
                     transform_direction(direction_self, direction, transform.Self);
-                    let hit = ray_intersect_mesh(pickable.Mesh, origin, direction);
-                    if (hit) {
+                    let hit_mesh = ray_intersect_mesh(pickable.Mesh, origin, direction);
+                    if (hit_mesh) {
+                        pickable.Hover = true;
                         // Transform the intersection point back to the world space.
-                        transform_point(hit.Point, hit.Point, transform.World);
-                        game.Pick.Entity = child;
-                        game.Pick.Point = hit.Point;
-                        game.Pick.TriIndex = hit.TriIndex;
+                        transform_point(hit_mesh.Point, hit_mesh.Point, transform.World);
+                        game.Picked = {
+                            Entity: child,
+                            Point: hit_mesh.Point,
+                        };
                         return;
                     }
+                }
+                else {
+                    pickable.Hover = true;
+                    game.Picked = {
+                        Entity: child,
+                        Point: hit_aabb.Point,
+                    };
+                    return;
                 }
             }
         }
     }
 
-    const QUERY$2 = 8192 /* Transform */ | 2048 /* Render */;
+    const QUERY$2 = 8192 /* Transform */ | 1024 /* Render */;
     function sys_render(game, delta) {
-        for (let camera of game.Cameras) {
-            switch (camera.Kind) {
-                case 0 /* Display */:
-                    render_display(game, camera);
-                    break;
-                case 1 /* Framebuffer */:
-                    render_framebuffer(game, camera);
-                    break;
-            }
+        if (game.Camera) {
+            let camera = game.World.Camera[game.Camera];
+            render_display(game, camera);
         }
     }
     function render_display(game, camera) {
@@ -5417,13 +5446,6 @@
         game.Gl.clearColor(...camera.ClearColor);
         game.Gl.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         render(game, camera);
-    }
-    function render_framebuffer(game, camera) {
-        game.Gl.bindFramebuffer(GL_FRAMEBUFFER, camera.Target);
-        game.Gl.viewport(0, 0, camera.ViewportWidth, camera.ViewportHeight);
-        game.Gl.clearColor(...camera.ClearColor);
-        game.Gl.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        render(game, camera, camera.RenderTexture);
     }
     function render(game, eye, current_target) {
         // Keep track of the current material to minimize switching.
@@ -5577,38 +5599,38 @@
         game.Gl.drawArrays(render.Material.Mode, 0, render.IndexCount);
     }
 
-    const QUERY$1 = 8192 /* Transform */ | 4096 /* Selectable */ | 2 /* Children */;
+    const QUERY$1 = 8192 /* Transform */ | 512 /* Pickable */ | 2048 /* Selectable */ | 2 /* Children */;
     function sys_select(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
             if ((game.World.Signature[i] & QUERY$1) == QUERY$1) {
                 update(game, i);
             }
         }
-    }
-    function update(game, entity) {
-        var _a;
-        let children = game.World.Children[entity];
-        let selectable = game.World.Selectable[entity];
-        if (((_a = game.Pick) === null || _a === void 0 ? void 0 : _a.Entity) === entity) {
-            // When the cursor is over the entity…
-            // …select it if the user clicks.
-            if (!selectable.Selected && game.InputDelta["Mouse0"] === -1) {
-                selectable.Selected = true;
-                game.World.Signature[entity] |= 8 /* ControlPlayer */;
-                // Selection box is the first child.
-                let selection = children.Children[0];
-                game.World.Signature[selection] |= 16 /* Draw */;
+        game.Selected = undefined;
+        for (let i = 0; i < game.World.Signature.length; i++) {
+            if ((game.World.Signature[i] & QUERY$1) == QUERY$1) {
+                let selectable = game.World.Selectable[i];
+                if (selectable.Selected) {
+                    game.Selected = i;
+                }
             }
         }
-        else {
-            // When the cursor is not over the entity…
-            // …deselect it if the user clicks.
-            if (selectable.Selected && game.InputDelta["Mouse0"] === -1) {
+    }
+    function update(game, entity) {
+        var _a, _b;
+        game.World.Children[entity];
+        let selectable = game.World.Selectable[entity];
+        if (game.InputDelta["Mouse0"] === -1) {
+            // When the user clicks…
+            // …select.
+            if (!selectable.Selected && ((_a = game.Picked) === null || _a === void 0 ? void 0 : _a.Entity) === entity) {
+                selectable.Selected = true;
+                game.World.Signature[entity] |= 8 /* ControlPlayer */;
+            }
+            // …deselect.
+            if (selectable.Selected && ((_b = game.Picked) === null || _b === void 0 ? void 0 : _b.Entity) !== entity) {
                 selectable.Selected = false;
                 game.World.Signature[entity] &= ~8 /* ControlPlayer */;
-                // Selection box is the first child.
-                let selection = children.Children[0];
-                game.World.Signature[selection] &= ~16 /* Draw */;
             }
         }
     }
@@ -5661,6 +5683,7 @@
             this.Pickable = [];
             this.Render = [];
             this.Selectable = [];
+            this.Territory = [];
             this.Transform = [];
         }
     }
@@ -5689,13 +5712,12 @@
             this.MaterialColoredDiffuseGouraud = mat1_colored_diffuse_gouraud(this.Gl);
             this.MeshCube = mesh_cube(this.Gl);
             this.MeshSoldier = mesh_soldier(this.Gl);
-            this.Regions = {
-                Europe: [],
-            };
+            this.TerritoryMeshes = [];
+            this.TerritoryGraph = {};
+            this.TerritoryEntities = {};
             // The rendering pipeline supports 8 lights.
             this.LightPositions = new Float32Array(4 * 8);
             this.LightDetails = new Float32Array(4 * 8);
-            this.Cameras = [];
             document.addEventListener("visibilitychange", () => document.hidden ? loop_stop() : loop_start(this));
             this.Ui.addEventListener("contextmenu", (evt) => evt.preventDefault());
             this.Ui.addEventListener("mousedown", (evt) => {
@@ -5738,8 +5760,8 @@
             let now = performance.now();
             // User input.
             sys_pick(this);
-            sys_highlight(this);
             sys_select(this);
+            sys_highlight(this);
             sys_control_pick(this);
             sys_control_keyboard(this);
             sys_control_mouse(this);
@@ -5818,12 +5840,6 @@
         };
     }
 
-    function pick() {
-        return (game, entity) => {
-            game.World.Signature[entity] |= 512 /* Pick */;
-        };
-    }
-
     function transform(translation = [0, 0, 0], rotation = [0, 0, 0, 1], scale = [1, 1, 1]) {
         return (game, entity) => {
             game.World.Signature[entity] |= 8192 /* Transform */;
@@ -5847,7 +5863,6 @@
                 control_player(false, false, false, true),
                 move(200, 0),
                 camera_display_perspective(1, 0.1, 1000),
-                pick(),
             ]),
         ];
     }
@@ -5896,16 +5911,6 @@
         };
     }
 
-    function highlightable(kind) {
-        return (game, entity) => {
-            game.World.Signature[entity] |= 32 /* Highlightable */;
-            game.World.Highlightable[entity] = {
-                Kind: kind,
-                Highlighted: false,
-            };
-        };
-    }
-
     function light_directional(color = [1, 1, 1], range = 1) {
         return (game, entity) => {
             game.World.Signature[entity] |= 64 /* Light */;
@@ -5917,20 +5922,42 @@
         };
     }
 
-    function nav_agent() {
+    function nav_agent(territory_id) {
         return (game, entity) => {
             game.World.Signature[entity] |= 256 /* NavAgent */;
             game.World.NavAgent[entity] = {
+                TerritoryId: territory_id,
                 Destination: null,
+                // TODO Move to a dedicated component?
+                Actions: 1,
             };
         };
     }
 
-    function pickable(mesh) {
+    function pickable_territory(mesh, color_idle, color_hover, color_ready, color_selected) {
         return (game, entity) => {
-            game.World.Signature[entity] |= 1024 /* Pickable */;
+            game.World.Signature[entity] |= 512 /* Pickable */;
             game.World.Pickable[entity] = {
+                Kind: 0 /* Territory */,
                 Mesh: mesh,
+                Hover: false,
+                ColorIdle: color_idle,
+                ColorHover: color_hover,
+                ColorReady: color_ready,
+                ColorSelected: color_selected,
+            };
+        };
+    }
+    function pickable_unit(color_idle, color_hover, color_selected) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 512 /* Pickable */;
+            game.World.Pickable[entity] = {
+                Kind: 1 /* Unit */,
+                Hover: false,
+                ColorIdle: color_idle,
+                ColorHover: color_hover,
+                ColorReady: color_selected,
+                ColorSelected: color_selected,
             };
         };
     }
@@ -5952,7 +5979,7 @@
                 game.ExtVao.bindVertexArrayOES(null);
                 colored_diffuse_vaos.set(mesh, vao);
             }
-            game.World.Signature[entity] |= 2048 /* Render */;
+            game.World.Signature[entity] |= 1024 /* Render */;
             game.World.Render[entity] = {
                 Kind: 1 /* ColoredDiffuse */,
                 Material: material,
@@ -5966,24 +5993,33 @@
 
     function selectable() {
         return (game, entity) => {
-            game.World.Signature[entity] |= 4096 /* Selectable */;
+            game.World.Signature[entity] |= 2048 /* Selectable */;
             game.World.Selectable[entity] = {
                 Selected: false,
             };
         };
     }
 
-    function blueprint_region(game, idx) {
+    function territory(continent, index) {
+        return (game, entity) => {
+            let id = continent * 10 + index;
+            game.TerritoryEntities[id] = entity;
+            game.World.Signature[entity] |= 4096 /* Territory */;
+            game.World.Territory[entity] = {
+                Continent: continent,
+                Index: index,
+                Id: id,
+            };
+        };
+    }
+
+    function blueprint_region(game, continent, index) {
+        let mesh = game.TerritoryMeshes[continent][index - 1];
         return [
             transform(),
-            pickable(game.Regions.Europe[idx]),
-            highlightable(0 /* Region */),
-            render_colored_diffuse(game.MaterialColoredDiffuseGouraud, game.Regions.Europe[idx], [
-                0.3,
-                0.3,
-                0.8,
-                1,
-            ]),
+            pickable_territory(mesh, [0.3, 0.3, 0.8, 1], [0.3, 0.5, 0.8, 1], [0.3, 0.8, 0.3, 1], [0.3, 0.5, 0.8, 1]),
+            render_colored_diffuse(game.MaterialColoredDiffuseGouraud, mesh, [0.3, 0.3, 0.8, 1]),
+            territory(continent, index),
             children([
                 transform([0, 0.1, 0]),
                 false ,
@@ -5991,10 +6027,20 @@
         ];
     }
     function scene_stage(game) {
-        set_seed(Date.now());
+        set_seed(25);
         game.World = new World();
         game.ViewportResized = true;
         game.Gl.clearColor(0.9, 0.9, 0.9, 1);
+        game.TerritoryGraph = {
+            // Europe
+            1: [2, 3, 4, 7],
+            2: [1, 4, 35],
+            3: [1, 4, 5, 6, 7],
+            4: [1, 2, 3, 6],
+            5: [3, 6, 7, 13, 15, 57],
+            6: [3, 4, 5, 51, 57, 61],
+            7: [1, 3, 5, 15],
+        };
         // Camera.
         instantiate(game, [...blueprint_camera(), transform([-25, 0, -50], [0, 1, 0, 0])]);
         // Directional light.
@@ -6003,20 +6049,40 @@
         instantiate(game, [
             transform(),
             collide(false, 0 /* None */, 0 /* None */, [1000, 0.01, 1000]),
-            pickable(),
-            children(blueprint_region(game, 0), blueprint_region(game, 1), blueprint_region(game, 2), blueprint_region(game, 3), blueprint_region(game, 4), blueprint_region(game, 5), blueprint_region(game, 6)),
+            children(blueprint_region(game, 0 /* Europe */, 1), blueprint_region(game, 0 /* Europe */, 2), blueprint_region(game, 0 /* Europe */, 3), blueprint_region(game, 0 /* Europe */, 4), blueprint_region(game, 0 /* Europe */, 5), blueprint_region(game, 0 /* Europe */, 6), blueprint_region(game, 0 /* Europe */, 7)),
         ]);
-        // Units
-        for (let i = 0; i < 5; i++) {
+        // Units in Central Europe.
+        for (let i = 0; i < 3; i++) {
             instantiate(game, [
                 transform([-21 + float(-4, 4), 0, -52 + float(-4, 4)]),
                 control_player(false, false, false, false),
                 disable(8 /* ControlPlayer */),
                 collide(true, 0 /* None */, 0 /* None */, [2, 6, 2]),
-                pickable(),
-                highlightable(1 /* Unit */),
+                pickable_unit([1, 1, 0, 1], [1, 0.5, 0, 1], [1, 0, 0, 1]),
                 selectable(),
-                nav_agent(),
+                nav_agent(3),
+                move(10, 5),
+                children([transform(), draw_selection("#ff0"), disable(16 /* Draw */)], [
+                    transform(),
+                    render_colored_diffuse(game.MaterialColoredDiffuseGouraud, game.MeshSoldier, [
+                        1,
+                        1,
+                        0,
+                        1,
+                    ]),
+                ]),
+            ]);
+        }
+        // Units in Iceland.
+        for (let i = 0; i < 2; i++) {
+            instantiate(game, [
+                transform([7 + float(-3, 3), 0, -70 + float(-3, 3)]),
+                control_player(false, false, false, false),
+                disable(8 /* ControlPlayer */),
+                collide(true, 0 /* None */, 0 /* None */, [2, 6, 2]),
+                pickable_unit([1, 1, 0, 1], [1, 0.5, 0, 1], [1, 0, 0, 1]),
+                selectable(),
+                nav_agent(2),
                 move(10, 5),
                 children([transform(), draw_selection("#ff0"), disable(16 /* Draw */)], [
                     transform(),
@@ -6034,7 +6100,15 @@
     let game = new Game();
     // @ts-ignore
     window.game = game;
-    game.Regions.Europe.push(mesh_eu01(game.Gl), mesh_eu02(game.Gl), mesh_eu03(game.Gl), mesh_eu04(game.Gl), mesh_eu05(game.Gl), mesh_eu06(game.Gl), mesh_eu07(game.Gl));
+    game.TerritoryMeshes[0] = [
+        mesh_eu01(game.Gl),
+        mesh_eu02(game.Gl),
+        mesh_eu03(game.Gl),
+        mesh_eu04(game.Gl),
+        mesh_eu05(game.Gl),
+        mesh_eu06(game.Gl),
+        mesh_eu07(game.Gl),
+    ];
     scene_stage(game);
     loop_start(game);
 
