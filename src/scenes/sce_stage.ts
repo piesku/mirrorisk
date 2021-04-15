@@ -1,3 +1,4 @@
+import {float, set_seed} from "../../common/random.js";
 import {blueprint_camera} from "../blueprints/blu_camera.js";
 import {children} from "../components/com_children.js";
 import {collide} from "../components/com_collide.js";
@@ -41,6 +42,7 @@ function blueprint_region(game: Game, idx: number) {
 }
 
 export function scene_stage(game: Game) {
+    set_seed(Date.now());
     game.World = new World();
     game.ViewportResized = true;
     game.Gl.clearColor(0.9, 0.9, 0.9, 1);
@@ -54,7 +56,7 @@ export function scene_stage(game: Game) {
     // Europe
     instantiate(game, [
         transform(),
-        collide(false, Layer.None, Layer.None, [1000, 1, 1000]),
+        collide(false, Layer.None, Layer.None, [1000, 0.01, 1000]),
         pickable(),
         children(
             blueprint_region(game, 0),
@@ -67,28 +69,30 @@ export function scene_stage(game: Game) {
         ),
     ]);
 
-    // Unit 1.
-    instantiate(game, [
-        transform([-21, 0, -52]),
-        control_player(false, false, false, false),
-        disable(Has.ControlPlayer),
-        collide(true, Layer.None, Layer.None, [2, 2, 2]),
-        pickable(),
-        highlightable(HighlightableKind.Unit),
-        selectable(),
-        nav_agent(),
-        move(10, 5),
-        children(
-            [transform(), draw_selection("#ff0"), disable(Has.Draw)],
-            [
-                transform(),
-                render_colored_diffuse(game.MaterialColoredDiffuseGouraud, game.MeshSoldier, [
-                    1,
-                    1,
-                    0,
-                    1,
-                ]),
-            ]
-        ),
-    ]);
+    // Units
+    for (let i = 0; i < 5; i++) {
+        instantiate(game, [
+            transform([-21 + float(-4, 4), 0, -52 + float(-4, 4)]),
+            control_player(false, false, false, false),
+            disable(Has.ControlPlayer),
+            collide(true, Layer.None, Layer.None, [2, 6, 2]),
+            pickable(),
+            highlightable(HighlightableKind.Unit),
+            selectable(),
+            nav_agent(),
+            move(10, 5),
+            children(
+                [transform(), draw_selection("#ff0"), disable(Has.Draw)],
+                [
+                    transform(),
+                    render_colored_diffuse(game.MaterialColoredDiffuseGouraud, game.MeshSoldier, [
+                        1,
+                        1,
+                        0,
+                        1,
+                    ]),
+                ]
+            ),
+        ]);
+    }
 }
