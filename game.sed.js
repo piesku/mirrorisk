@@ -4893,7 +4893,7 @@ fps_span.textContent = (1 / delta).toFixed();
 }
 }
 
-const QUERY$7 = 8192 /* Transform */ | 32 /* Highlightable */;
+const QUERY$7 = 32 /* Highlightable */;
 function sys_highlight(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$7) == QUERY$7) {
@@ -4903,22 +4903,24 @@ update$5(game, i);
 }
 function update$5(game, entity) {
 var _a;
-let transform = game.World.Transform[entity];
 let highlightable = game.World.Highlightable[entity];
-let render = game.World.Render[entity];
 if (((_a = game.Pick) === null || _a === void 0 ? void 0 : _a.Entity) === entity) {
 
 
 if (!highlightable.Highlighted) {
 highlightable.Highlighted = true;
 switch (highlightable.Kind) {
-case 0 /* Region */:
+case 0 /* Region */: {
+let render = game.World.Render[entity];
 render.Color[0] += 0.5;
 break;
-case 1 /* Unit */:
-scale(transform.Scale, transform.Scale, 1.3);
-transform.Dirty = true;
+}
+case 1 /* Unit */: {
+let mesh = game.World.Children[entity].Children[1];
+let render = game.World.Render[mesh];
+render.Color[0] += 1;
 break;
+}
 }
 }
 }
@@ -4928,13 +4930,17 @@ else {
 if (highlightable.Highlighted) {
 highlightable.Highlighted = false;
 switch (highlightable.Kind) {
-case 0 /* Region */:
+case 0 /* Region */: {
+let render = game.World.Render[entity];
 render.Color[0] -= 0.5;
 break;
-case 1 /* Unit */:
-scale(transform.Scale, transform.Scale, 1 / 1.3);
-transform.Dirty = true;
+}
+case 1 /* Unit */: {
+let mesh = game.World.Children[entity].Children[1];
+let render = game.World.Render[mesh];
+render.Color[0] -= 1;
 break;
+}
 }
 }
 }
@@ -5751,6 +5757,18 @@ sys_framerate(this, delta, performance.now() - now);
 }
 }
 
+let seed = 1;
+function set_seed(new_seed) {
+seed = 198706 * new_seed;
+}
+function rand() {
+seed = (seed * 16807) % 2147483647;
+return (seed - 1) / 2147483646;
+}
+function float(min = 0, max = 1) {
+return rand() * (max - min) + min;
+}
+
 function camera_display_perspective(fovy, near, far, clear_color = [0.9, 0.9, 0.9, 1]) {
 return (game, entity) => {
 game.World.Signature[entity] |= 1 /* Camera */;
@@ -5973,6 +5991,7 @@ false ,
 ];
 }
 function scene_stage(game) {
+set_seed(Date.now());
 game.World = new World();
 game.ViewportResized = true;
 game.Gl.clearColor(0.9, 0.9, 0.9, 1);
@@ -5983,16 +6002,17 @@ instantiate(game, [transform([-1, 1, 1]), light_directional([1, 1, 1], 1)]);
 
 instantiate(game, [
 transform(),
-collide(false, 0 /* None */, 0 /* None */, [1000, 1, 1000]),
+collide(false, 0 /* None */, 0 /* None */, [1000, 0.01, 1000]),
 pickable(),
 children(blueprint_region(game, 0), blueprint_region(game, 1), blueprint_region(game, 2), blueprint_region(game, 3), blueprint_region(game, 4), blueprint_region(game, 5), blueprint_region(game, 6)),
 ]);
 
+for (let i = 0; i < 5; i++) {
 instantiate(game, [
-transform([-21, 0, -52]),
+transform([-21 + float(-4, 4), 0, -52 + float(-4, 4)]),
 control_player(false, false, false, false),
 disable(8 /* ControlPlayer */),
-collide(true, 0 /* None */, 0 /* None */, [2, 2, 2]),
+collide(true, 0 /* None */, 0 /* None */, [2, 6, 2]),
 pickable(),
 highlightable(1 /* Unit */),
 selectable(),
@@ -6008,6 +6028,7 @@ render_colored_diffuse(game.MaterialColoredDiffuseGouraud, game.MeshSoldier, [
 ]),
 ]),
 ]);
+}
 }
 
 let game = new Game();
