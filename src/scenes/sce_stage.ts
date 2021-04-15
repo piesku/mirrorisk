@@ -49,7 +49,7 @@ export function scene_stage(game: Game) {
     instantiate(game, [...blueprint_camera(game), transform([-25, 0, -50], [0, 1, 0, 0])]);
 
     // Directional light.
-    instantiate(game, [transform([-1, 1, 1]), light_directional([1, 1, 1], 1.2)]);
+    instantiate(game, [transform([-1, 1, 1]), light_directional([1, 1, 1], 1)]);
 
     // Europe
     instantiate(game, [
@@ -67,9 +67,9 @@ export function scene_stage(game: Game) {
         ),
     ]);
 
-    // Cube 1.
+    // Unit 1.
     instantiate(game, [
-        transform([-21, 0.5, -52]),
+        transform([-21, 0, -52]),
         control_player(false, false, false, false),
         disable(Has.ControlPlayer),
         collide(true, Layer.None, Layer.None, [2, 2, 2]),
@@ -81,8 +81,8 @@ export function scene_stage(game: Game) {
         children(
             [transform(), draw_selection("#ff0"), disable(Has.Draw)],
             [
-                transform(undefined, undefined, [2, 2, 2]),
-                render_colored_diffuse(game.MaterialColoredDiffuseGouraud, game.MeshCube, [
+                transform(),
+                render_colored_diffuse(game.MaterialColoredDiffuseGouraud, game.MeshSoldier, [
                     1,
                     1,
                     0,

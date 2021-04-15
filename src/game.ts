@@ -3,6 +3,7 @@ import {GL_CULL_FACE, GL_DEPTH_TEST} from "../common/webgl.js";
 import {mat1_colored_diffuse_gouraud} from "../materials/mat1_colored_diffuse_gouraud.js";
 import {mat1_colored_unlit_line} from "../materials/mat1_colored_unlit_line.js";
 import {mesh_cube} from "../meshes/cube.js";
+import {mesh_soldier} from "../meshes/soldier.js";
 import {Camera} from "./components/com_camera.js";
 import {loop_start, loop_stop} from "./loop.js";
 import {sys_camera} from "./systems/sys_camera.js";
@@ -51,6 +52,7 @@ export class Game {
     MaterialColoredUnlitLine = mat1_colored_unlit_line(this.Gl);
     MaterialColoredDiffuseGouraud = mat1_colored_diffuse_gouraud(this.Gl);
     MeshCube = mesh_cube(this.Gl);
+    MeshSoldier = mesh_soldier(this.Gl);
 
     Regions: Regions = {
         Europe: [],
