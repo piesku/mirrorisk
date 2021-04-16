@@ -3,7 +3,9 @@ import {Mesh} from "../common/material.js";
 import {GL_CULL_FACE, GL_DEPTH_TEST} from "../common/webgl.js";
 import {mat1_colored_specular_phong} from "../materials/mat1_colored_specular_phong.js";
 import {mat1_depth} from "../materials/mat1_depth.js";
+import {mesh_cannon} from "../meshes/cannon.js";
 import {mesh_cube} from "../meshes/cube.js";
+import {mesh_dragoon} from "../meshes/dragoon.js";
 import {mesh_soldier} from "../meshes/soldier.js";
 import {loop_start, loop_stop} from "./loop.js";
 import {sys_camera} from "./systems/sys_camera.js";
@@ -54,6 +56,8 @@ export class Game {
     MaterialColoredSpecular = mat1_colored_specular_phong(this.Gl);
     MeshCube = mesh_cube(this.Gl);
     MeshSoldier = mesh_soldier(this.Gl);
+    MeshDragoon = mesh_dragoon(this.Gl);
+    MeshCannon = mesh_cannon(this.Gl);
 
     TerritoryMeshes: Array<Array<Mesh>> = [];
     TerritoryGraph: Record<number, Array<number>> = {};
