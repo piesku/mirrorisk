@@ -95,7 +95,7 @@ let fragment = `
         float shadow_map_depth = texture2D(shadow_map, shadow_space_ndc.xy).x;
         if (shadow_map_depth < shadow_space_ndc.z - 0.001) {
             // In shadow.
-            gl_FragColor.rgb *= 0.1;
+            gl_FragColor.rgb *= 0.5;
         }
     }
 `;
