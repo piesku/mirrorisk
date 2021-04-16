@@ -18,11 +18,11 @@ function update(game: Game, entity: Entity) {
         // Yaw is applied relative to the entity's local space; the Y axis is
         // not affected by its current orientation.
         let move = game.World.Move[entity];
-        if (game.InputState["ArrowLeft"]) {
+        if (game.InputState["ArrowLeft"] || game.InputState["KeyA"]) {
             // Look left.
             move.LocalRotations.push([0, -1, 0, 0]);
         }
-        if (game.InputState["ArrowRight"]) {
+        if (game.InputState["ArrowRight"] || game.InputState["KeyD"]) {
             // Look right.
             move.LocalRotations.push([0, 1, 0, 0]);
         }
@@ -32,11 +32,11 @@ function update(game: Game, entity: Entity) {
         // Pitch is applied relative to the entity's self space; the X axis is
         // always aligned with its left and right sides.
         let move = game.World.Move[entity];
-        if (game.InputState["ArrowUp"]) {
+        if (game.InputState["ArrowUp"] || game.InputState["KeyW"]) {
             // Look up.
             move.SelfRotations.push([-1, 0, 0, 0]);
         }
-        if (game.InputState["ArrowDown"]) {
+        if (game.InputState["ArrowDown"] || game.InputState["KeyS"]) {
             // Look down.
             move.SelfRotations.push([1, 0, 0, 0]);
         }

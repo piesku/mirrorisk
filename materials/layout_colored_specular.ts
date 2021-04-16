@@ -9,6 +9,8 @@ export interface ColoredSpecularLayout {
     Shininess: WebGLUniformLocation;
     LightPositions: WebGLUniformLocation;
     LightDetails: WebGLUniformLocation;
+    ShadowMap: WebGLUniformLocation;
+    ShadowSpace: WebGLUniformLocation;
     // Attributes
     VertexPosition: GLint;
     VertexNormal: GLint;

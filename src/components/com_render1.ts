@@ -1,12 +1,6 @@
 import {Material, Mesh} from "../../common/material.js";
 import {Vec4} from "../../common/math.js";
-import {
-    GL_ARRAY_BUFFER,
-    GL_CW,
-    GL_DYNAMIC_DRAW,
-    GL_ELEMENT_ARRAY_BUFFER,
-    GL_FLOAT,
-} from "../../common/webgl.js";
+import {GL_ARRAY_BUFFER, GL_CW, GL_ELEMENT_ARRAY_BUFFER, GL_FLOAT} from "../../common/webgl.js";
 import {ColoredDiffuseLayout} from "../../materials/layout_colored_diffuse.js";
 import {ColoredSpecularLayout} from "../../materials/layout_colored_specular.js";
 import {ColoredUnlitLayout} from "../../materials/layout_colored_unlit.js";
@@ -20,8 +14,7 @@ export type Render =
     | RenderColoredDiffuse
     | RenderColoredSpecular
     | RenderTexturedUnlit
-    | RenderTexturedDiffuse
-    | RenderVertices;
+    | RenderTexturedDiffuse;
 
 export const enum RenderKind {
     ColoredUnlit,
@@ -29,7 +22,6 @@ export const enum RenderKind {
     ColoredSpecular,
     TexturedUnlit,
     TexturedDiffuse,
-    Vertices,
 }
 
 interface Game1 extends Game {
@@ -336,33 +328,6 @@ export function render_textured_diffuse(
             FrontFace: GL_CW,
             Vao: textured_diffuse_vaos.get(mesh)!,
             Texture: texture,
-            Color: color,
-        };
-    };
-}
-
-export interface RenderVertices {
-    Kind: RenderKind.Vertices;
-    Material: Material<ColoredUnlitLayout>;
-    FrontFace: GLenum;
-    VertexBuffer: WebGLBuffer;
-    IndexCount: number;
-    Color: Vec4;
-}
-
-export function render_vertices(material: Material<ColoredUnlitLayout>, max: number, color: Vec4) {
-    return (game: Game1, entity: Entity) => {
-        let vertex_buf = game.Gl.createBuffer()!;
-        game.Gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-        game.Gl.bufferData(GL_ARRAY_BUFFER, max * Float32Array.BYTES_PER_ELEMENT, GL_DYNAMIC_DRAW);
-
-        game.World.Signature[entity] |= Has.Render;
-        game.World.Render[entity] = {
-            Kind: RenderKind.Vertices,
-            Material: material,
-            FrontFace: GL_CW,
-            VertexBuffer: vertex_buf,
-            IndexCount: 0,
             Color: color,
         };
     };

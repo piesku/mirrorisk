@@ -1,8 +1,11 @@
+import {create_depth_target, DepthTarget} from "../common/framebuffer.js";
 import {Mesh} from "../common/material.js";
 import {GL_CULL_FACE, GL_DEPTH_TEST} from "../common/webgl.js";
-import {mat1_colored_diffuse_gouraud} from "../materials/mat1_colored_diffuse_gouraud.js";
-import {mat1_colored_unlit_line} from "../materials/mat1_colored_unlit_line.js";
+import {mat1_colored_specular_phong} from "../materials/mat1_colored_specular_phong.js";
+import {mat1_depth} from "../materials/mat1_depth.js";
+import {mesh_cannon} from "../meshes/cannon.js";
 import {mesh_cube} from "../meshes/cube.js";
+import {mesh_dragoon} from "../meshes/dragoon.js";
 import {mesh_soldier} from "../meshes/soldier.js";
 import {loop_start, loop_stop} from "./loop.js";
 import {sys_camera} from "./systems/sys_camera.js";
@@ -17,7 +20,8 @@ import {sys_light} from "./systems/sys_light.js";
 import {sys_move} from "./systems/sys_move.js";
 import {sys_nav} from "./systems/sys_nav.js";
 import {Picked, sys_pick} from "./systems/sys_pick.js";
-import {sys_render} from "./systems/sys_render1.js";
+import {sys_render_depth} from "./systems/sys_render1_depth.js";
+import {sys_render_forward} from "./systems/sys_render1_forward.js";
 import {sys_select} from "./systems/sys_select.js";
 import {sys_transform} from "./systems/sys_transform.js";
 import {World} from "./world.js";
@@ -51,10 +55,12 @@ export class Game {
     CanvasBillboard = document.querySelector("canvas#billboard")! as HTMLCanvasElement;
     Context2D = this.CanvasBillboard.getContext("2d")!;
 
-    MaterialColoredUnlitLine = mat1_colored_unlit_line(this.Gl);
-    MaterialColoredDiffuseGouraud = mat1_colored_diffuse_gouraud(this.Gl);
+    MaterialDepth = mat1_depth(this.Gl);
+    MaterialColoredSpecular = mat1_colored_specular_phong(this.Gl);
     MeshCube = mesh_cube(this.Gl);
     MeshSoldier = mesh_soldier(this.Gl);
+    MeshDragoon = mesh_dragoon(this.Gl);
+    MeshCannon = mesh_cannon(this.Gl);
 
     TerritoryMeshes: Array<Array<Mesh>> = [];
     TerritoryGraph: Record<number, Array<number>> = {};
@@ -64,7 +70,11 @@ export class Game {
     LightPositions = new Float32Array(4 * 8);
     LightDetails = new Float32Array(4 * 8);
 
-    Camera?: Entity;
+    Targets: {
+        Shade: DepthTarget;
+    };
+
+    Cameras: Array<Entity> = [];
     Picked?: Picked;
     Selected?: Entity;
 
@@ -102,6 +112,12 @@ export class Game {
             this.InputDelta[evt.code] = -1;
         });
 
+        this.Gl.getExtension("WEBGL_depth_texture");
+
+        this.Targets = {
+            Shade: create_depth_target(this.Gl, 1024, 1024),
+        };
+
         this.Gl.enable(GL_DEPTH_TEST);
         this.Gl.enable(GL_CULL_FACE);
     }
@@ -133,7 +149,8 @@ export class Game {
         // Rendering.
         sys_camera(this, delta);
         sys_light(this, delta);
-        sys_render(this, delta);
+        sys_render_depth(this, delta);
+        sys_render_forward(this, delta);
         sys_draw(this, delta);
 
         sys_framerate(this, delta, performance.now() - now);

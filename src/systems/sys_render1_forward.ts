@@ -1,9 +1,7 @@
 import {Material} from "../../common/material.js";
 import {
-    GL_ARRAY_BUFFER,
     GL_COLOR_BUFFER_BIT,
     GL_DEPTH_BUFFER_BIT,
-    GL_FLOAT,
     GL_FRAMEBUFFER,
     GL_TEXTURE0,
     GL_TEXTURE_2D,
@@ -14,47 +12,38 @@ import {ColoredSpecularLayout} from "../../materials/layout_colored_specular.js"
 import {ColoredUnlitLayout} from "../../materials/layout_colored_unlit.js";
 import {TexturedDiffuseLayout} from "../../materials/layout_textured_diffuse.js";
 import {TexturedUnlitLayout} from "../../materials/layout_textured_unlit.js";
-import {CameraDisplay, CameraEye} from "../components/com_camera.js";
+import {CameraDisplay, CameraEye, CameraKind} from "../components/com_camera.js";
 import {
-    Render,
     RenderColoredDiffuse,
     RenderColoredSpecular,
     RenderColoredUnlit,
     RenderKind,
     RenderTexturedDiffuse,
     RenderTexturedUnlit,
-    RenderVertices,
 } from "../components/com_render1.js";
 import {Transform} from "../components/com_transform.js";
 import {Game} from "../game.js";
-import {Has, World} from "../world.js";
+import {Has} from "../world.js";
 
 const QUERY = Has.Transform | Has.Render;
 
-interface Game1 extends Game {
-    Gl: WebGLRenderingContext;
-    ExtVao: OES_vertex_array_object;
-    World: World & {
-        Render: Array<Render>;
-    };
-}
-
-export function sys_render(game: Game1, delta: number) {
-    if (game.Camera) {
-        let camera = game.World.Camera[game.Camera];
-        render_display(game, camera);
+export function sys_render_forward(game: Game, delta: number) {
+    for (let camera_entity of game.Cameras) {
+        let camera = game.World.Camera[camera_entity];
+        switch (camera.Kind) {
+            case CameraKind.Display:
+                render_display(game, camera);
+                break;
+        }
     }
 }
 
-function render_display(game: Game1, camera: CameraDisplay) {
+function render_display(game: Game, camera: CameraDisplay) {
     game.Gl.bindFramebuffer(GL_FRAMEBUFFER, null);
     game.Gl.viewport(0, 0, game.ViewportWidth, game.ViewportHeight);
     game.Gl.clearColor(...camera.ClearColor);
     game.Gl.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    render(game, camera);
-}
 
-function render(game: Game1, eye: CameraEye, current_target?: WebGLTexture) {
     // Keep track of the current material to minimize switching.
     let current_material = null;
     let current_front_face = null;
@@ -68,22 +57,19 @@ function render(game: Game1, eye: CameraEye, current_target?: WebGLTexture) {
                 current_material = render.Material;
                 switch (render.Kind) {
                     case RenderKind.ColoredUnlit:
-                        use_colored_unlit(game, render.Material, eye);
+                        use_colored_unlit(game, render.Material, camera);
                         break;
                     case RenderKind.ColoredDiffuse:
-                        use_colored_diffuse(game, render.Material, eye);
+                        use_colored_diffuse(game, render.Material, camera);
                         break;
                     case RenderKind.ColoredSpecular:
-                        use_colored_specular(game, render.Material, eye);
+                        use_colored_specular(game, render.Material, camera);
                         break;
                     case RenderKind.TexturedUnlit:
-                        use_textured_unlit(game, render.Material, eye);
+                        use_textured_unlit(game, render.Material, camera);
                         break;
                     case RenderKind.TexturedDiffuse:
-                        use_textured_diffuse(game, render.Material, eye);
-                        break;
-                    case RenderKind.Vertices:
-                        use_vertices(game, render.Material, eye);
+                        use_textured_diffuse(game, render.Material, camera);
                         break;
                 }
             }
@@ -104,33 +90,22 @@ function render(game: Game1, eye: CameraEye, current_target?: WebGLTexture) {
                     draw_colored_specular(game, transform, render);
                     break;
                 case RenderKind.TexturedUnlit:
-                    // Prevent feedback loop between the active render target
-                    // and the texture being rendered.
-                    if (render.Texture !== current_target) {
-                        draw_textured_unlit(game, transform, render);
-                    }
+                    draw_textured_unlit(game, transform, render);
                     break;
                 case RenderKind.TexturedDiffuse:
-                    // Prevent feedback loop between the active render target
-                    // and the texture being rendered.
-                    if (render.Texture !== current_target) {
-                        draw_textured_diffuse(game, transform, render);
-                    }
-                    break;
-                case RenderKind.Vertices:
-                    draw_vertices(game, transform, render);
+                    draw_textured_diffuse(game, transform, render);
                     break;
             }
         }
     }
 }
 
-function use_colored_unlit(game: Game1, material: Material<ColoredUnlitLayout>, eye: CameraEye) {
+function use_colored_unlit(game: Game, material: Material<ColoredUnlitLayout>, eye: CameraEye) {
     game.Gl.useProgram(material.Program);
     game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
 }
 
-function draw_colored_unlit(game: Game1, transform: Transform, render: RenderColoredUnlit) {
+function draw_colored_unlit(game: Game, transform: Transform, render: RenderColoredUnlit) {
     game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
     game.Gl.uniform4fv(render.Material.Locations.Color, render.Color);
     game.ExtVao.bindVertexArrayOES(render.Vao);
@@ -138,18 +113,14 @@ function draw_colored_unlit(game: Game1, transform: Transform, render: RenderCol
     game.ExtVao.bindVertexArrayOES(null);
 }
 
-function use_colored_diffuse(
-    game: Game1,
-    material: Material<ColoredDiffuseLayout>,
-    eye: CameraEye
-) {
+function use_colored_diffuse(game: Game, material: Material<ColoredDiffuseLayout>, eye: CameraEye) {
     game.Gl.useProgram(material.Program);
     game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
     game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
     game.Gl.uniform4fv(material.Locations.LightDetails, game.LightDetails);
 }
 
-function draw_colored_diffuse(game: Game1, transform: Transform, render: RenderColoredDiffuse) {
+function draw_colored_diffuse(game: Game, transform: Transform, render: RenderColoredDiffuse) {
     game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
     game.Gl.uniformMatrix4fv(render.Material.Locations.Self, false, transform.Self);
     game.Gl.uniform4fv(render.Material.Locations.Color, render.Color);
@@ -159,7 +130,7 @@ function draw_colored_diffuse(game: Game1, transform: Transform, render: RenderC
 }
 
 function use_colored_specular(
-    game: Game1,
+    game: Game,
     material: Material<ColoredSpecularLayout>,
     eye: CameraEye
 ) {
@@ -168,9 +139,17 @@ function use_colored_specular(
     game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
     game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
     game.Gl.uniform4fv(material.Locations.LightDetails, game.LightDetails);
+
+    game.Gl.activeTexture(GL_TEXTURE0);
+    game.Gl.bindTexture(GL_TEXTURE_2D, game.Targets.Shade.DepthTexture);
+    game.Gl.uniform1i(material.Locations.ShadowMap, 0);
+
+    let light_entity = game.Cameras[1];
+    let light_camera = game.World.Camera[light_entity];
+    game.Gl.uniformMatrix4fv(material.Locations.ShadowSpace, false, light_camera.Pv);
 }
 
-function draw_colored_specular(game: Game1, transform: Transform, render: RenderColoredSpecular) {
+function draw_colored_specular(game: Game, transform: Transform, render: RenderColoredSpecular) {
     game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
     game.Gl.uniformMatrix4fv(render.Material.Locations.Self, false, transform.Self);
     game.Gl.uniform4fv(render.Material.Locations.ColorDiffuse, render.ColorDiffuse);
@@ -181,12 +160,12 @@ function draw_colored_specular(game: Game1, transform: Transform, render: Render
     game.ExtVao.bindVertexArrayOES(null);
 }
 
-function use_textured_unlit(game: Game1, material: Material<TexturedUnlitLayout>, eye: CameraEye) {
+function use_textured_unlit(game: Game, material: Material<TexturedUnlitLayout>, eye: CameraEye) {
     game.Gl.useProgram(material.Program);
     game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
 }
 
-function draw_textured_unlit(game: Game1, transform: Transform, render: RenderTexturedUnlit) {
+function draw_textured_unlit(game: Game, transform: Transform, render: RenderTexturedUnlit) {
     game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
 
     game.Gl.activeTexture(GL_TEXTURE0);
@@ -201,7 +180,7 @@ function draw_textured_unlit(game: Game1, transform: Transform, render: RenderTe
 }
 
 function use_textured_diffuse(
-    game: Game1,
+    game: Game,
     material: Material<TexturedDiffuseLayout>,
     eye: CameraEye
 ) {
@@ -211,7 +190,7 @@ function use_textured_diffuse(
     game.Gl.uniform4fv(material.Locations.LightDetails, game.LightDetails);
 }
 
-function draw_textured_diffuse(game: Game1, transform: Transform, render: RenderTexturedDiffuse) {
+function draw_textured_diffuse(game: Game, transform: Transform, render: RenderTexturedDiffuse) {
     game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
     game.Gl.uniformMatrix4fv(render.Material.Locations.Self, false, transform.Self);
 
@@ -224,18 +203,4 @@ function draw_textured_diffuse(game: Game1, transform: Transform, render: Render
     game.ExtVao.bindVertexArrayOES(render.Vao);
     game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
     game.ExtVao.bindVertexArrayOES(null);
-}
-
-function use_vertices(game: Game1, material: Material<ColoredUnlitLayout>, eye: CameraEye) {
-    game.Gl.useProgram(material.Program);
-    game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
-}
-
-function draw_vertices(game: Game1, transform: Transform, render: RenderVertices) {
-    game.Gl.uniformMatrix4fv(render.Material.Locations.World, false, transform.World);
-    game.Gl.uniform4fv(render.Material.Locations.Color, render.Color);
-    game.Gl.bindBuffer(GL_ARRAY_BUFFER, render.VertexBuffer);
-    game.Gl.enableVertexAttribArray(render.Material.Locations.VertexPosition);
-    game.Gl.vertexAttribPointer(render.Material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
-    game.Gl.drawArrays(render.Material.Mode, 0, render.IndexCount);
 }

@@ -26,8 +26,8 @@ export function sys_pick(game: Game, delta: number) {
     }
 
     game.Picked = undefined;
-    if (game.Camera) {
-        update(game, game.Camera, pickables);
+    if (game.Cameras.length > 0) {
+        update(game, game.Cameras[0], pickables);
     }
 }
 

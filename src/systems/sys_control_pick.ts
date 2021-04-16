@@ -20,7 +20,6 @@ function update(game: Game, entity: Entity) {
         console.log(territory.Id);
         agent.TerritoryId = territory.Id;
         agent.Destination = game.Picked.Point;
-        agent.Destination[1] += 0.5;
         agent.Actions -= 1;
     }
 }
