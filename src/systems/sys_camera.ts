@@ -1,5 +1,5 @@
-import {get_translation, invert, multiply, perspective} from "../../common/mat4.js";
-import {CameraDisplay, CameraKind} from "../components/com_camera.js";
+import {copy, get_translation, invert, multiply, ortho, perspective} from "../../common/mat4.js";
+import {CameraDisplay, CameraFramebuffer, CameraKind} from "../components/com_camera.js";
 import {Entity, Game} from "../game.js";
 import {Has} from "../world.js";
 
@@ -14,20 +14,22 @@ export function sys_camera(game: Game, delta: number) {
         game.ViewportResized = true;
     }
 
-    game.Camera = undefined;
+    game.Cameras = [];
     for (let i = 0; i < game.World.Signature.length; i++) {
         if ((game.World.Signature[i] & QUERY) === QUERY) {
             let camera = game.World.Camera[i];
-            game.Camera = i;
+            game.Cameras.push(i);
 
             if (camera.Kind === CameraKind.Display) {
-                update_display(game, i, camera);
+                update_display_perspective(game, i, camera);
+            } else if (camera.Kind === CameraKind.Framebuffer) {
+                update_framebuffer_ortho(game, i, camera);
             }
         }
     }
 }
 
-function update_display(game: Game, entity: Entity, camera: CameraDisplay) {
+function update_display_perspective(game: Game, entity: Entity, camera: CameraDisplay) {
     if (game.ViewportResized) {
         let aspect = game.ViewportWidth / game.ViewportHeight;
         if (aspect > 1) {
@@ -42,6 +44,27 @@ function update_display(game: Game, entity: Entity, camera: CameraDisplay) {
     }
 
     let transform = game.World.Transform[entity];
-    multiply(camera.Pv, camera.Projection, transform.Self);
     get_translation(camera.Position, transform.World);
+    copy(camera.View, transform.Self);
+    multiply(camera.Pv, camera.Projection, camera.View);
+}
+
+function update_framebuffer_ortho(game: Game, entity: Entity, camera: CameraFramebuffer) {
+    if (game.ViewportResized) {
+        ortho(
+            camera.Projection,
+            camera.Radius,
+            camera.Radius,
+            -camera.Radius,
+            -camera.Radius,
+            camera.Near,
+            camera.Far
+        );
+        invert(camera.Unprojection, camera.Projection);
+    }
+
+    let transform = game.World.Transform[entity];
+    get_translation(camera.Position, transform.World);
+    copy(camera.View, transform.Self);
+    multiply(camera.Pv, camera.Projection, camera.View);
 }

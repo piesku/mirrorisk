@@ -1,6 +1,6 @@
 import {copy} from "../../common/vec4.js";
 import {PickableKind} from "../components/com_pickable.js";
-import {RenderColoredDiffuse, RenderColoredSpecular} from "../components/com_render1.js";
+import {RenderColoredSpecular} from "../components/com_render1.js";
 import {Entity, Game} from "../game.js";
 import {Has} from "../world.js";
 
@@ -26,7 +26,7 @@ export function sys_highlight(game: Game, delta: number) {
 
 function update_territory(game: Game, entity: Entity) {
     let pickable = game.World.Pickable[entity];
-    let render = game.World.Render[entity] as RenderColoredDiffuse;
+    let render = game.World.Render[entity] as RenderColoredSpecular;
 
     if (game.Selected) {
         let nav_agent = game.World.NavAgent[game.Selected];
@@ -34,24 +34,24 @@ function update_territory(game: Game, entity: Entity) {
 
         if (nav_agent.TerritoryId === territory.Id) {
             // The selected unit is on this terrain tile.
-            copy(render.Color, pickable.ColorSelected);
+            copy(render.ColorDiffuse, pickable.ColorSelected);
         } else if (
             nav_agent.Actions > 0 &&
             game.TerritoryGraph[territory.Id].includes(nav_agent.TerritoryId)
         ) {
             // The selected unit is on a neighboring tile. The current tile is a
             // possible movement and attach target.
-            copy(render.Color, pickable.ColorReady);
+            copy(render.ColorDiffuse, pickable.ColorReady);
             if (pickable.Hover) {
-                render.Color[1] += 0.2;
+                render.ColorDiffuse[1] += 0.2;
             }
         } else {
-            copy(render.Color, pickable.ColorIdle);
+            copy(render.ColorDiffuse, pickable.ColorIdle);
         }
     } else if (pickable.Hover) {
-        copy(render.Color, pickable.ColorHover);
+        copy(render.ColorDiffuse, pickable.ColorHover);
     } else {
-        copy(render.Color, pickable.ColorIdle);
+        copy(render.ColorDiffuse, pickable.ColorIdle);
     }
 }
 

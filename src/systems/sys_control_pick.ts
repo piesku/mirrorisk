@@ -19,7 +19,6 @@ function update(game: Game, entity: Entity) {
         let territory = game.World.Territory[territory_entity];
         agent.TerritoryId = territory.Id;
         agent.Destination = game.Picked.Point;
-        agent.Destination[1] += 0.5;
         agent.Actions -= 1;
     }
 }

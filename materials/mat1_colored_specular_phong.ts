@@ -31,6 +31,8 @@ let fragment = `
     uniform float shininess;
     uniform vec4 light_positions[MAX_LIGHTS];
     uniform vec4 light_details[MAX_LIGHTS];
+    uniform mat4 shadow_space;
+    uniform sampler2D shadow_map;
 
     varying vec4 vert_pos;
     varying vec3 vert_normal;
@@ -85,6 +87,16 @@ let fragment = `
         }
 
         gl_FragColor = vec4(rgb, 1.0);
+
+        vec4 shadow_space_pos = shadow_space * vert_pos;
+        vec3 shadow_space_ndc = shadow_space_pos.xyz / shadow_space_pos.w;
+        // Transform the [-1, 1] NDC to [0, 1] to match the shadow texture data.
+        shadow_space_ndc = shadow_space_ndc * 0.5 + 0.5;
+        float shadow_map_depth = texture2D(shadow_map, shadow_space_ndc.xy).x;
+        if (shadow_map_depth < shadow_space_ndc.z - 0.001) {
+            // In shadow.
+            gl_FragColor.rgb *= 0.1;
+        }
     }
 `;
 
@@ -105,6 +117,8 @@ export function mat1_colored_specular_phong(
             Shininess: gl.getUniformLocation(program, "shininess")!,
             LightPositions: gl.getUniformLocation(program, "light_positions")!,
             LightDetails: gl.getUniformLocation(program, "light_details")!,
+            ShadowMap: gl.getUniformLocation(program, "shadow_map")!,
+            ShadowSpace: gl.getUniformLocation(program, "shadow_space")!,
             VertexPosition: gl.getAttribLocation(program, "position")!,
             VertexNormal: gl.getAttribLocation(program, "normal")!,
         },

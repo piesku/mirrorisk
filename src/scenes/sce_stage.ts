@@ -1,5 +1,7 @@
+import {from_euler} from "../../common/quat.js";
 import {float, set_seed} from "../../common/random.js";
 import {blueprint_camera} from "../blueprints/blu_camera.js";
+import {camera_framebuffer_ortho} from "../components/com_camera.js";
 import {children} from "../components/com_children.js";
 import {collide} from "../components/com_collide.js";
 import {control_player} from "../components/com_control_player.js";
@@ -9,11 +11,7 @@ import {light_directional} from "../components/com_light.js";
 import {move} from "../components/com_move.js";
 import {nav_agent} from "../components/com_nav_agent.js";
 import {pickable_territory, pickable_unit} from "../components/com_pickable.js";
-import {
-    render_colored_diffuse,
-    render_colored_specular,
-    render_colored_unlit,
-} from "../components/com_render1.js";
+import {render_colored_specular} from "../components/com_render1.js";
 import {selectable} from "../components/com_selectable.js";
 import {Continent, territory} from "../components/com_territory.js";
 import {transform} from "../components/com_transform.js";
@@ -32,12 +30,8 @@ function blueprint_region(game: Game, continent: Continent, index: number) {
             [0.3, 0.8, 0.3, 1],
             [0.3, 0.5, 0.8, 1]
         ),
-        render_colored_diffuse(game.MaterialColoredDiffuse, mesh, [0.3, 0.3, 0.8, 1]),
+        render_colored_specular(game.MaterialColoredSpecular, mesh, [0.3, 0.3, 0.8, 1]),
         territory(continent, index),
-        children([
-            transform([0, 0.1, 0]),
-            false && render_colored_unlit(game.MaterialColoredUnlitLine, mesh, [0.4, 0.4, 0.8, 1]),
-        ]),
     ];
 }
 
@@ -62,7 +56,11 @@ export function scene_stage(game: Game) {
     instantiate(game, [...blueprint_camera(game), transform([-25, 0, -50], [0, 1, 0, 0])]);
 
     // Directional light.
-    instantiate(game, [transform([-1, 1, 1]), light_directional([1, 1, 1], 0.8)]);
+    instantiate(game, [
+        transform([100, 100, 100], from_euler([0, 0, 0, 0], -45, 45, 0)),
+        light_directional([1, 1, 1], 0.8),
+        camera_framebuffer_ortho(game.Targets.Shade, 100, 1, 1000, [0, 0, 0, 1]),
+    ]);
 
     // Europe
     instantiate(game, [
