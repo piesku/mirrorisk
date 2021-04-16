@@ -1,6 +1,7 @@
 import {Mesh} from "../common/material.js";
 import {GL_CULL_FACE, GL_DEPTH_TEST} from "../common/webgl.js";
 import {mat1_colored_diffuse_gouraud} from "../materials/mat1_colored_diffuse_gouraud.js";
+import {mat1_colored_specular_phong} from "../materials/mat1_colored_specular_phong.js";
 import {mat1_colored_unlit_line} from "../materials/mat1_colored_unlit_line.js";
 import {mesh_cube} from "../meshes/cube.js";
 import {mesh_soldier} from "../meshes/soldier.js";
@@ -49,7 +50,8 @@ export class Game {
     Context2D = this.CanvasBillboard.getContext("2d")!;
 
     MaterialColoredUnlitLine = mat1_colored_unlit_line(this.Gl);
-    MaterialColoredDiffuseGouraud = mat1_colored_diffuse_gouraud(this.Gl);
+    MaterialColoredDiffuse = mat1_colored_diffuse_gouraud(this.Gl);
+    MaterialColoredSpecular = mat1_colored_specular_phong(this.Gl);
     MeshCube = mesh_cube(this.Gl);
     MeshSoldier = mesh_soldier(this.Gl);
 

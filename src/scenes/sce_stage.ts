@@ -9,7 +9,11 @@ import {light_directional} from "../components/com_light.js";
 import {move} from "../components/com_move.js";
 import {nav_agent} from "../components/com_nav_agent.js";
 import {pickable_territory, pickable_unit} from "../components/com_pickable.js";
-import {render_colored_diffuse, render_colored_unlit} from "../components/com_render1.js";
+import {
+    render_colored_diffuse,
+    render_colored_specular,
+    render_colored_unlit,
+} from "../components/com_render1.js";
 import {selectable} from "../components/com_selectable.js";
 import {Continent, territory} from "../components/com_territory.js";
 import {transform} from "../components/com_transform.js";
@@ -28,7 +32,7 @@ function blueprint_region(game: Game, continent: Continent, index: number) {
             [0.3, 0.8, 0.3, 1],
             [0.3, 0.5, 0.8, 1]
         ),
-        render_colored_diffuse(game.MaterialColoredDiffuseGouraud, mesh, [0.3, 0.3, 0.8, 1]),
+        render_colored_diffuse(game.MaterialColoredDiffuse, mesh, [0.3, 0.3, 0.8, 1]),
         territory(continent, index),
         children([
             transform([0, 0.1, 0]),
@@ -58,7 +62,7 @@ export function scene_stage(game: Game) {
     instantiate(game, [...blueprint_camera(game), transform([-25, 0, -50], [0, 1, 0, 0])]);
 
     // Directional light.
-    instantiate(game, [transform([-1, 1, 1]), light_directional([1, 1, 1], 1)]);
+    instantiate(game, [transform([-1, 1, 1]), light_directional([1, 1, 1], 0.8)]);
 
     // Europe
     instantiate(game, [
@@ -90,12 +94,13 @@ export function scene_stage(game: Game) {
                 [transform(), draw_selection("#ff0"), disable(Has.Draw)],
                 [
                     transform(),
-                    render_colored_diffuse(game.MaterialColoredDiffuseGouraud, game.MeshSoldier, [
-                        1,
-                        1,
-                        0,
-                        1,
-                    ]),
+                    render_colored_specular(
+                        game.MaterialColoredSpecular,
+                        game.MeshSoldier,
+                        [1, 1, 0, 1],
+                        128,
+                        [1, 1, 1, 1]
+                    ),
                 ]
             ),
         ]);
@@ -116,12 +121,13 @@ export function scene_stage(game: Game) {
                 [transform(), draw_selection("#ff0"), disable(Has.Draw)],
                 [
                     transform(),
-                    render_colored_diffuse(game.MaterialColoredDiffuseGouraud, game.MeshSoldier, [
-                        1,
-                        1,
-                        0,
-                        1,
-                    ]),
+                    render_colored_specular(
+                        game.MaterialColoredSpecular,
+                        game.MeshSoldier,
+                        [1, 1, 0, 1],
+                        128,
+                        [1, 1, 1, 1]
+                    ),
                 ]
             ),
         ]);

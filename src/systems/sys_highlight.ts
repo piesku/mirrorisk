@@ -1,6 +1,6 @@
 import {copy} from "../../common/vec4.js";
 import {PickableKind} from "../components/com_pickable.js";
-import {RenderColoredDiffuse} from "../components/com_render1.js";
+import {RenderColoredDiffuse, RenderColoredSpecular} from "../components/com_render1.js";
 import {Entity, Game} from "../game.js";
 import {Has} from "../world.js";
 
@@ -59,16 +59,16 @@ function update_unit(game: Game, entity: Entity) {
     let pickable = game.World.Pickable[entity];
     let selectable = game.World.Selectable[entity];
     let mesh_entity = game.World.Children[entity].Children[1];
-    let render = game.World.Render[mesh_entity] as RenderColoredDiffuse;
+    let render = game.World.Render[mesh_entity] as RenderColoredSpecular;
 
     if (selectable.Selected) {
-        copy(render.Color, pickable.ColorSelected);
+        copy(render.ColorDiffuse, pickable.ColorSelected);
         if (pickable.Hover) {
-            render.Color[1] += 0.3;
+            render.ColorDiffuse[1] += 0.3;
         }
     } else if (pickable.Hover) {
-        copy(render.Color, pickable.ColorHover);
+        copy(render.ColorDiffuse, pickable.ColorHover);
     } else {
-        copy(render.Color, pickable.ColorIdle);
+        copy(render.ColorDiffuse, pickable.ColorIdle);
     }
 }
