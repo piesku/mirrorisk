@@ -1,23 +1,23 @@
-import { from_euler } from "../../common/quat.js";
-import { float, set_seed } from "../../common/random.js";
-import { blueprint_camera } from "../blueprints/blu_camera.js";
-import { camera_framebuffer_ortho } from "../components/com_camera.js";
-import { children } from "../components/com_children.js";
-import { collide } from "../components/com_collide.js";
-import { control_player } from "../components/com_control_player.js";
-import { disable } from "../components/com_disable.js";
-import { draw_selection } from "../components/com_draw.js";
-import { light_directional } from "../components/com_light.js";
-import { move } from "../components/com_move.js";
-import { nav_agent } from "../components/com_nav_agent.js";
-import { pickable_territory, pickable_unit } from "../components/com_pickable.js";
-import { render_colored_specular } from "../components/com_render1.js";
-import { selectable } from "../components/com_selectable.js";
-import { Continent, territory } from "../components/com_territory.js";
-import { transform } from "../components/com_transform.js";
-import { instantiate } from "../entity.js";
-import { Game, Layer } from "../game.js";
-import { Has, World } from "../world.js";
+import {from_euler} from "../../common/quat.js";
+import {float, set_seed} from "../../common/random.js";
+import {blueprint_camera} from "../blueprints/blu_camera.js";
+import {camera_framebuffer_ortho} from "../components/com_camera.js";
+import {children} from "../components/com_children.js";
+import {collide} from "../components/com_collide.js";
+import {control_player} from "../components/com_control_player.js";
+import {disable} from "../components/com_disable.js";
+import {draw_selection} from "../components/com_draw.js";
+import {light_directional} from "../components/com_light.js";
+import {move} from "../components/com_move.js";
+import {nav_agent} from "../components/com_nav_agent.js";
+import {pickable_territory, pickable_unit} from "../components/com_pickable.js";
+import {render_colored_specular} from "../components/com_render1.js";
+import {selectable} from "../components/com_selectable.js";
+import {Continent, territory} from "../components/com_territory.js";
+import {transform} from "../components/com_transform.js";
+import {instantiate} from "../entity.js";
+import {Game, Layer} from "../game.js";
+import {Has, World} from "../world.js";
 
 function blueprint_region(game: Game, continent: Continent, index: number) {
     let mesh = game.TerritoryMeshes[continent][index - 1];
@@ -121,7 +121,7 @@ export function scene_stage(game: Game) {
                     transform(),
                     render_colored_specular(
                         game.MaterialColoredSpecular,
-                        i < 1 ? game.MeshSoldier :game.MeshCannon,
+                        i < 1 ? game.MeshSoldier : game.MeshCannon,
                         [1, 1, 0, 1],
                         128,
                         [1, 1, 1, 1]
