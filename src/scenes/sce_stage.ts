@@ -1,13 +1,11 @@
 import {float, set_seed} from "../../common/random.js";
 import {blueprint_camera} from "../blueprints/blu_camera.js";
+import {blueprint_unit} from "../blueprints/blu_unit.js";
 import {children} from "../components/com_children.js";
 import {collide} from "../components/com_collide.js";
 import {control_player} from "../components/com_control_player.js";
 import {disable} from "../components/com_disable.js";
-import {draw_selection} from "../components/com_draw.js";
 import {light_directional} from "../components/com_light.js";
-import {move} from "../components/com_move.js";
-import {nav_agent} from "../components/com_nav_agent.js";
 import {pickable_territory, pickable_unit} from "../components/com_pickable.js";
 import {render_colored_diffuse, render_colored_unlit} from "../components/com_render1.js";
 import {selectable} from "../components/com_selectable.js";
@@ -78,52 +76,27 @@ export function scene_stage(game: Game) {
     // Units in Central Europe.
     for (let i = 0; i < 3; i++) {
         instantiate(game, [
-            transform([-21 + float(-4, 4), 0, -52 + float(-4, 4)]),
+            ...blueprint_unit(game, [-21 + float(-4, 4), 0, -52 + float(-4, 4)], [1, 1, 0, 1], 3),
             control_player(false, false, false, false),
             disable(Has.ControlPlayer),
-            collide(true, Layer.None, Layer.None, [2, 6, 2]),
             pickable_unit([1, 1, 0, 1], [1, 0.5, 0, 1], [1, 0, 0, 1]),
             selectable(),
-            nav_agent(3),
-            move(10, 5),
-            children(
-                [transform(), draw_selection("#ff0"), disable(Has.Draw)],
-                [
-                    transform(),
-                    render_colored_diffuse(game.MaterialColoredDiffuseGouraud, game.MeshSoldier, [
-                        1,
-                        1,
-                        0,
-                        1,
-                    ]),
-                ]
-            ),
         ]);
     }
 
     // Units in Iceland.
     for (let i = 0; i < 2; i++) {
-        instantiate(game, [
-            transform([7 + float(-3, 3), 0, -70 + float(-3, 3)]),
-            control_player(false, false, false, false),
-            disable(Has.ControlPlayer),
-            collide(true, Layer.None, Layer.None, [2, 6, 2]),
-            // pickable_unit([1, 1, 0, 1], [1, 0.5, 0, 1], [1, 0, 0, 1]),
-            selectable(),
-            nav_agent(2),
-            move(10, 5),
-            children(
-                [transform(), draw_selection("#ff0"), disable(Has.Draw)],
-                [
-                    transform(),
-                    render_colored_diffuse(game.MaterialColoredDiffuseGouraud, game.MeshSoldier, [
-                        1,
-                        0,
-                        1,
-                        1,
-                    ]),
-                ]
-            ),
-        ]);
+        instantiate(
+            game,
+            blueprint_unit(game, [7 + float(-3, 3), 0, -70 + float(-3, 3)], [1, 0, 1, 1], 2)
+        );
+    }
+
+    // Units in Russia.
+    for (let i = 0; i < 2; i++) {
+        instantiate(
+            game,
+            blueprint_unit(game, [-47 + float(-3, 3), 0, -60 + float(-3, 3)], [0, 1, 1, 1], 6)
+        );
     }
 }
