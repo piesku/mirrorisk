@@ -28,6 +28,7 @@ function update(game: Game, entity: Entity) {
 
         let distance_to_destination = distance_squared(position, agent.Destination);
         if (distance_to_destination < 1) {
+            console.log(entity);
             agent.Destination = null;
         }
 

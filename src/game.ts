@@ -24,11 +24,6 @@ import {World} from "./world.js";
 
 export type Entity = number;
 
-export enum Turn {
-    Player,
-    Enemy0,
-    Length,
-}
 export class Game {
     World = new World();
 
@@ -45,7 +40,8 @@ export class Game {
         MouseY: 0,
     };
 
-    Turn = Turn.Player;
+    CurrentPlayer = 0;
+    TotalPlayers = 3;
 
     Ui = document.querySelector("main")!;
     CanvasScene = document.querySelector("canvas#scene")! as HTMLCanvasElement;
