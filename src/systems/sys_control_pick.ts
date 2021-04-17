@@ -17,8 +17,11 @@ function update(game: Game, entity: Entity) {
     if (game.InputDelta["Mouse2"] === 1 && game.Picked && agent.Actions > 0) {
         let territory_entity = game.Picked.Entity;
         let territory = game.World.Territory[territory_entity];
+        if (agent.TerritoryId !== territory.Id) {
+            // Use the action up only when moving to another territory.
+            agent.Actions -= 1;
+        }
         agent.TerritoryId = territory.Id;
         agent.Destination = game.Picked.Point;
-        agent.Actions -= 1;
     }
 }
