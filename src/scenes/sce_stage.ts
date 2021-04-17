@@ -59,7 +59,7 @@ export function scene_stage(game: Game) {
     instantiate(game, [
         transform([100, 100, 100], from_euler([0, 0, 0, 0], -45, 45, 0)),
         light_directional([1, 1, 1], 0.8),
-        camera_framebuffer_ortho(game.Targets.Shade, 100, 1, 1000, [0, 0, 0, 1]),
+        camera_framebuffer_ortho(game.Targets.Sun, 100, 1, 1000, [0, 0, 0, 1]),
     ]);
 
     // Europe

@@ -141,7 +141,7 @@ function use_colored_specular(
     game.Gl.uniform4fv(material.Locations.LightDetails, game.LightDetails);
 
     game.Gl.activeTexture(GL_TEXTURE0);
-    game.Gl.bindTexture(GL_TEXTURE_2D, game.Targets.Shade.DepthTexture);
+    game.Gl.bindTexture(GL_TEXTURE_2D, game.Targets.Sun.DepthTexture);
     game.Gl.uniform1i(material.Locations.ShadowMap, 0);
 
     let light_entity = game.Cameras[1];

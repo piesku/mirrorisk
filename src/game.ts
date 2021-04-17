@@ -68,7 +68,7 @@ export class Game {
     LightDetails = new Float32Array(4 * 8);
 
     Targets: {
-        Shade: DepthTarget;
+        Sun: DepthTarget;
     };
 
     Cameras: Array<Entity> = [];
@@ -112,7 +112,7 @@ export class Game {
         this.Gl.getExtension("WEBGL_depth_texture");
 
         this.Targets = {
-            Shade: create_depth_target(this.Gl, 1024, 1024),
+            Sun: create_depth_target(this.Gl, 1024, 1024),
         };
 
         this.Gl.enable(GL_DEPTH_TEST);
