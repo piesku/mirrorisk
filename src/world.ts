@@ -1,6 +1,7 @@
 import {Camera} from "./components/com_camera.js";
 import {Children} from "./components/com_children.js";
 import {Collide} from "./components/com_collide.js";
+import {ControlAlways} from "./components/com_control_always.js";
 import {ControlPlayer} from "./components/com_control_player.js";
 import {Draw} from "./components/com_draw.js";
 import {Highlightable} from "./components/com_highlightable.js";
@@ -18,6 +19,7 @@ const enum Component {
     Camera,
     Children,
     Collide,
+    ControlAlways,
     ControlPlayer,
     Draw,
     Highlightable,
@@ -35,6 +37,7 @@ export const enum Has {
     Camera = 1 << Component.Camera,
     Children = 1 << Component.Children,
     Collide = 1 << Component.Collide,
+    ControlAlways = 1 << Component.ControlAlways,
     ControlPlayer = 1 << Component.ControlPlayer,
     Draw = 1 << Component.Draw,
     Highlightable = 1 << Component.Highlightable,
@@ -56,6 +59,7 @@ export class World {
     Camera: Array<Camera> = [];
     Children: Array<Children> = [];
     Collide: Array<Collide> = [];
+    ControlAlways: Array<ControlAlways> = [];
     ControlPlayer: Array<ControlPlayer> = [];
     Draw: Array<Draw> = [];
     Highlightable: Array<Highlightable> = [];
