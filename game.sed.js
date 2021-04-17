@@ -1045,8 +1045,7 @@ vec3 frag_normal = normalize(vert_normal);
 vec3 view_dir = eye - vert_pos.xyz;
 vec3 view_normal = normalize(view_dir);
 
-
-vec3 rgb = color_diffuse.rgb * 0.1;
+vec3 rgb;
 
 for (int i = 0; i < MAX_LIGHTS; i++) {
 if (light_positions[i].w == 0.0) {
@@ -1088,17 +1087,25 @@ rgb += color_specular.rgb * specular_factor * light_color * light_intensity;
 }
 }
 
-gl_FragColor = vec4(rgb, 1.0);
-
 vec4 shadow_space_pos = shadow_space * vert_pos;
 vec3 shadow_space_ndc = shadow_space_pos.xyz / shadow_space_pos.w;
 
 shadow_space_ndc = shadow_space_ndc * 0.5 + 0.5;
-float shadow_map_depth = texture2D(shadow_map, shadow_space_ndc.xy).x;
-if (shadow_map_depth < shadow_space_ndc.z - 0.001) {
 
-gl_FragColor.rgb *= 0.5;
+float shadow_bias = 0.001;
+float shadow_factor = 0.0;
+float texel_size = 1.0 / 1024.0;
+for (int u = -1; u <= 1; u++) {
+for (int v = -1; v <= 1; v++) {
+float shadow_map_depth = texture2D(shadow_map, shadow_space_ndc.xy + vec2(u, v) * texel_size).x;
+shadow_factor += shadow_space_ndc.z - shadow_bias > shadow_map_depth ? 0.5 : 0.0;
 }
+}
+shadow_factor /= 9.0;
+
+vec3 ambient_rgb = color_diffuse.rgb * 0.1;
+vec3 frag_color = ambient_rgb + (1.0 - shadow_factor) * rgb;
+gl_FragColor = vec4(frag_color, 1.0);
 }
 `;
 function mat1_colored_specular_phong(gl) {
@@ -17309,7 +17316,7 @@ out[2] = mat[14];
 return out;
 }
 
-const QUERY$e = 8192 /* Transform */ | 1 /* Camera */;
+const QUERY$f = 16384 /* Transform */ | 1 /* Camera */;
 function sys_camera(game, delta) {
 if (game.ViewportWidth != window.innerWidth || game.ViewportHeight != window.innerHeight) {
 game.ViewportWidth = game.CanvasScene.width = game.CanvasBillboard.width =
@@ -17320,7 +17327,7 @@ game.ViewportResized = true;
 }
 game.Cameras = [];
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$e) === QUERY$e) {
+if ((game.World.Signature[i] & QUERY$f) === QUERY$f) {
 let camera = game.World.Camera[i];
 game.Cameras.push(i);
 if (camera.Kind === 0 /* Display */) {
@@ -17442,13 +17449,13 @@ a.Min[2] < b.Max[2] &&
 a.Max[2] > b.Min[2]);
 }
 
-const QUERY$d = 8192 /* Transform */ | 4 /* Collide */;
+const QUERY$e = 16384 /* Transform */ | 4 /* Collide */;
 function sys_collide(game, delta) {
 
 let static_colliders = [];
 let dynamic_colliders = [];
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$d) === QUERY$d) {
+if ((game.World.Signature[i] & QUERY$e) === QUERY$e) {
 let transform = game.World.Transform[i];
 let collider = game.World.Collide[i];
 
@@ -17509,7 +17516,26 @@ Hit: negate([0, 0, 0], hit),
 }
 }
 
-const QUERY$c = 128 /* Move */ | 8 /* ControlPlayer */;
+const QUERY$d = 8 /* ControlAlways */ | 16384 /* Transform */ | 256 /* Move */;
+function sys_control_always(game, delta) {
+for (let i = 0; i < game.World.Signature.length; i++) {
+if ((game.World.Signature[i] & QUERY$d) === QUERY$d) {
+update$8(game, i);
+}
+}
+}
+function update$8(game, entity) {
+let control = game.World.ControlAlways[entity];
+let move = game.World.Move[entity];
+if (control.Direction) {
+move.Directions.push(control.Direction.slice());
+}
+if (control.Rotation) {
+move.LocalRotations.push(control.Rotation.slice());
+}
+}
+
+const QUERY$c = 256 /* Move */ | 16 /* ControlPlayer */;
 function sys_control_keyboard(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$c) === QUERY$c) {
@@ -17547,7 +17573,7 @@ move.SelfRotations.push([1, 0, 0, 0]);
 }
 }
 
-const QUERY$b = 128 /* Move */ | 8 /* ControlPlayer */;
+const QUERY$b = 256 /* Move */ | 16 /* ControlPlayer */;
 const SENSITIVITY = 0.1;
 function sys_control_mouse(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
@@ -17574,7 +17600,7 @@ move.Directions.push([0, 0, game.InputDelta.WheelY]);
 }
 }
 
-const QUERY$a = 8 /* ControlPlayer */ | 256 /* NavAgent */;
+const QUERY$a = 16 /* ControlPlayer */ | 512 /* NavAgent */;
 function sys_control_pick(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$a) == QUERY$a) {
@@ -17587,13 +17613,16 @@ let agent = game.World.NavAgent[entity];
 if (game.InputDelta["Mouse2"] === 1 && game.Picked && agent.Actions > 0) {
 let territory_entity = game.Picked.Entity;
 let territory = game.World.Territory[territory_entity];
+if (agent.TerritoryId !== territory.Id) {
+
+agent.Actions -= 1;
+}
 agent.TerritoryId = territory.Id;
 agent.Destination = game.Picked.Point;
-agent.Actions -= 1;
 }
 }
 
-const QUERY$9 = 8192 /* Transform */ | 16 /* Draw */;
+const QUERY$9 = 16384 /* Transform */ | 32 /* Draw */;
 function sys_draw(game, delta) {
 game.Context2D.resetTransform();
 game.Context2D.clearRect(0, 0, game.ViewportWidth, game.ViewportHeight);
@@ -17673,7 +17702,7 @@ out[3] = a[3];
 return out;
 }
 
-const QUERY$8 = 512 /* Pickable */;
+const QUERY$8 = 1024 /* Pickable */;
 function sys_highlight(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$8) == QUERY$8) {
@@ -17740,7 +17769,7 @@ copy(render.ColorDiffuse, pickable.ColorIdle);
 }
 }
 
-const QUERY$7 = 8192 /* Transform */ | 64 /* Light */;
+const QUERY$7 = 16384 /* Transform */ | 128 /* Light */;
 function sys_light(game, delta) {
 game.LightPositions.fill(0);
 game.LightDetails.fill(0);
@@ -17849,7 +17878,7 @@ out[3] = scale0 * aw + scale1 * bw;
 return out;
 }
 
-const QUERY$6 = 8192 /* Transform */ | 128 /* Move */;
+const QUERY$6 = 16384 /* Transform */ | 256 /* Move */;
 const NO_ROTATION = [0, 0, 0, 1];
 function sys_move(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
@@ -17911,7 +17940,7 @@ function multiply_rotations(acc, cur) {
 return multiply(acc, acc, cur);
 }
 
-const QUERY$5 = 8192 /* Transform */ | 256 /* NavAgent */ | 128 /* Move */;
+const QUERY$5 = 16384 /* Transform */ | 512 /* NavAgent */ | 256 /* Move */;
 function sys_nav(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$5) == QUERY$5) {
@@ -18125,8 +18154,8 @@ yield* query_all(world, child, mask);
 }
 }
 
-const QUERY$4 = 512 /* Pickable */;
-const TARGET = 8192 /* Transform */ | 4 /* Collide */;
+const QUERY$4 = 1024 /* Pickable */;
+const TARGET = 16384 /* Transform */ | 4 /* Collide */;
 function sys_pick(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$4) == QUERY$4) {
@@ -18166,7 +18195,7 @@ let hit_aabb = ray_intersect_aabb(pickables, origin, direction);
 if (hit_aabb) {
 let collider = hit_aabb.Collider;
 let entity = collider.Entity;
-for (let child of query_all(game.World, entity, 512 /* Pickable */)) {
+for (let child of query_all(game.World, entity, 1024 /* Pickable */)) {
 let pickable = game.World.Pickable[child];
 if (pickable.Mesh) {
 
@@ -18201,7 +18230,7 @@ return;
 }
 }
 
-const QUERY$3 = 8192 /* Transform */ | 1024 /* Render */;
+const QUERY$3 = 16384 /* Transform */ | 2048 /* Render */;
 function sys_render_depth(game, delta) {
 for (let camera_entity of game.Cameras) {
 let camera = game.World.Camera[camera_entity];
@@ -18239,7 +18268,7 @@ game.Gl.drawElements(game.MaterialDepth.Mode, render.Mesh.IndexCount, GL_UNSIGNE
 game.ExtVao.bindVertexArrayOES(null);
 }
 
-const QUERY$2 = 8192 /* Transform */ | 1024 /* Render */;
+const QUERY$2 = 16384 /* Transform */ | 2048 /* Render */;
 function sys_render_forward(game, delta) {
 for (let camera_entity of game.Cameras) {
 let camera = game.World.Camera[camera_entity];
@@ -18338,7 +18367,7 @@ game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
 game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
 game.Gl.uniform4fv(material.Locations.LightDetails, game.LightDetails);
 game.Gl.activeTexture(GL_TEXTURE0);
-game.Gl.bindTexture(GL_TEXTURE_2D, game.Targets.Shade.DepthTexture);
+game.Gl.bindTexture(GL_TEXTURE_2D, game.Targets.Sun.DepthTexture);
 game.Gl.uniform1i(material.Locations.ShadowMap, 0);
 let light_entity = game.Cameras[1];
 let light_camera = game.World.Camera[light_entity];
@@ -18386,7 +18415,7 @@ game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_S
 game.ExtVao.bindVertexArrayOES(null);
 }
 
-const QUERY$1 = 8192 /* Transform */ | 512 /* Pickable */ | 2048 /* Selectable */ | 2 /* Children */;
+const QUERY$1 = 16384 /* Transform */ | 1024 /* Pickable */ | 4096 /* Selectable */ | 2 /* Children */;
 function sys_select(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$1) == QUERY$1) {
@@ -18412,17 +18441,17 @@ if (game.InputDelta["Mouse0"] === -1) {
 
 if (!selectable.Selected && ((_a = game.Picked) === null || _a === void 0 ? void 0 : _a.Entity) === entity) {
 selectable.Selected = true;
-game.World.Signature[entity] |= 8 /* ControlPlayer */;
+game.World.Signature[entity] |= 16 /* ControlPlayer */;
 }
 
 if (selectable.Selected && ((_b = game.Picked) === null || _b === void 0 ? void 0 : _b.Entity) !== entity) {
 selectable.Selected = false;
-game.World.Signature[entity] &= ~8 /* ControlPlayer */;
+game.World.Signature[entity] &= ~16 /* ControlPlayer */;
 }
 }
 }
 
-const QUERY = 8192 /* Transform */;
+const QUERY = 16384 /* Transform */;
 function sys_transform(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY) === QUERY) {
@@ -18444,7 +18473,7 @@ invert(transform.Self, transform.World);
 if (world.Signature[entity] & 2 /* Children */) {
 let children = world.Children[entity];
 for (let child of children.Children) {
-if (world.Signature[child] & 8192 /* Transform */) {
+if (world.Signature[child] & 16384 /* Transform */) {
 let child_transform = world.Transform[child];
 child_transform.Parent = entity;
 update_transform(world, child, child_transform);
@@ -18461,6 +18490,7 @@ this.Graveyard = [];
 this.Camera = [];
 this.Children = [];
 this.Collide = [];
+this.ControlAlways = [];
 this.ControlPlayer = [];
 this.Draw = [];
 this.Highlightable = [];
@@ -18539,7 +18569,7 @@ this.InputDelta[evt.code] = -1;
 });
 this.Gl.getExtension("WEBGL_depth_texture");
 this.Targets = {
-Shade: create_depth_target(this.Gl, 1024, 1024),
+Sun: create_depth_target(this.Gl, 1024, 1024),
 };
 this.Gl.enable(GL_DEPTH_TEST);
 this.Gl.enable(GL_CULL_FACE);
@@ -18559,6 +18589,8 @@ sys_highlight(this);
 sys_control_pick(this);
 sys_control_keyboard(this);
 sys_control_mouse(this);
+
+sys_control_always(this);
 
 sys_nav(this);
 sys_move(this, delta);
@@ -18624,7 +18656,7 @@ ClearColor: clear_color,
 
 function control_player(move, yaw, pitch, zoom) {
 return (game, entity) => {
-game.World.Signature[entity] |= 8 /* ControlPlayer */;
+game.World.Signature[entity] |= 16 /* ControlPlayer */;
 game.World.ControlPlayer[entity] = {
 Move: move,
 Yaw: yaw,
@@ -18642,7 +18674,7 @@ Zoom: zoom,
 */
 function move(move_speed, rotation_speed) {
 return (game, entity) => {
-game.World.Signature[entity] |= 128 /* Move */;
+game.World.Signature[entity] |= 256 /* Move */;
 game.World.Move[entity] = {
 MoveSpeed: move_speed,
 RotationSpeed: rotation_speed,
@@ -18655,7 +18687,7 @@ SelfRotations: [],
 
 function transform(translation = [0, 0, 0], rotation = [0, 0, 0, 1], scale = [1, 1, 1]) {
 return (game, entity) => {
-game.World.Signature[entity] |= 8192 /* Transform */;
+game.World.Signature[entity] |= 16384 /* Transform */;
 game.World.Transform[entity] = {
 World: create(),
 Self: create(),
@@ -18676,7 +18708,7 @@ transform(),
 control_player(false, false, true, false),
 move(100, 0.1),
 children([
-transform([0, 50, -29], from_euler([0, 0, 0, 0], -60, 180, 0)),
+transform([0, 40, -23], from_euler([0, 0, 0, 0], -60, 180, 0)),
 control_player(false, false, false, true),
 move(200, 0),
 camera_display_perspective(1, 0.1, 1000),
@@ -18713,6 +18745,16 @@ Collisions: [],
 };
 }
 
+function control_always(direction, rotation) {
+return (game, entity) => {
+game.World.Signature[entity] |= 8 /* ControlAlways */;
+game.World.ControlAlways[entity] = {
+Direction: direction,
+Rotation: rotation,
+};
+};
+}
+
 function disable(mask) {
 return (game, entity) => {
 game.World.Signature[entity] &= ~mask;
@@ -18721,7 +18763,7 @@ game.World.Signature[entity] &= ~mask;
 
 function draw_selection(color) {
 return (game, entity) => {
-game.World.Signature[entity] |= 16 /* Draw */;
+game.World.Signature[entity] |= 32 /* Draw */;
 game.World.Draw[entity] = {
 Kind: 2 /* Selection */,
 Color: color,
@@ -18731,7 +18773,7 @@ Color: color,
 
 function light_directional(color = [1, 1, 1], range = 1) {
 return (game, entity) => {
-game.World.Signature[entity] |= 64 /* Light */;
+game.World.Signature[entity] |= 128 /* Light */;
 game.World.Light[entity] = {
 Kind: 1 /* Directional */,
 Color: color,
@@ -18742,7 +18784,7 @@ Intensity: range ** 2,
 
 function nav_agent(territory_id) {
 return (game, entity) => {
-game.World.Signature[entity] |= 256 /* NavAgent */;
+game.World.Signature[entity] |= 512 /* NavAgent */;
 game.World.NavAgent[entity] = {
 TerritoryId: territory_id,
 Destination: null,
@@ -18754,7 +18796,7 @@ Actions: 1,
 
 function pickable_territory(mesh, color_idle, color_hover, color_ready, color_selected) {
 return (game, entity) => {
-game.World.Signature[entity] |= 512 /* Pickable */;
+game.World.Signature[entity] |= 1024 /* Pickable */;
 game.World.Pickable[entity] = {
 Kind: 0 /* Territory */,
 Mesh: mesh,
@@ -18768,7 +18810,7 @@ ColorSelected: color_selected,
 }
 function pickable_unit(color_idle, color_hover, color_selected) {
 return (game, entity) => {
-game.World.Signature[entity] |= 512 /* Pickable */;
+game.World.Signature[entity] |= 1024 /* Pickable */;
 game.World.Pickable[entity] = {
 Kind: 1 /* Unit */,
 Hover: false,
@@ -18797,7 +18839,7 @@ game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
 game.ExtVao.bindVertexArrayOES(null);
 colored_specular_vaos.set(mesh, vao);
 }
-game.World.Signature[entity] |= 1024 /* Render */;
+game.World.Signature[entity] |= 2048 /* Render */;
 game.World.Render[entity] = {
 Kind: 2 /* ColoredSpecular */,
 Material: material,
@@ -18813,7 +18855,7 @@ Shininess: shininess,
 
 function selectable() {
 return (game, entity) => {
-game.World.Signature[entity] |= 2048 /* Selectable */;
+game.World.Signature[entity] |= 4096 /* Selectable */;
 game.World.Selectable[entity] = {
 Selected: false,
 };
@@ -18824,7 +18866,7 @@ function territory(continent, index) {
 return (game, entity) => {
 let id = continent * 10 + index;
 game.TerritoryEntities[id] = entity;
-game.World.Signature[entity] |= 4096 /* Territory */;
+game.World.Signature[entity] |= 8192 /* Territory */;
 game.World.Territory[entity] = {
 Continent: continent,
 Index: index,
@@ -18861,10 +18903,20 @@ game.TerritoryGraph = {
 instantiate(game, [...blueprint_camera(), transform([-25, 0, -50], [0, 1, 0, 0])]);
 
 instantiate(game, [
-transform([100, 100, 100], from_euler([0, 0, 0, 0], -45, 45, 0)),
+transform(undefined, from_euler([0, 0, 0, 0], -30, 0, 0)),
+children([
+transform(undefined, from_euler([0, 0, 0, 0], 0, 85, 0)),
+control_always(null, [0, -1, 0, 0]),
+move(0, 0.1),
+children([
+transform([0, 0, 100]),
 light_directional([1, 1, 1], 0.8),
-camera_framebuffer_ortho(game.Targets.Shade, 100, 1, 1000, [0, 0, 0, 1]),
+camera_framebuffer_ortho(game.Targets.Sun, 100, 1, 1000, [0, 0, 0, 1]),
+]),
+]),
 ]);
+
+instantiate(game, [transform([-1, 1, 1]), light_directional([1, 1, 1], 0.2)]);
 
 instantiate(game, [
 transform(),
@@ -18876,13 +18928,13 @@ for (let i = 0; i < 3; i++) {
 instantiate(game, [
 transform([-21 + float(-4, 4), 0, -52 + float(-4, 4)]),
 control_player(false, false, false, false),
-disable(8 /* ControlPlayer */),
+disable(16 /* ControlPlayer */),
 collide(true, 0 /* None */, 0 /* None */, [2, 6, 2]),
 pickable_unit([1, 1, 0, 1], [1, 0.5, 0, 1], [1, 0, 0, 1]),
 selectable(),
 nav_agent(3),
 move(10, 5),
-children([transform(), draw_selection("#ff0"), disable(16 /* Draw */)], [
+children([transform(), draw_selection("#ff0"), disable(32 /* Draw */)], [
 transform(),
 render_colored_specular(game.MaterialColoredSpecular, i < 2 ? game.MeshSoldier : game.MeshDragoon, [1, 1, 0, 1], 128, [1, 1, 1, 1]),
 ]),
@@ -18893,13 +18945,13 @@ for (let i = 0; i < 2; i++) {
 instantiate(game, [
 transform([7 + float(-3, 3), 0, -70 + float(-3, 3)]),
 control_player(false, false, false, false),
-disable(8 /* ControlPlayer */),
+disable(16 /* ControlPlayer */),
 collide(true, 0 /* None */, 0 /* None */, [2, 6, 2]),
 pickable_unit([1, 1, 0, 1], [1, 0.5, 0, 1], [1, 0, 0, 1]),
 selectable(),
 nav_agent(2),
 move(10, 5),
-children([transform(), draw_selection("#ff0"), disable(16 /* Draw */)], [
+children([transform(), draw_selection("#ff0"), disable(32 /* Draw */)], [
 transform(),
 render_colored_specular(game.MaterialColoredSpecular, i < 1 ? game.MeshSoldier : game.MeshCannon, [1, 1, 0, 1], 128, [1, 1, 1, 1]),
 ]),
