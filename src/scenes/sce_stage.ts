@@ -60,7 +60,7 @@ export function scene_stage(game: Game) {
     instantiate(game, [
         transform(undefined, from_euler([0, 0, 0, 0], -30, 0, 0)),
         children([
-            transform(),
+            transform(undefined, from_euler([0, 0, 0, 0], 0, 85, 0)),
             control_always(null, [0, -1, 0, 0]),
             move(0, 0.1),
             children([

@@ -43,8 +43,7 @@ let fragment = `
         vec3 view_dir = eye - vert_pos.xyz;
         vec3 view_normal = normalize(view_dir);
 
-        // Ambient light.
-        vec3 rgb = color_diffuse.rgb * 0.1;
+        vec3 rgb;
 
         for (int i = 0; i < MAX_LIGHTS; i++) {
             if (light_positions[i].w == 0.0) {
@@ -86,17 +85,25 @@ let fragment = `
             }
         }
 
-        gl_FragColor = vec4(rgb, 1.0);
-
         vec4 shadow_space_pos = shadow_space * vert_pos;
         vec3 shadow_space_ndc = shadow_space_pos.xyz / shadow_space_pos.w;
         // Transform the [-1, 1] NDC to [0, 1] to match the shadow texture data.
         shadow_space_ndc = shadow_space_ndc * 0.5 + 0.5;
-        float shadow_map_depth = texture2D(shadow_map, shadow_space_ndc.xy).x;
-        if (shadow_map_depth < shadow_space_ndc.z - 0.001) {
-            // In shadow.
-            gl_FragColor.rgb *= 0.5;
+
+        float shadow_bias = 0.001;
+        float shadow_factor = 0.0;
+        float texel_size = 1.0 / 1024.0;
+        for (int u = -1; u <= 1; u++) {
+            for (int v = -1; v <= 1; v++) {
+                float shadow_map_depth = texture2D(shadow_map, shadow_space_ndc.xy + vec2(u, v) * texel_size).x;
+                shadow_factor += shadow_space_ndc.z - shadow_bias > shadow_map_depth ? 0.5 : 0.0;
+            }
         }
+        shadow_factor /= 9.0;
+
+        vec3 ambient_rgb = color_diffuse.rgb * 0.1;
+        vec3 frag_color = ambient_rgb + (1.0 - shadow_factor) * rgb;
+        gl_FragColor = vec4(frag_color, 1.0);
     }
 `;
 
