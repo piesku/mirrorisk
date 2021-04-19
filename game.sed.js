@@ -57912,62 +57912,6 @@ camera_display_perspective(1, 0.1, 1000),
 ];
 }
 
-/**
-* Add the Collide component.
-*
-* @param dynamic Dynamic colliders collider with all colliders. Static
-* colliders collide only with dynamic colliders.
-* @param layers Bit field with layers this collider is on.
-* @param mask Bit mask with layers visible to this collider.
-* @param size Size of the collider relative to the entity's transform.
-*/
-function collide(dynamic, layers, mask, size = [1, 1, 1]) {
-return (game, entity) => {
-game.World.Signature[entity] |= 4 /* Collide */;
-game.World.Collide[entity] = {
-Entity: entity,
-New: true,
-Dynamic: dynamic,
-Layers: layers,
-Signature: mask,
-Size: size,
-Min: [0, 0, 0],
-Max: [0, 0, 0],
-Center: [0, 0, 0],
-Half: [0, 0, 0],
-Collisions: [],
-};
-};
-}
-
-function disable(mask) {
-return (game, entity) => {
-game.World.Signature[entity] &= ~mask;
-};
-}
-
-function draw_selection(color) {
-return (game, entity) => {
-game.World.Signature[entity] |= 32 /* Draw */;
-game.World.Draw[entity] = {
-Kind: 2 /* Selection */,
-Color: color,
-};
-};
-}
-
-function nav_agent(territory_id) {
-return (game, entity) => {
-game.World.Signature[entity] |= 512 /* NavAgent */;
-game.World.NavAgent[entity] = {
-TerritoryId: territory_id,
-Destination: null,
-
-Actions: 1,
-};
-};
-}
-
 function pickable_territory(mesh, color_idle, color_hover, color_ready, color_selected) {
 return (game, entity) => {
 game.World.Signature[entity] |= 1024 /* Pickable */;
@@ -58023,6 +57967,85 @@ Vao: colored_specular_vaos.get(mesh),
 ColorDiffuse: color_diffuse,
 ColorSpecular: color_specular,
 Shininess: shininess,
+};
+};
+}
+
+function territory(continent, index) {
+return (game, entity) => {
+let id = continent * 10 + index;
+game.TerritoryEntities[id] = entity;
+game.World.Signature[entity] |= 8192 /* Territory */;
+game.World.Territory[entity] = {
+Continent: continent,
+Index: index,
+Id: id,
+};
+};
+}
+
+function blueprint_territory(game, continent, index) {
+let mesh = game.TerritoryMeshes[continent][index - 1];
+return [
+transform([0, float(-1, 0), 0]),
+pickable_territory(mesh, [0.3, 0.3, 0.8, 1], [0.3, 0.5, 0.8, 1], [0.3, 0.8, 0.3, 1], [0.3, 0.5, 0.8, 1]),
+render_colored_specular(game.MaterialColoredSpecular, mesh, [0.3, 0.3, 0.8, 1]),
+territory(continent, index),
+];
+}
+
+/**
+* Add the Collide component.
+*
+* @param dynamic Dynamic colliders collider with all colliders. Static
+* colliders collide only with dynamic colliders.
+* @param layers Bit field with layers this collider is on.
+* @param mask Bit mask with layers visible to this collider.
+* @param size Size of the collider relative to the entity's transform.
+*/
+function collide(dynamic, layers, mask, size = [1, 1, 1]) {
+return (game, entity) => {
+game.World.Signature[entity] |= 4 /* Collide */;
+game.World.Collide[entity] = {
+Entity: entity,
+New: true,
+Dynamic: dynamic,
+Layers: layers,
+Signature: mask,
+Size: size,
+Min: [0, 0, 0],
+Max: [0, 0, 0],
+Center: [0, 0, 0],
+Half: [0, 0, 0],
+Collisions: [],
+};
+};
+}
+
+function disable(mask) {
+return (game, entity) => {
+game.World.Signature[entity] &= ~mask;
+};
+}
+
+function draw_selection(color) {
+return (game, entity) => {
+game.World.Signature[entity] |= 32 /* Draw */;
+game.World.Draw[entity] = {
+Kind: 2 /* Selection */,
+Color: color,
+};
+};
+}
+
+function nav_agent(territory_id) {
+return (game, entity) => {
+game.World.Signature[entity] |= 512 /* NavAgent */;
+game.World.NavAgent[entity] = {
+TerritoryId: territory_id,
+Destination: null,
+
+Actions: 1,
 };
 };
 }
@@ -58093,28 +58116,6 @@ Intensity: range ** 2,
 };
 }
 
-function territory(continent, index) {
-return (game, entity) => {
-let id = continent * 10 + index;
-game.TerritoryEntities[id] = entity;
-game.World.Signature[entity] |= 8192 /* Territory */;
-game.World.Territory[entity] = {
-Continent: continent,
-Index: index,
-Id: id,
-};
-};
-}
-
-function blueprint_region(game, continent, index) {
-let mesh = game.TerritoryMeshes[continent][index - 1];
-return [
-transform([0, float(-1, 0), 0]),
-pickable_territory(mesh, [0.3, 0.3, 0.8, 1], [0.3, 0.5, 0.8, 1], [0.3, 0.8, 0.3, 1], [0.3, 0.5, 0.8, 1]),
-render_colored_specular(game.MaterialColoredSpecular, mesh, [0.3, 0.3, 0.8, 1]),
-territory(continent, index),
-];
-}
 function scene_stage(game) {
 set_seed(25);
 game.World = new World();
@@ -58196,17 +58197,17 @@ transform(),
 collide(false, 0 /* None */, 0 /* None */, [1000, 0.01, 1000]),
 children(
 
-blueprint_region(game, 0 /* Europe */, 1), blueprint_region(game, 0 /* Europe */, 2), blueprint_region(game, 0 /* Europe */, 3), blueprint_region(game, 0 /* Europe */, 4), blueprint_region(game, 0 /* Europe */, 5), blueprint_region(game, 0 /* Europe */, 6), blueprint_region(game, 0 /* Europe */, 7), 
+blueprint_territory(game, 0 /* Europe */, 1), blueprint_territory(game, 0 /* Europe */, 2), blueprint_territory(game, 0 /* Europe */, 3), blueprint_territory(game, 0 /* Europe */, 4), blueprint_territory(game, 0 /* Europe */, 5), blueprint_territory(game, 0 /* Europe */, 6), blueprint_territory(game, 0 /* Europe */, 7), 
 
-blueprint_region(game, 1 /* Africa */, 1), blueprint_region(game, 1 /* Africa */, 2), blueprint_region(game, 1 /* Africa */, 3), blueprint_region(game, 1 /* Africa */, 4), blueprint_region(game, 1 /* Africa */, 5), blueprint_region(game, 1 /* Africa */, 6), 
+blueprint_territory(game, 1 /* Africa */, 1), blueprint_territory(game, 1 /* Africa */, 2), blueprint_territory(game, 1 /* Africa */, 3), blueprint_territory(game, 1 /* Africa */, 4), blueprint_territory(game, 1 /* Africa */, 5), blueprint_territory(game, 1 /* Africa */, 6), 
 
-blueprint_region(game, 2 /* Australia */, 1), blueprint_region(game, 2 /* Australia */, 2), blueprint_region(game, 2 /* Australia */, 3), blueprint_region(game, 2 /* Australia */, 4), 
+blueprint_territory(game, 2 /* Australia */, 1), blueprint_territory(game, 2 /* Australia */, 2), blueprint_territory(game, 2 /* Australia */, 3), blueprint_territory(game, 2 /* Australia */, 4), 
 
-blueprint_region(game, 3 /* NorthAmerica */, 1), blueprint_region(game, 3 /* NorthAmerica */, 2), blueprint_region(game, 3 /* NorthAmerica */, 3), blueprint_region(game, 3 /* NorthAmerica */, 4), blueprint_region(game, 3 /* NorthAmerica */, 5), blueprint_region(game, 3 /* NorthAmerica */, 6), blueprint_region(game, 3 /* NorthAmerica */, 7), blueprint_region(game, 3 /* NorthAmerica */, 8), blueprint_region(game, 3 /* NorthAmerica */, 9), 
+blueprint_territory(game, 3 /* NorthAmerica */, 1), blueprint_territory(game, 3 /* NorthAmerica */, 2), blueprint_territory(game, 3 /* NorthAmerica */, 3), blueprint_territory(game, 3 /* NorthAmerica */, 4), blueprint_territory(game, 3 /* NorthAmerica */, 5), blueprint_territory(game, 3 /* NorthAmerica */, 6), blueprint_territory(game, 3 /* NorthAmerica */, 7), blueprint_territory(game, 3 /* NorthAmerica */, 8), blueprint_territory(game, 3 /* NorthAmerica */, 9), 
 
-blueprint_region(game, 4 /* SouthAmerica */, 1), blueprint_region(game, 4 /* SouthAmerica */, 2), blueprint_region(game, 4 /* SouthAmerica */, 3), blueprint_region(game, 4 /* SouthAmerica */, 4), 
+blueprint_territory(game, 4 /* SouthAmerica */, 1), blueprint_territory(game, 4 /* SouthAmerica */, 2), blueprint_territory(game, 4 /* SouthAmerica */, 3), blueprint_territory(game, 4 /* SouthAmerica */, 4), 
 
-blueprint_region(game, 5 /* Asia */, 1), blueprint_region(game, 5 /* Asia */, 2), blueprint_region(game, 5 /* Asia */, 3), blueprint_region(game, 5 /* Asia */, 4), blueprint_region(game, 5 /* Asia */, 5), blueprint_region(game, 5 /* Asia */, 6), blueprint_region(game, 5 /* Asia */, 7), blueprint_region(game, 5 /* Asia */, 8), blueprint_region(game, 5 /* Asia */, 9), blueprint_region(game, 5 /* Asia */, 10), blueprint_region(game, 5 /* Asia */, 11), blueprint_region(game, 5 /* Asia */, 12)),
+blueprint_territory(game, 5 /* Asia */, 1), blueprint_territory(game, 5 /* Asia */, 2), blueprint_territory(game, 5 /* Asia */, 3), blueprint_territory(game, 5 /* Asia */, 4), blueprint_territory(game, 5 /* Asia */, 5), blueprint_territory(game, 5 /* Asia */, 6), blueprint_territory(game, 5 /* Asia */, 7), blueprint_territory(game, 5 /* Asia */, 8), blueprint_territory(game, 5 /* Asia */, 9), blueprint_territory(game, 5 /* Asia */, 10), blueprint_territory(game, 5 /* Asia */, 11), blueprint_territory(game, 5 /* Asia */, 12)),
 ]);
 
 for (let i = 0; i < 3; i++) {
