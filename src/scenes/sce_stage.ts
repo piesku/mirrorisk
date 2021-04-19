@@ -1,3 +1,4 @@
+import {from_euler} from "../../common/quat.js";
 import {float, set_seed} from "../../common/random.js";
 import {blueprint_camera} from "../blueprints/blu_camera.js";
 import {blueprint_sun} from "../blueprints/blu_sun.js";
@@ -79,6 +80,18 @@ export function scene_stage(game: Game) {
     // Directional backlight.
     instantiate(game, [transform([-1, 1, -1]), light_directional([1, 1, 1], 0.2)]);
 
+    // Table
+    instantiate(game, [
+        transform([0, -222, 0], from_euler([0, 0, 0, 0], 0, 15, 0), [300, 300, 300]),
+        render_textured_specular(
+            game.MaterialTexturedSpecular,
+            game.MeshTable,
+            game.Textures["marble"],
+            32,
+            [2, 2, 2, 1]
+        ),
+    ]);
+
     // Board background.
     instantiate(game, [
         transform([0, -0.5, 0], undefined, [332, 1, 220]),
@@ -86,7 +99,7 @@ export function scene_stage(game: Game) {
             game.MaterialTexturedSpecular,
             game.MeshPlane,
             game.Textures["background"],
-            32,
+            1,
             [2, 2, 2, 1]
         ),
     ]);

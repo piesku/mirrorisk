@@ -9,6 +9,7 @@ import {mesh_cube} from "../meshes/cube.js";
 import {mesh_dragoon} from "../meshes/dragoon.js";
 import {mesh_plane} from "../meshes/plane.js";
 import {mesh_soldier} from "../meshes/soldier.js";
+import {mesh_table_round} from "../meshes/table_round.js";
 import {loop_start, loop_stop} from "./loop.js";
 import {sys_camera} from "./systems/sys_camera.js";
 import {sys_collide} from "./systems/sys_collide.js";
@@ -77,6 +78,7 @@ export class Game {
     MaterialTexturedSpecular = mat1_textured_specular_phong(this.Gl);
     MeshCube = mesh_cube(this.Gl);
     MeshPlane = mesh_plane(this.Gl);
+    MeshTable = mesh_table_round(this.Gl);
     MeshSoldier = mesh_soldier(this.Gl);
     MeshDragoon = mesh_dragoon(this.Gl);
     MeshCannon = mesh_cannon(this.Gl);
