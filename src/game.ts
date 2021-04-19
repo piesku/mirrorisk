@@ -7,6 +7,7 @@ import {mat1_textured_specular_phong} from "../materials/mat1_textured_specular_
 import {mesh_cannon} from "../meshes/cannon.js";
 import {mesh_cube} from "../meshes/cube.js";
 import {mesh_dragoon} from "../meshes/dragoon.js";
+import {mesh_plane} from "../meshes/plane.js";
 import {mesh_soldier} from "../meshes/soldier.js";
 import {loop_start, loop_stop} from "./loop.js";
 import {sys_camera} from "./systems/sys_camera.js";
@@ -75,6 +76,7 @@ export class Game {
     MaterialColoredSpecular = mat1_colored_specular_phong(this.Gl);
     MaterialTexturedSpecular = mat1_textured_specular_phong(this.Gl);
     MeshCube = mesh_cube(this.Gl);
+    MeshPlane = mesh_plane(this.Gl);
     MeshSoldier = mesh_soldier(this.Gl);
     MeshDragoon = mesh_dragoon(this.Gl);
     MeshCannon = mesh_cannon(this.Gl);

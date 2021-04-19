@@ -6,6 +6,7 @@ import {blueprint_unit} from "../blueprints/blu_unit.js";
 import {children} from "../components/com_children.js";
 import {collide} from "../components/com_collide.js";
 import {light_directional} from "../components/com_light.js";
+import {render_textured_specular} from "../components/com_render1.js";
 import {Continent} from "../components/com_territory.js";
 import {transform} from "../components/com_transform.js";
 import {instantiate} from "../entity.js";
@@ -77,6 +78,18 @@ export function scene_stage(game: Game) {
 
     // Directional backlight.
     instantiate(game, [transform([-1, 1, -1]), light_directional([1, 1, 1], 0.2)]);
+
+    // Board background.
+    instantiate(game, [
+        transform([0, -0.5, 0], undefined, [332, 1, 220]),
+        render_textured_specular(
+            game.MaterialTexturedSpecular,
+            game.MeshPlane,
+            game.Textures["background"],
+            32,
+            [2, 2, 2, 1]
+        ),
+    ]);
 
     // World map.
     instantiate(game, [
