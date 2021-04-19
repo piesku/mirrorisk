@@ -3,6 +3,7 @@ import {float, set_seed} from "../../common/random.js";
 import {blueprint_camera} from "../blueprints/blu_camera.js";
 import {blueprint_territory} from "../blueprints/blu_territory.js";
 import {blueprint_unit} from "../blueprints/blu_unit.js";
+import {callback} from "../components/com_callback.js";
 import {camera_framebuffer_ortho} from "../components/com_camera.js";
 import {children} from "../components/com_children.js";
 import {collide} from "../components/com_collide.js";
@@ -77,11 +78,12 @@ export function scene_stage(game: Game) {
     instantiate(game, [...blueprint_camera(game), transform([-25, 0, -50], [0, 1, 0, 0])]);
 
     // The Sun.
-    let sun = instantiate(game, [
+    instantiate(game, [
         transform(undefined, from_euler([0, 0, 0, 0], -30, 0, 0)),
         children([
             transform(undefined, from_euler([0, 0, 0, 0], 0, 35, 0)),
             control_always(null, [0, -1, 0, 0]),
+            callback((game, entity) => (game.SunEntity = entity)),
             disable(Has.ControlAlways),
             move(0, 3.1),
             children([
@@ -91,8 +93,6 @@ export function scene_stage(game: Game) {
             ]),
         ]),
     ]);
-
-    game.SunEntity = game.World.Children[sun].Children[0];
 
     // Directional backlight.
     instantiate(game, [transform([-1, 1, 1]), light_directional([1, 1, 1], 0.2)]);
