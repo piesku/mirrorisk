@@ -58,6 +58,7 @@ export class Game {
     AIUnitsToMove: number = 0;
     // TODO: EndTurn Actions sets this, so it will break if AI moves first
     IsAITurn: boolean = false;
+    SunEntity: Entity = 0;
 
     Ui = document.querySelector("main")!;
 

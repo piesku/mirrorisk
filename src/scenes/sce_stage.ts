@@ -6,6 +6,7 @@ import {camera_framebuffer_ortho} from "../components/com_camera.js";
 import {children} from "../components/com_children.js";
 import {collide} from "../components/com_collide.js";
 import {control_always} from "../components/com_control_always.js";
+import {disable} from "../components/com_disable.js";
 import {light_directional} from "../components/com_light.js";
 import {move} from "../components/com_move.js";
 import {pickable_territory} from "../components/com_pickable.js";
@@ -14,7 +15,7 @@ import {Continent, territory} from "../components/com_territory.js";
 import {transform} from "../components/com_transform.js";
 import {instantiate} from "../entity.js";
 import {Game, Layer} from "../game.js";
-import {World} from "../world.js";
+import {Has, World} from "../world.js";
 
 function blueprint_region(game: Game, continent: Continent, index: number) {
     let mesh = game.TerritoryMeshes[continent][index - 1];
@@ -53,12 +54,13 @@ export function scene_stage(game: Game) {
     instantiate(game, [...blueprint_camera(game), transform([-25, 0, -50], [0, 1, 0, 0])]);
 
     // The Sun.
-    instantiate(game, [
+    let sun = instantiate(game, [
         transform(undefined, from_euler([0, 0, 0, 0], -30, 0, 0)),
         children([
-            transform(undefined, from_euler([0, 0, 0, 0], 0, 85, 0)),
+            transform(undefined, from_euler([0, 0, 0, 0], 0, 35, 0)),
             control_always(null, [0, -1, 0, 0]),
-            move(0, 0.1),
+            disable(Has.ControlAlways),
+            move(0, 3.1),
             children([
                 transform([0, 0, 100]),
                 light_directional([1, 1, 1], 0.8),
@@ -66,6 +68,8 @@ export function scene_stage(game: Game) {
             ]),
         ]),
     ]);
+
+    game.SunEntity = game.World.Children[sun].Children[0];
 
     // Directional backlight.
     instantiate(game, [transform([-1, 1, 1]), light_directional([1, 1, 1], 0.2)]);

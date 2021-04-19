@@ -1,4 +1,5 @@
 import {Game, Player} from "./game.js";
+import {Has} from "./world.js";
 
 export const enum Action {
     EndTurn,
@@ -7,21 +8,27 @@ export const enum Action {
 export function dispatch(game: Game, action: Action, payload: unknown) {
     switch (action) {
         case Action.EndTurn: {
-            let players_count = game.Players.length;
-            game.CurrentPlayer = (players_count + game.CurrentPlayer + 1) % players_count;
+            game.World.Signature[game.SunEntity] |= Has.ControlAlways;
 
-            let current_player_units = game.PlayerUnits[game.CurrentPlayer];
+            setTimeout(() => {
+                let players_count = game.Players.length;
+                let next_player = (players_count + game.CurrentPlayer + 1) % players_count;
 
-            for (let i = 0; i < current_player_units.length; i++) {
-                game.World.NavAgent[current_player_units[i]].Actions = 1;
-            }
+                let next_player_units = game.PlayerUnits[next_player];
 
-            game.IsAITurn = game.Players[game.CurrentPlayer] === Player.AI;
+                for (let i = 0; i < next_player_units.length; i++) {
+                    game.World.NavAgent[next_player_units[i]].Actions = 1;
+                }
 
-            if (game.IsAITurn) {
-                game.AIUnitsToMove = current_player_units.length;
-            }
+                game.IsAITurn = game.Players[next_player] === Player.AI;
 
+                if (game.IsAITurn) {
+                    game.AIUnitsToMove = next_player_units.length;
+                }
+
+                game.World.Signature[game.SunEntity] &= ~Has.ControlAlways;
+                game.CurrentPlayer = next_player;
+            }, 2000);
             break;
         }
     }
