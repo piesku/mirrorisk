@@ -55,6 +55,9 @@ export class Game {
     CurrentPlayer = 0;
     Players: Player[] = [];
     PlayerUnits: Record<Entity, Entity[]> = {};
+    AIUnitsToMove: number = 0;
+    // TODO: EndTurn Actions sets this, so it will break if AI moves first
+    IsAITurn: boolean = false;
 
     Ui = document.querySelector("main")!;
 

@@ -1,4 +1,4 @@
-import {Game} from "./game.js";
+import {Game, Player} from "./game.js";
 
 export const enum Action {
     EndTurn,
@@ -16,7 +16,12 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                 game.World.NavAgent[current_player_units[i]].Actions = 1;
             }
 
-            game.World;
+            game.IsAITurn = game.Players[game.CurrentPlayer] === Player.AI;
+
+            if (game.IsAITurn) {
+                game.AIUnitsToMove = current_player_units.length;
+            }
+
             break;
         }
     }

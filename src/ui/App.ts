@@ -5,6 +5,8 @@ import {Game} from "../game.js";
 export function App(game: Game) {
     return html`
         <div>Current Player: ${game.CurrentPlayer}</div>
-        <button onclick="$(${Action.EndTurn})">End Turn</button>
+        <button onclick="$(${Action.EndTurn})" ${game.IsAITurn && "disabled=disabled"}">
+            End Turn
+        </button>
     `;
 }

@@ -1,6 +1,7 @@
 import {get_translation} from "../../common/mat4.js";
 import {Vec3} from "../../common/math.js";
 import {copy, distance_squared, normalize, transform_point} from "../../common/vec3.js";
+import {Action, dispatch} from "../actions.js";
 import {Entity, Game} from "../game.js";
 import {Has} from "../world.js";
 
@@ -28,8 +29,15 @@ function update(game: Game, entity: Entity) {
 
         let distance_to_destination = distance_squared(position, agent.Destination);
         if (distance_to_destination < 1) {
-            console.log(entity);
             agent.Destination = null;
+
+            // TODO: Should this check this unit's TEAM component?
+            if (game.IsAITurn) {
+                game.AIUnitsToMove--;
+                if (game.AIUnitsToMove === 0) {
+                    dispatch(game, Action.EndTurn, {});
+                }
+            }
         }
 
         // Transform the destination into the agent's self space for sys_move.
