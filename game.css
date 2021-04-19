@@ -10,3 +10,6 @@ main {
     height: 100vh;
     user-select: none;
 }
+img {
+    display: none;
+}
