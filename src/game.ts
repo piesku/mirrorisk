@@ -25,6 +25,7 @@ import {sys_render_depth} from "./systems/sys_render1_depth.js";
 import {sys_render_forward} from "./systems/sys_render1_forward.js";
 import {sys_select} from "./systems/sys_select.js";
 import {sys_transform} from "./systems/sys_transform.js";
+import {sys_ui} from "./systems/sys_ui.js";
 import {World} from "./world.js";
 
 export type Entity = number;
@@ -49,6 +50,7 @@ export class Game {
     TotalPlayers = 3;
 
     Ui = document.querySelector("main")!;
+
     CanvasScene = document.querySelector("canvas#scene")! as HTMLCanvasElement;
     Gl = this.CanvasScene.getContext("webgl")!;
     ExtVao = this.Gl.getExtension("OES_vertex_array_object")!;
@@ -157,6 +159,7 @@ export class Game {
         sys_render_forward(this, delta);
         sys_draw(this, delta);
 
+        sys_ui(this, delta);
         sys_framerate(this, delta, performance.now() - now);
     }
 }
