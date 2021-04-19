@@ -37,6 +37,26 @@ let fragment = `
     varying vec4 vert_pos;
     varying vec3 vert_normal;
 
+    float shadow_factor(vec4 world_pos) {
+        vec4 shadow_space_pos = shadow_space * world_pos;
+        vec3 shadow_space_ndc = shadow_space_pos.xyz / shadow_space_pos.w;
+        // Transform the [-1, 1] NDC to [0, 1] to match the shadow texture data.
+        shadow_space_ndc = shadow_space_ndc * 0.5 + 0.5;
+
+        float shadow_bias = 0.001;
+        float shadow_acc = 0.0;
+        float texel_size = 1.0 / 1024.0;
+
+        // Sample 9 surrounding texels to anti-alias the shadow a bit.
+        for (int u = -1; u <= 1; u++) {
+            for (int v = -1; v <= 1; v++) {
+                float shadow_map_depth = texture2D(shadow_map, shadow_space_ndc.xy + vec2(u, v) * texel_size).x;
+                shadow_acc += shadow_space_ndc.z - shadow_bias > shadow_map_depth ? 0.5 : 0.0;
+            }
+        }
+        return shadow_acc / 9.0;
+    }
+
     void main() {
         vec3 frag_normal = normalize(vert_normal);
 
@@ -85,24 +105,8 @@ let fragment = `
             }
         }
 
-        vec4 shadow_space_pos = shadow_space * vert_pos;
-        vec3 shadow_space_ndc = shadow_space_pos.xyz / shadow_space_pos.w;
-        // Transform the [-1, 1] NDC to [0, 1] to match the shadow texture data.
-        shadow_space_ndc = shadow_space_ndc * 0.5 + 0.5;
-
-        float shadow_bias = 0.001;
-        float shadow_factor = 0.0;
-        float texel_size = 1.0 / 1024.0;
-        for (int u = -1; u <= 1; u++) {
-            for (int v = -1; v <= 1; v++) {
-                float shadow_map_depth = texture2D(shadow_map, shadow_space_ndc.xy + vec2(u, v) * texel_size).x;
-                shadow_factor += shadow_space_ndc.z - shadow_bias > shadow_map_depth ? 0.5 : 0.0;
-            }
-        }
-        shadow_factor /= 9.0;
-
         vec3 ambient_rgb = color_diffuse.rgb * 0.1;
-        vec3 frag_color = ambient_rgb + (1.0 - shadow_factor) * rgb;
+        vec3 frag_color = ambient_rgb + rgb * (1.0 - shadow_factor(vert_pos));
         gl_FragColor = vec4(frag_color, 1.0);
     }
 `;
