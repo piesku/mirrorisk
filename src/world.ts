@@ -11,6 +11,7 @@ import {NavAgent} from "./components/com_nav_agent.js";
 import {Pickable} from "./components/com_pickable.js";
 import {Render} from "./components/com_render1.js";
 import {Selectable} from "./components/com_selectable.js";
+import {Team} from "./components/com_team.js";
 import {Territory} from "./components/com_territory.js";
 import {Transform} from "./components/com_transform.js";
 import {Entity} from "./game.js";
@@ -31,6 +32,7 @@ const enum Component {
     Selectable,
     Territory,
     Transform,
+    Team,
 }
 
 export const enum Has {
@@ -49,6 +51,7 @@ export const enum Has {
     Selectable = 1 << Component.Selectable,
     Territory = 1 << Component.Territory,
     Transform = 1 << Component.Transform,
+    Team = 1 << Component.Team,
 }
 
 export class World {
@@ -71,4 +74,5 @@ export class World {
     Selectable: Array<Selectable> = [];
     Territory: Array<Territory> = [];
     Transform: Array<Transform> = [];
+    Team: Array<Team> = [];
 }

@@ -1,19 +1,16 @@
 import {from_euler} from "../../common/quat.js";
 import {float, set_seed} from "../../common/random.js";
 import {blueprint_camera} from "../blueprints/blu_camera.js";
+import {blueprint_unit} from "../blueprints/blu_unit.js";
 import {camera_framebuffer_ortho} from "../components/com_camera.js";
 import {children} from "../components/com_children.js";
 import {collide} from "../components/com_collide.js";
 import {control_always} from "../components/com_control_always.js";
-import {control_player} from "../components/com_control_player.js";
 import {disable} from "../components/com_disable.js";
-import {draw_selection} from "../components/com_draw.js";
 import {light_directional} from "../components/com_light.js";
 import {move} from "../components/com_move.js";
-import {nav_agent} from "../components/com_nav_agent.js";
-import {pickable_territory, pickable_unit} from "../components/com_pickable.js";
+import {pickable_territory} from "../components/com_pickable.js";
 import {render_colored_specular} from "../components/com_render1.js";
-import {selectable} from "../components/com_selectable.js";
 import {Continent, territory} from "../components/com_territory.js";
 import {transform} from "../components/com_transform.js";
 import {instantiate} from "../entity.js";
@@ -57,12 +54,13 @@ export function scene_stage(game: Game) {
     instantiate(game, [...blueprint_camera(game), transform([-25, 0, -50], [0, 1, 0, 0])]);
 
     // The Sun.
-    instantiate(game, [
+    let sun = instantiate(game, [
         transform(undefined, from_euler([0, 0, 0, 0], -30, 0, 0)),
         children([
-            transform(undefined, from_euler([0, 0, 0, 0], 0, 85, 0)),
+            transform(undefined, from_euler([0, 0, 0, 0], 0, 35, 0)),
             control_always(null, [0, -1, 0, 0]),
-            move(0, 0.1),
+            disable(Has.ControlAlways),
+            move(0, 3.1),
             children([
                 transform([0, 0, 100]),
                 light_directional([1, 1, 1], 0.8),
@@ -70,6 +68,8 @@ export function scene_stage(game: Game) {
             ]),
         ]),
     ]);
+
+    game.SunEntity = game.World.Children[sun].Children[0];
 
     // Directional backlight.
     instantiate(game, [transform([-1, 1, 1]), light_directional([1, 1, 1], 0.2)]);
@@ -91,55 +91,46 @@ export function scene_stage(game: Game) {
 
     // Units in Central Europe.
     for (let i = 0; i < 3; i++) {
-        instantiate(game, [
-            transform([-21 + float(-4, 4), 0, -52 + float(-4, 4)]),
-            control_player(false, false, false, false),
-            disable(Has.ControlPlayer),
-            collide(true, Layer.None, Layer.None, [2, 6, 2]),
-            pickable_unit([1, 1, 0, 1], [1, 0.5, 0, 1], [1, 0, 0, 1]),
-            selectable(),
-            nav_agent(3),
-            move(10, 5),
-            children(
-                [transform(), draw_selection("#ff0"), disable(Has.Draw)],
-                [
-                    transform(),
-                    render_colored_specular(
-                        game.MaterialColoredSpecular,
-                        i < 2 ? game.MeshSoldier : game.MeshDragoon,
-                        [1, 1, 0, 1],
-                        128,
-                        [1, 1, 1, 1]
-                    ),
-                ]
-            ),
-        ]);
+        instantiate(
+            game,
+            blueprint_unit(
+                game,
+                [-21 + float(-4, 4), 0, -52 + float(-4, 4)],
+                [1, 1, 0, 1],
+                3,
+                i < 1 ? game.MeshSoldier : game.MeshDragoon,
+                0
+            )
+        );
     }
 
     // Units in Iceland.
     for (let i = 0; i < 2; i++) {
-        instantiate(game, [
-            transform([7 + float(-3, 3), 0, -70 + float(-3, 3)]),
-            control_player(false, false, false, false),
-            disable(Has.ControlPlayer),
-            collide(true, Layer.None, Layer.None, [2, 6, 2]),
-            pickable_unit([1, 1, 0, 1], [1, 0.5, 0, 1], [1, 0, 0, 1]),
-            selectable(),
-            nav_agent(2),
-            move(10, 5),
-            children(
-                [transform(), draw_selection("#ff0"), disable(Has.Draw)],
-                [
-                    transform(),
-                    render_colored_specular(
-                        game.MaterialColoredSpecular,
-                        i < 1 ? game.MeshSoldier : game.MeshCannon,
-                        [1, 1, 0, 1],
-                        128,
-                        [1, 1, 1, 1]
-                    ),
-                ]
-            ),
-        ]);
+        instantiate(
+            game,
+            blueprint_unit(
+                game,
+                [7 + float(-3, 3), 0, -70 + float(-3, 3)],
+                [1, 0, 0, 1],
+                2,
+                i < 1 ? game.MeshSoldier : game.MeshCannon,
+                1
+            )
+        );
+    }
+
+    // Units in Russia.
+    for (let i = 0; i < 3; i++) {
+        instantiate(
+            game,
+            blueprint_unit(
+                game,
+                [-42 + float(-3, 3), 0, -60 + float(-3, 3)],
+                [1, 0, 1, 1],
+                2,
+                i < 1 ? game.MeshSoldier : game.MeshCannon,
+                2
+            )
+        );
     }
 }

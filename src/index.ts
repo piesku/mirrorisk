@@ -5,13 +5,18 @@ import {mesh_eu04} from "../meshes/eu04.js";
 import {mesh_eu05} from "../meshes/eu05.js";
 import {mesh_eu06} from "../meshes/eu06.js";
 import {mesh_eu07} from "../meshes/eu07.js";
-import {Game} from "./game.js";
+import {dispatch} from "./actions.js";
+import {Game, Player} from "./game.js";
 import {loop_start} from "./loop.js";
 import {scene_stage} from "./scenes/sce_stage.js";
 
 let game = new Game();
+
 // @ts-ignore
 window.game = game;
+
+// @ts-ignore
+window.$ = dispatch.bind(null, game);
 
 game.TerritoryMeshes[0] = [
     mesh_eu01(game.Gl),
@@ -22,6 +27,8 @@ game.TerritoryMeshes[0] = [
     mesh_eu06(game.Gl),
     mesh_eu07(game.Gl),
 ];
+
+game.Players = [Player.Human, Player.AI, Player.AI];
 
 scene_stage(game);
 loop_start(game);

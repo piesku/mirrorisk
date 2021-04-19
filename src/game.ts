@@ -10,6 +10,7 @@ import {mesh_soldier} from "../meshes/soldier.js";
 import {loop_start, loop_stop} from "./loop.js";
 import {sys_camera} from "./systems/sys_camera.js";
 import {sys_collide} from "./systems/sys_collide.js";
+import {sys_control_ai} from "./systems/sys_control_ai.js";
 import {sys_control_always} from "./systems/sys_control_always.js";
 import {sys_control_keyboard} from "./systems/sys_control_keyboard.js";
 import {sys_control_mouse} from "./systems/sys_control_mouse.js";
@@ -25,9 +26,15 @@ import {sys_render_depth} from "./systems/sys_render1_depth.js";
 import {sys_render_forward} from "./systems/sys_render1_forward.js";
 import {sys_select} from "./systems/sys_select.js";
 import {sys_transform} from "./systems/sys_transform.js";
+import {sys_ui} from "./systems/sys_ui.js";
 import {World} from "./world.js";
 
 export type Entity = number;
+
+export const enum Player {
+    Human,
+    AI,
+}
 
 export class Game {
     World = new World();
@@ -45,7 +52,17 @@ export class Game {
         MouseY: 0,
     };
 
+    CurrentPlayer = 0;
+    Players: Player[] = [];
+    PlayerUnits: Record<Entity, Entity[]> = {};
+    AiActiveUnits: Entity[] = [];
+    // TODO: EndTurn Actions sets this, so it will break if AI moves first
+    IsAiTurn: boolean = false;
+    SunEntity: Entity = 0;
+    CurrentlyMovingAiUnit: Entity | null = null;
+
     Ui = document.querySelector("main")!;
+
     CanvasScene = document.querySelector("canvas#scene")! as HTMLCanvasElement;
     Gl = this.CanvasScene.getContext("webgl")!;
     ExtVao = this.Gl.getExtension("OES_vertex_array_object")!;
@@ -134,6 +151,7 @@ export class Game {
         sys_pick(this, delta);
         sys_select(this, delta);
         sys_highlight(this, delta);
+        sys_control_ai(this, delta);
         sys_control_pick(this, delta);
         sys_control_keyboard(this, delta);
         sys_control_mouse(this, delta);
@@ -154,6 +172,7 @@ export class Game {
         sys_render_forward(this, delta);
         sys_draw(this, delta);
 
+        sys_ui(this, delta);
         sys_framerate(this, delta, performance.now() - now);
     }
 }
