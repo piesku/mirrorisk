@@ -32,9 +32,10 @@ function update(game: Game, entity: Entity) {
             agent.Destination = null;
 
             // TODO: Should this check this unit's TEAM component?
-            if (game.IsAITurn) {
-                game.AIUnitsToMove--;
-                if (game.AIUnitsToMove === 0) {
+            if (game.IsAiTurn) {
+                game.AiActiveUnits = game.AiActiveUnits.filter((id) => id !== entity);
+                game.CurrentlyMovingAiUnit = null;
+                if (game.AiActiveUnits.length === 0) {
                     dispatch(game, Action.EndTurn, {});
                 }
             }

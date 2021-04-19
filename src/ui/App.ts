@@ -4,8 +4,8 @@ import {Game} from "../game.js";
 
 export function App(game: Game) {
     return html`
-        <div>Current Player: ${game.CurrentPlayer}</div>
-        <button onclick="$(${Action.EndTurn})" ${game.IsAITurn && "disabled=disabled"}">
+        <div>Current Player: ${game.CurrentPlayer} (${game.IsAiTurn ? "AI" : "Human"})</div>
+        <button onclick="$(${Action.EndTurn})" ${game.IsAiTurn && "disabled=disabled"}">
             End Turn
         </button>
     `;

@@ -55,10 +55,11 @@ export class Game {
     CurrentPlayer = 0;
     Players: Player[] = [];
     PlayerUnits: Record<Entity, Entity[]> = {};
-    AIUnitsToMove: number = 0;
+    AiActiveUnits: Entity[] = [];
     // TODO: EndTurn Actions sets this, so it will break if AI moves first
-    IsAITurn: boolean = false;
+    IsAiTurn: boolean = false;
     SunEntity: Entity = 0;
+    CurrentlyMovingAiUnit: Entity | null = null;
 
     Ui = document.querySelector("main")!;
 

@@ -20,10 +20,10 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                     game.World.NavAgent[next_player_units[i]].Actions = 1;
                 }
 
-                game.IsAITurn = game.Players[next_player] === Player.AI;
+                game.IsAiTurn = game.Players[next_player] === Player.AI;
 
-                if (game.IsAITurn) {
-                    game.AIUnitsToMove = next_player_units.length;
+                if (game.IsAiTurn) {
+                    game.AiActiveUnits = next_player_units.slice();
                 }
 
                 game.World.Signature[game.SunEntity] &= ~Has.ControlAlways;
