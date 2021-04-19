@@ -951,6 +951,29 @@
         2, 1, 0
     ]);
 
+    function dispatch(game, action, payload) {
+        switch (action) {
+            case 0 /* EndTurn */: {
+                game.World.Signature[game.SunEntity] |= 8 /* ControlAlways */;
+                setTimeout(() => {
+                    let players_count = game.Players.length;
+                    let next_player = (players_count + game.CurrentPlayer + 1) % players_count;
+                    let next_player_units = game.PlayerUnits[next_player];
+                    for (let i = 0; i < next_player_units.length; i++) {
+                        game.World.NavAgent[next_player_units[i]].Actions = 1;
+                    }
+                    game.IsAiTurn = game.Players[next_player] === 1 /* AI */;
+                    if (game.IsAiTurn) {
+                        game.AiActiveUnits = next_player_units.slice();
+                    }
+                    game.World.Signature[game.SunEntity] &= ~8 /* ControlAlways */;
+                    game.CurrentPlayer = next_player;
+                }, 2000);
+                break;
+            }
+        }
+    }
+
     // In WebGL1, the internal format must be the same as the data format (GL_RGBA).
     function resize_texture_rgba(gl, texture, width, height) {
         gl.bindTexture(GL_TEXTURE_2D, texture);
@@ -17316,7 +17339,7 @@
         return out;
     }
 
-    const QUERY$f = 16384 /* Transform */ | 1 /* Camera */;
+    const QUERY$g = 16384 /* Transform */ | 1 /* Camera */;
     function sys_camera(game, delta) {
         if (game.ViewportWidth != window.innerWidth || game.ViewportHeight != window.innerHeight) {
             game.ViewportWidth = game.CanvasScene.width = game.CanvasBillboard.width =
@@ -17327,7 +17350,7 @@
         }
         game.Cameras = [];
         for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$f) === QUERY$f) {
+            if ((game.World.Signature[i] & QUERY$g) === QUERY$g) {
                 let camera = game.World.Camera[i];
                 game.Cameras.push(i);
                 if (camera.Kind === 0 /* Display */) {
@@ -17449,13 +17472,13 @@
             a.Max[2] > b.Min[2]);
     }
 
-    const QUERY$e = 16384 /* Transform */ | 4 /* Collide */;
+    const QUERY$f = 16384 /* Transform */ | 4 /* Collide */;
     function sys_collide(game, delta) {
         // Collect all colliders.
         let static_colliders = [];
         let dynamic_colliders = [];
         for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$e) === QUERY$e) {
+            if ((game.World.Signature[i] & QUERY$f) === QUERY$f) {
                 let transform = game.World.Transform[i];
                 let collider = game.World.Collide[i];
                 // Prepare the collider for this tick's detection.
@@ -17512,6 +17535,49 @@
                         });
                     }
                 }
+            }
+        }
+    }
+
+    let seed = 1;
+    function set_seed(new_seed) {
+        seed = 198706 * new_seed;
+    }
+    function rand() {
+        seed = (seed * 16807) % 2147483647;
+        return (seed - 1) / 2147483646;
+    }
+    function integer(min = 0, max = 1) {
+        return ~~(rand() * (max - min + 1) + min);
+    }
+    function float(min = 0, max = 1) {
+        return rand() * (max - min) + min;
+    }
+
+    const QUERY$e = 512 /* NavAgent */ | 32768 /* Team */;
+    function sys_control_ai(game, delta) {
+        for (let i = 0; i < game.World.Signature.length; i++) {
+            if ((game.World.Signature[i] & QUERY$e) == QUERY$e &&
+                game.World.Team[i].Id === game.CurrentPlayer &&
+                game.Players[game.World.Team[i].Id] === 1 /* AI */) {
+                update$9(game, i);
+            }
+        }
+    }
+    function update$9(game, entity) {
+        if (!game.CurrentlyMovingAiUnit && game.AiActiveUnits.includes(entity)) {
+            game.CurrentlyMovingAiUnit = entity;
+            let agent = game.World.NavAgent[entity];
+            if (agent.Actions > 0) {
+                // TODO: those are random moves right now
+                let territory_entity = game.TerritoryEntities[integer(1, 7)];
+                let territory = game.World.Territory[territory_entity];
+                if (agent.TerritoryId !== territory.Id) {
+                    // Use the action up only when moving to another territory.
+                    agent.Actions -= 1;
+                }
+                agent.TerritoryId = territory.Id;
+                agent.Destination = [float(-40, 7), 0, float(-70, -50)];
             }
         }
     }
@@ -17600,10 +17666,12 @@
         }
     }
 
-    const QUERY$a = 16 /* ControlPlayer */ | 512 /* NavAgent */;
+    const QUERY$a = 16 /* ControlPlayer */ | 512 /* NavAgent */ | 32768 /* Team */;
     function sys_control_pick(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$a) == QUERY$a) {
+            if ((game.World.Signature[i] & QUERY$a) == QUERY$a &&
+                game.World.Team[i].Id === game.CurrentPlayer &&
+                game.Players[game.World.Team[i].Id] === 0 /* Human */) {
                 update$5(game, i);
             }
         }
@@ -17613,6 +17681,7 @@
         if (game.InputDelta["Mouse2"] === 1 && game.Picked && agent.Actions > 0) {
             let territory_entity = game.Picked.Entity;
             let territory = game.World.Territory[territory_entity];
+            console.log(territory.Id);
             if (agent.TerritoryId !== territory.Id) {
                 // Use the action up only when moving to another territory.
                 agent.Actions -= 1;
@@ -17959,6 +18028,14 @@
             let distance_to_destination = distance_squared(position, agent.Destination);
             if (distance_to_destination < 1) {
                 agent.Destination = null;
+                // TODO: Should this check this unit's TEAM component?
+                if (game.IsAiTurn) {
+                    game.AiActiveUnits = game.AiActiveUnits.filter((id) => id !== entity);
+                    game.CurrentlyMovingAiUnit = null;
+                    if (game.AiActiveUnits.length === 0) {
+                        dispatch(game, 0 /* EndTurn */);
+                    }
+                }
             }
             // Transform the destination into the agent's self space for sys_move.
             transform_point(position, destination, transform.Self);
@@ -18482,6 +18559,39 @@
         }
     }
 
+    function shift(values) {
+        let value = values.shift();
+        if (typeof value === "boolean" || value == undefined) {
+            return "";
+        }
+        else if (Array.isArray(value)) {
+            return value.join("");
+        }
+        else {
+            return value;
+        }
+    }
+    function html(strings, ...values) {
+        return strings.reduce((out, cur) => out + shift(values) + cur);
+    }
+
+    function App(game) {
+        return html `
+        <div>Current Player: ${game.CurrentPlayer} (${game.IsAiTurn ? "AI" : "Human"})</div>
+        <button onclick="$(${0 /* EndTurn */})" ${game.IsAiTurn && "disabled=disabled"}">
+            End Turn
+        </button>
+    `;
+    }
+
+    let prev;
+    function sys_ui(game, delta) {
+        let next = App(game);
+        if (next !== prev) {
+            game.Ui.innerHTML = prev = next;
+        }
+    }
+
     class World {
         constructor() {
             this.Signature = [];
@@ -18502,6 +18612,7 @@
             this.Selectable = [];
             this.Territory = [];
             this.Transform = [];
+            this.Team = [];
         }
     }
 
@@ -18519,6 +18630,14 @@
                 MouseX: 0,
                 MouseY: 0,
             };
+            this.CurrentPlayer = 0;
+            this.Players = [];
+            this.PlayerUnits = {};
+            this.AiActiveUnits = [];
+            // TODO: EndTurn Actions sets this, so it will break if AI moves first
+            this.IsAiTurn = false;
+            this.SunEntity = 0;
+            this.CurrentlyMovingAiUnit = null;
             this.Ui = document.querySelector("main");
             this.CanvasScene = document.querySelector("canvas#scene");
             this.Gl = this.CanvasScene.getContext("webgl");
@@ -18586,6 +18705,7 @@
             sys_pick(this);
             sys_select(this);
             sys_highlight(this);
+            sys_control_ai(this);
             sys_control_pick(this);
             sys_control_keyboard(this);
             sys_control_mouse(this);
@@ -18602,20 +18722,9 @@
             sys_render_depth(this);
             sys_render_forward(this);
             sys_draw(this);
+            sys_ui(this);
             sys_framerate(this, delta, performance.now() - now);
         }
-    }
-
-    let seed = 1;
-    function set_seed(new_seed) {
-        seed = 198706 * new_seed;
-    }
-    function rand() {
-        seed = (seed * 16807) % 2147483647;
-        return (seed - 1) / 2147483646;
-    }
-    function float(min = 0, max = 1) {
-        return rand() * (max - min) + min;
     }
 
     function camera_display_perspective(fovy, near, far, clear_color = [0.9, 0.9, 0.9, 1]) {
@@ -18745,16 +18854,6 @@
         };
     }
 
-    function control_always(direction, rotation) {
-        return (game, entity) => {
-            game.World.Signature[entity] |= 8 /* ControlAlways */;
-            game.World.ControlAlways[entity] = {
-                Direction: direction,
-                Rotation: rotation,
-            };
-        };
-    }
-
     function disable(mask) {
         return (game, entity) => {
             game.World.Signature[entity] &= ~mask;
@@ -18767,17 +18866,6 @@
             game.World.Draw[entity] = {
                 Kind: 2 /* Selection */,
                 Color: color,
-            };
-        };
-    }
-
-    function light_directional(color = [1, 1, 1], range = 1) {
-        return (game, entity) => {
-            game.World.Signature[entity] |= 128 /* Light */;
-            game.World.Light[entity] = {
-                Kind: 1 /* Directional */,
-                Color: color,
-                Intensity: range ** 2,
             };
         };
     }
@@ -18862,6 +18950,63 @@
         };
     }
 
+    function team(Id) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 32768 /* Team */;
+            game.PlayerUnits[Id] = game.PlayerUnits[Id] || [];
+            game.PlayerUnits[Id].push(entity);
+            game.World.Team[entity] = {
+                Id,
+            };
+        };
+    }
+
+    function blueprint_unit(game, translation, color, // TODO: add diffuse & specular?
+    territory_id, mesh = game.MeshSoldier, team_id) {
+        let blueprint = [
+            transform(translation),
+            collide(true, 0 /* None */, 0 /* None */, [2, 6, 2]),
+            nav_agent(territory_id),
+            move(10, 5),
+            control_player(false, false, false, false),
+            children([transform(), draw_selection("#ff0"), disable(32 /* Draw */)], [
+                transform(),
+                render_colored_specular(game.MaterialColoredSpecular, mesh, color, 128, [
+                    1,
+                    1,
+                    1,
+                    1,
+                ]),
+            ]),
+            team(team_id),
+        ];
+        if (game.Players[team_id] === 0 /* Human */) {
+            blueprint.push(pickable_unit(color, [1, 0.5, 0, 1], [1, 0, 0, 1]), selectable(), disable(16 /* ControlPlayer */));
+        }
+        return blueprint;
+    }
+
+    function control_always(direction, rotation) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 8 /* ControlAlways */;
+            game.World.ControlAlways[entity] = {
+                Direction: direction,
+                Rotation: rotation,
+            };
+        };
+    }
+
+    function light_directional(color = [1, 1, 1], range = 1) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 128 /* Light */;
+            game.World.Light[entity] = {
+                Kind: 1 /* Directional */,
+                Color: color,
+                Intensity: range ** 2,
+            };
+        };
+    }
+
     function territory(continent, index) {
         return (game, entity) => {
             let id = continent * 10 + index;
@@ -18902,12 +19047,13 @@
         // Camera.
         instantiate(game, [...blueprint_camera(), transform([-25, 0, -50], [0, 1, 0, 0])]);
         // The Sun.
-        instantiate(game, [
+        let sun = instantiate(game, [
             transform(undefined, from_euler([0, 0, 0, 0], -30, 0, 0)),
             children([
-                transform(undefined, from_euler([0, 0, 0, 0], 0, 85, 0)),
+                transform(undefined, from_euler([0, 0, 0, 0], 0, 35, 0)),
                 control_always(null, [0, -1, 0, 0]),
-                move(0, 0.1),
+                disable(8 /* ControlAlways */),
+                move(0, 3.1),
                 children([
                     transform([0, 0, 100]),
                     light_directional([1, 1, 1], 0.8),
@@ -18915,6 +19061,7 @@
                 ]),
             ]),
         ]);
+        game.SunEntity = game.World.Children[sun].Children[0];
         // Directional backlight.
         instantiate(game, [transform([-1, 1, 1]), light_directional([1, 1, 1], 0.2)]);
         // Europe
@@ -18925,43 +19072,23 @@
         ]);
         // Units in Central Europe.
         for (let i = 0; i < 3; i++) {
-            instantiate(game, [
-                transform([-21 + float(-4, 4), 0, -52 + float(-4, 4)]),
-                control_player(false, false, false, false),
-                disable(16 /* ControlPlayer */),
-                collide(true, 0 /* None */, 0 /* None */, [2, 6, 2]),
-                pickable_unit([1, 1, 0, 1], [1, 0.5, 0, 1], [1, 0, 0, 1]),
-                selectable(),
-                nav_agent(3),
-                move(10, 5),
-                children([transform(), draw_selection("#ff0"), disable(32 /* Draw */)], [
-                    transform(),
-                    render_colored_specular(game.MaterialColoredSpecular, i < 2 ? game.MeshSoldier : game.MeshDragoon, [1, 1, 0, 1], 128, [1, 1, 1, 1]),
-                ]),
-            ]);
+            instantiate(game, blueprint_unit(game, [-21 + float(-4, 4), 0, -52 + float(-4, 4)], [1, 1, 0, 1], 3, i < 1 ? game.MeshSoldier : game.MeshDragoon, 0));
         }
         // Units in Iceland.
         for (let i = 0; i < 2; i++) {
-            instantiate(game, [
-                transform([7 + float(-3, 3), 0, -70 + float(-3, 3)]),
-                control_player(false, false, false, false),
-                disable(16 /* ControlPlayer */),
-                collide(true, 0 /* None */, 0 /* None */, [2, 6, 2]),
-                pickable_unit([1, 1, 0, 1], [1, 0.5, 0, 1], [1, 0, 0, 1]),
-                selectable(),
-                nav_agent(2),
-                move(10, 5),
-                children([transform(), draw_selection("#ff0"), disable(32 /* Draw */)], [
-                    transform(),
-                    render_colored_specular(game.MaterialColoredSpecular, i < 1 ? game.MeshSoldier : game.MeshCannon, [1, 1, 0, 1], 128, [1, 1, 1, 1]),
-                ]),
-            ]);
+            instantiate(game, blueprint_unit(game, [7 + float(-3, 3), 0, -70 + float(-3, 3)], [1, 0, 0, 1], 2, i < 1 ? game.MeshSoldier : game.MeshCannon, 1));
+        }
+        // Units in Russia.
+        for (let i = 0; i < 3; i++) {
+            instantiate(game, blueprint_unit(game, [-42 + float(-3, 3), 0, -60 + float(-3, 3)], [1, 0, 1, 1], 2, i < 1 ? game.MeshSoldier : game.MeshCannon, 2));
         }
     }
 
     let game = new Game();
     // @ts-ignore
     window.game = game;
+    // @ts-ignore
+    window.$ = dispatch.bind(null, game);
     game.TerritoryMeshes[0] = [
         mesh_eu01(game.Gl),
         mesh_eu02(game.Gl),
@@ -18971,6 +19098,7 @@
         mesh_eu06(game.Gl),
         mesh_eu07(game.Gl),
     ];
+    game.Players = [0 /* Human */, 1 /* AI */, 1 /* AI */];
     scene_stage(game);
     loop_start(game);
 
