@@ -58095,6 +58095,12 @@ blueprint.push(pickable_unit(color, [1, 0.5, 0, 1], [1, 0, 0, 1]), selectable(),
 return blueprint;
 }
 
+function callback(fn) {
+return (game, entity) => {
+fn(game, entity);
+};
+}
+
 function control_always(direction, rotation) {
 return (game, entity) => {
 game.World.Signature[entity] |= 8 /* ControlAlways */;
@@ -58174,11 +58180,12 @@ game.TerritoryGraph = {
 
 instantiate(game, [...blueprint_camera(), transform([-25, 0, -50], [0, 1, 0, 0])]);
 
-let sun = instantiate(game, [
+instantiate(game, [
 transform(undefined, from_euler([0, 0, 0, 0], -30, 0, 0)),
 children([
 transform(undefined, from_euler([0, 0, 0, 0], 0, 35, 0)),
 control_always(null, [0, -1, 0, 0]),
+callback((game, entity) => (game.SunEntity = entity)),
 disable(8 /* ControlAlways */),
 move(0, 3.1),
 children([
@@ -58188,7 +58195,6 @@ camera_framebuffer_ortho(game.Targets.Sun, 100, 1, 1000, [0, 0, 0, 1]),
 ]),
 ]),
 ]);
-game.SunEntity = game.World.Children[sun].Children[0];
 
 instantiate(game, [transform([-1, 1, 1]), light_directional([1, 1, 1], 0.2)]);
 
