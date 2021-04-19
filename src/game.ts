@@ -10,6 +10,7 @@ import {mesh_soldier} from "../meshes/soldier.js";
 import {loop_start, loop_stop} from "./loop.js";
 import {sys_camera} from "./systems/sys_camera.js";
 import {sys_collide} from "./systems/sys_collide.js";
+import {sys_control_always} from "./systems/sys_control_always.js";
 import {sys_control_keyboard} from "./systems/sys_control_keyboard.js";
 import {sys_control_mouse} from "./systems/sys_control_mouse.js";
 import {sys_control_pick} from "./systems/sys_control_pick.js";
@@ -71,7 +72,7 @@ export class Game {
     LightDetails = new Float32Array(4 * 8);
 
     Targets: {
-        Shade: DepthTarget;
+        Sun: DepthTarget;
     };
 
     Cameras: Array<Entity> = [];
@@ -115,7 +116,7 @@ export class Game {
         this.Gl.getExtension("WEBGL_depth_texture");
 
         this.Targets = {
-            Shade: create_depth_target(this.Gl, 1024, 1024),
+            Sun: create_depth_target(this.Gl, 1024, 1024),
         };
 
         this.Gl.enable(GL_DEPTH_TEST);
@@ -139,6 +140,9 @@ export class Game {
         sys_control_pick(this, delta);
         sys_control_keyboard(this, delta);
         sys_control_mouse(this, delta);
+
+        // AI.
+        sys_control_always(this, delta);
 
         // Game logic.
         sys_nav(this, delta);

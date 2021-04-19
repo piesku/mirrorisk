@@ -18,8 +18,12 @@ function update(game: Game, entity: Entity) {
         let territory_entity = game.Picked.Entity;
         let territory = game.World.Territory[territory_entity];
         console.log(territory.Id);
+
+        if (agent.TerritoryId !== territory.Id) {
+            // Use the action up only when moving to another territory.
+            agent.Actions -= 1;
+        }
         agent.TerritoryId = territory.Id;
         agent.Destination = game.Picked.Point;
-        agent.Actions -= 1;
     }
 }
