@@ -20,7 +20,7 @@ import {Has, World} from "../world.js";
 function blueprint_region(game: Game, continent: Continent, index: number) {
     let mesh = game.TerritoryMeshes[continent][index - 1];
     return [
-        transform(),
+        transform([0, float(-1, 0), 0]),
         pickable_territory(
             mesh,
             [0.3, 0.3, 0.8, 1],
@@ -48,6 +48,46 @@ export function scene_stage(game: Game) {
         5: [3, 6, 7, 13, 15, 57],
         6: [3, 4, 5, 51, 57, 61],
         7: [1, 3, 5, 15],
+        // Africa
+        11: [],
+        12: [],
+        13: [],
+        14: [],
+        15: [],
+        16: [],
+        // Australia
+        21: [],
+        22: [],
+        23: [],
+        24: [],
+        // North America
+        31: [],
+        32: [],
+        33: [],
+        34: [],
+        35: [],
+        36: [],
+        37: [],
+        38: [],
+        39: [],
+        // South America
+        41: [],
+        42: [],
+        43: [],
+        44: [],
+        // Asia
+        51: [],
+        52: [],
+        53: [],
+        54: [],
+        55: [],
+        56: [],
+        57: [],
+        58: [],
+        59: [],
+        60: [],
+        61: [],
+        62: [],
     };
 
     // Camera.
@@ -74,18 +114,59 @@ export function scene_stage(game: Game) {
     // Directional backlight.
     instantiate(game, [transform([-1, 1, 1]), light_directional([1, 1, 1], 0.2)]);
 
-    // Europe
+    // World map.
     instantiate(game, [
         transform(),
         collide(false, Layer.None, Layer.None, [1000, 0.01, 1000]),
         children(
+            // Europe
             blueprint_region(game, Continent.Europe, 1),
             blueprint_region(game, Continent.Europe, 2),
             blueprint_region(game, Continent.Europe, 3),
             blueprint_region(game, Continent.Europe, 4),
             blueprint_region(game, Continent.Europe, 5),
             blueprint_region(game, Continent.Europe, 6),
-            blueprint_region(game, Continent.Europe, 7)
+            blueprint_region(game, Continent.Europe, 7),
+            // Africa
+            blueprint_region(game, Continent.Africa, 1),
+            blueprint_region(game, Continent.Africa, 2),
+            blueprint_region(game, Continent.Africa, 3),
+            blueprint_region(game, Continent.Africa, 4),
+            blueprint_region(game, Continent.Africa, 5),
+            blueprint_region(game, Continent.Africa, 6),
+            // Australia
+            blueprint_region(game, Continent.Australia, 1),
+            blueprint_region(game, Continent.Australia, 2),
+            blueprint_region(game, Continent.Australia, 3),
+            blueprint_region(game, Continent.Australia, 4),
+            // North America
+            blueprint_region(game, Continent.NorthAmerica, 1),
+            blueprint_region(game, Continent.NorthAmerica, 2),
+            blueprint_region(game, Continent.NorthAmerica, 3),
+            blueprint_region(game, Continent.NorthAmerica, 4),
+            blueprint_region(game, Continent.NorthAmerica, 5),
+            blueprint_region(game, Continent.NorthAmerica, 6),
+            blueprint_region(game, Continent.NorthAmerica, 7),
+            blueprint_region(game, Continent.NorthAmerica, 8),
+            blueprint_region(game, Continent.NorthAmerica, 9),
+            // South America
+            blueprint_region(game, Continent.SouthAmerica, 1),
+            blueprint_region(game, Continent.SouthAmerica, 2),
+            blueprint_region(game, Continent.SouthAmerica, 3),
+            blueprint_region(game, Continent.SouthAmerica, 4),
+            // Asia
+            blueprint_region(game, Continent.Asia, 1),
+            blueprint_region(game, Continent.Asia, 2),
+            blueprint_region(game, Continent.Asia, 3),
+            blueprint_region(game, Continent.Asia, 4),
+            blueprint_region(game, Continent.Asia, 5),
+            blueprint_region(game, Continent.Asia, 6),
+            blueprint_region(game, Continent.Asia, 7),
+            blueprint_region(game, Continent.Asia, 8),
+            blueprint_region(game, Continent.Asia, 9),
+            blueprint_region(game, Continent.Asia, 10),
+            blueprint_region(game, Continent.Asia, 11),
+            blueprint_region(game, Continent.Asia, 12)
         ),
     ]);
 
@@ -95,7 +176,7 @@ export function scene_stage(game: Game) {
             game,
             blueprint_unit(
                 game,
-                [-21 + float(-4, 4), 0, -52 + float(-4, 4)],
+                [-15 + float(-4, 4), 1, -48 + float(-4, 4)],
                 [1, 1, 0, 1],
                 3,
                 i < 1 ? game.MeshSoldier : game.MeshDragoon,
@@ -110,7 +191,7 @@ export function scene_stage(game: Game) {
             game,
             blueprint_unit(
                 game,
-                [7 + float(-3, 3), 0, -70 + float(-3, 3)],
+                [15 + float(-3, 3), 1, -63 + float(-3, 3)],
                 [1, 0, 0, 1],
                 2,
                 i < 1 ? game.MeshSoldier : game.MeshCannon,
@@ -125,7 +206,7 @@ export function scene_stage(game: Game) {
             game,
             blueprint_unit(
                 game,
-                [-42 + float(-3, 3), 0, -60 + float(-3, 3)],
+                [-42 + float(-3, 3), 1, -60 + float(-3, 3)],
                 [1, 0, 1, 1],
                 2,
                 i < 1 ? game.MeshSoldier : game.MeshCannon,
