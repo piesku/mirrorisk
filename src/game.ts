@@ -138,7 +138,7 @@ export class Game {
         this.Gl.getExtension("WEBGL_depth_texture");
 
         this.Targets = {
-            Sun: create_depth_target(this.Gl, 1024, 1024),
+            Sun: create_depth_target(this.Gl, 2048, 2048),
         };
 
         this.Gl.enable(GL_DEPTH_TEST);

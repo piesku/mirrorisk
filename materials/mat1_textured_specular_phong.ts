@@ -50,7 +50,7 @@ let fragment = `
 
         float shadow_bias = 0.001;
         float shadow_acc = 0.0;
-        float texel_size = 1.0 / 1024.0;
+        float texel_size = 1.0 / 2048.0;
 
         // Sample 9 surrounding texels to anti-alias the shadow a bit.
         for (int u = -1; u <= 1; u++) {
