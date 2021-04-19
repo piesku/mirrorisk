@@ -40209,7 +40209,7 @@ shadow_space_ndc = shadow_space_ndc * 0.5 + 0.5;
 
 float shadow_bias = 0.001;
 float shadow_acc = 0.0;
-float texel_size = 1.0 / 1024.0;
+float texel_size = 1.0 / 2048.0;
 
 
 for (int u = -1; u <= 1; u++) {
@@ -40375,7 +40375,7 @@ shadow_space_ndc = shadow_space_ndc * 0.5 + 0.5;
 
 float shadow_bias = 0.001;
 float shadow_acc = 0.0;
-float texel_size = 1.0 / 1024.0;
+float texel_size = 1.0 / 2048.0;
 
 
 for (int u = -1; u <= 1; u++) {
@@ -58914,7 +58914,7 @@ this.InputDelta[evt.code] = -1;
 });
 this.Gl.getExtension("WEBGL_depth_texture");
 this.Targets = {
-Sun: create_depth_target(this.Gl, 1024, 1024),
+Sun: create_depth_target(this.Gl, 2048, 2048),
 };
 this.Gl.enable(GL_DEPTH_TEST);
 this.Gl.enable(GL_CULL_FACE);
@@ -59097,9 +59097,9 @@ move(0, 3.1),
 children(
 
 [
-transform([0, 0, 100]),
+transform([0, 0, 500]),
 light_directional([1, 1, 1], 0.8),
-camera_framebuffer_ortho(game.Targets.Sun, 200, 1, 1000, [0, 0, 0, 1]),
+camera_framebuffer_ortho(game.Targets.Sun, 250, 1, 1000, [0, 0, 0, 1]),
 ], 
 
 [transform([0, 0, -50]), light_directional([0.8, 0.5, 0.5], 0.8)]),
