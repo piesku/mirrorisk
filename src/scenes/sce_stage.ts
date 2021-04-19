@@ -1,21 +1,16 @@
-import {from_euler} from "../../common/quat.js";
 import {float, set_seed} from "../../common/random.js";
 import {blueprint_camera} from "../blueprints/blu_camera.js";
+import {blueprint_sun} from "../blueprints/blu_sun.js";
 import {blueprint_territory} from "../blueprints/blu_territory.js";
 import {blueprint_unit} from "../blueprints/blu_unit.js";
-import {callback} from "../components/com_callback.js";
-import {camera_framebuffer_ortho} from "../components/com_camera.js";
 import {children} from "../components/com_children.js";
 import {collide} from "../components/com_collide.js";
-import {control_always} from "../components/com_control_always.js";
-import {disable} from "../components/com_disable.js";
 import {light_directional} from "../components/com_light.js";
-import {move} from "../components/com_move.js";
 import {Continent} from "../components/com_territory.js";
 import {transform} from "../components/com_transform.js";
 import {instantiate} from "../entity.js";
 import {Game, Layer} from "../game.js";
-import {Has, World} from "../world.js";
+import {World} from "../world.js";
 
 export function scene_stage(game: Game) {
     set_seed(25);
@@ -77,25 +72,11 @@ export function scene_stage(game: Game) {
     // Camera.
     instantiate(game, [...blueprint_camera(game), transform([-25, 0, -50], [0, 1, 0, 0])]);
 
-    // The Sun.
-    instantiate(game, [
-        transform(undefined, from_euler([0, 0, 0, 0], -30, 0, 0)),
-        children([
-            transform(undefined, from_euler([0, 0, 0, 0], 0, 35, 0)),
-            control_always(null, [0, -1, 0, 0]),
-            callback((game, entity) => (game.SunEntity = entity)),
-            disable(Has.ControlAlways),
-            move(0, 3.1),
-            children([
-                transform([0, 0, 100]),
-                light_directional([1, 1, 1], 0.8),
-                camera_framebuffer_ortho(game.Targets.Sun, 100, 1, 1000, [0, 0, 0, 1]),
-            ]),
-        ]),
-    ]);
+    // The Sun and the Moon.
+    instantiate(game, blueprint_sun(game));
 
     // Directional backlight.
-    instantiate(game, [transform([-1, 1, 1]), light_directional([1, 1, 1], 0.2)]);
+    instantiate(game, [transform([-1, 1, -1]), light_directional([1, 1, 1], 0.2)]);
 
     // World map.
     instantiate(game, [
