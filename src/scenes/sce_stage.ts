@@ -13,7 +13,7 @@ import {move} from "../components/com_move.js";
 import {pickable_territory, pickable_unit} from "../components/com_pickable.js";
 import {render_colored_specular} from "../components/com_render1.js";
 import {selectable} from "../components/com_selectable.js";
-import {ControlledBy, team} from "../components/com_team.js";
+import {team} from "../components/com_team.js";
 import {Continent, territory} from "../components/com_territory.js";
 import {transform} from "../components/com_transform.js";
 import {instantiate} from "../entity.js";
@@ -103,7 +103,7 @@ export function scene_stage(game: Game) {
             disable(Has.ControlPlayer),
             pickable_unit([1, 1, 0, 1], [1, 0.5, 0, 1], [1, 0, 0, 1]),
             selectable(),
-            team(0, ControlledBy.Human),
+            team(0),
         ]);
     }
 
@@ -117,7 +117,7 @@ export function scene_stage(game: Game) {
                 2,
                 i < 1 ? game.MeshSoldier : game.MeshCannon
             ),
-            team(1, ControlledBy.AI),
+            team(1),
         ]);
     }
 
@@ -131,7 +131,7 @@ export function scene_stage(game: Game) {
                 2,
                 i < 1 ? game.MeshSoldier : game.MeshCannon
             ),
-            team(2, ControlledBy.AI),
+            team(2),
         ]);
     }
 }

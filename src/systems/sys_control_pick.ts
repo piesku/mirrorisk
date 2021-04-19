@@ -1,5 +1,4 @@
-import {ControlledBy} from "../components/com_team.js";
-import {Entity, Game} from "../game.js";
+import {Entity, Game, Player} from "../game.js";
 import {Has} from "../world.js";
 
 const QUERY = Has.ControlPlayer | Has.NavAgent;
@@ -9,7 +8,7 @@ export function sys_control_pick(game: Game, delta: number) {
         if (
             (game.World.Signature[i] & QUERY) == QUERY &&
             game.World.Team[i].Id === game.CurrentPlayer &&
-            game.World.Team[i].ControlledBy === ControlledBy.Human
+            game.Players[game.World.Team[i].Id] === Player.Human
         ) {
             update(game, i);
         }

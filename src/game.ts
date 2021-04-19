@@ -30,6 +30,11 @@ import {World} from "./world.js";
 
 export type Entity = number;
 
+export const enum Player {
+    Human,
+    AI,
+}
+
 export class Game {
     World = new World();
 
@@ -47,7 +52,7 @@ export class Game {
     };
 
     CurrentPlayer = 0;
-    TotalPlayers = 3;
+    Players: Player[] = [];
 
     Ui = document.querySelector("main")!;
 
