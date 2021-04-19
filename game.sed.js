@@ -40148,6 +40148,26 @@ uniform sampler2D shadow_map;
 varying vec4 vert_pos;
 varying vec3 vert_normal;
 
+float shadow_factor(vec4 world_pos) {
+vec4 shadow_space_pos = shadow_space * world_pos;
+vec3 shadow_space_ndc = shadow_space_pos.xyz / shadow_space_pos.w;
+
+shadow_space_ndc = shadow_space_ndc * 0.5 + 0.5;
+
+float shadow_bias = 0.001;
+float shadow_acc = 0.0;
+float texel_size = 1.0 / 1024.0;
+
+
+for (int u = -1; u <= 1; u++) {
+for (int v = -1; v <= 1; v++) {
+float shadow_map_depth = texture2D(shadow_map, shadow_space_ndc.xy + vec2(u, v) * texel_size).x;
+shadow_acc += shadow_space_ndc.z - shadow_bias > shadow_map_depth ? 0.5 : 0.0;
+}
+}
+return shadow_acc / 9.0;
+}
+
 void main() {
 vec3 frag_normal = normalize(vert_normal);
 
@@ -40196,24 +40216,8 @@ rgb += color_specular.rgb * specular_factor * light_color * light_intensity;
 }
 }
 
-vec4 shadow_space_pos = shadow_space * vert_pos;
-vec3 shadow_space_ndc = shadow_space_pos.xyz / shadow_space_pos.w;
-
-shadow_space_ndc = shadow_space_ndc * 0.5 + 0.5;
-
-float shadow_bias = 0.001;
-float shadow_factor = 0.0;
-float texel_size = 1.0 / 1024.0;
-for (int u = -1; u <= 1; u++) {
-for (int v = -1; v <= 1; v++) {
-float shadow_map_depth = texture2D(shadow_map, shadow_space_ndc.xy + vec2(u, v) * texel_size).x;
-shadow_factor += shadow_space_ndc.z - shadow_bias > shadow_map_depth ? 0.5 : 0.0;
-}
-}
-shadow_factor /= 9.0;
-
 vec3 ambient_rgb = color_diffuse.rgb * 0.1;
-vec3 frag_color = ambient_rgb + (1.0 - shadow_factor) * rgb;
+vec3 frag_color = ambient_rgb + rgb * (1.0 - shadow_factor(vert_pos));
 gl_FragColor = vec4(frag_color, 1.0);
 }
 `;
@@ -57912,6 +57916,61 @@ camera_display_perspective(1, 0.1, 1000),
 ];
 }
 
+function callback(fn) {
+return (game, entity) => {
+fn(game, entity);
+};
+}
+
+function control_always(direction, rotation) {
+return (game, entity) => {
+game.World.Signature[entity] |= 8 /* ControlAlways */;
+game.World.ControlAlways[entity] = {
+Direction: direction,
+Rotation: rotation,
+};
+};
+}
+
+function disable(mask) {
+return (game, entity) => {
+game.World.Signature[entity] &= ~mask;
+};
+}
+
+function light_directional(color = [1, 1, 1], range = 1) {
+return (game, entity) => {
+game.World.Signature[entity] |= 128 /* Light */;
+game.World.Light[entity] = {
+Kind: 1 /* Directional */,
+Color: color,
+Intensity: range ** 2,
+};
+};
+}
+
+function blueprint_sun(game) {
+return [
+transform(undefined, from_euler([0, 0, 0, 0], -30, 0, 0)),
+children([
+callback((game, entity) => (game.SunEntity = entity)),
+transform(undefined, from_euler([0, 0, 0, 0], 0, 35, 0)),
+control_always(null, [0, -1, 0, 0]),
+disable(8 /* ControlAlways */),
+move(0, 3.1),
+children(
+
+[
+transform([0, 0, 100]),
+light_directional([1, 1, 1], 0.8),
+camera_framebuffer_ortho(game.Targets.Sun, 100, 1, 1000, [0, 0, 0, 1]),
+], 
+
+[transform([0, 0, -50]), light_directional([0.8, 0.5, 0.5], 0.8)]),
+]),
+];
+}
+
 function pickable_territory(mesh, color_idle, color_hover, color_ready, color_selected) {
 return (game, entity) => {
 game.World.Signature[entity] |= 1024 /* Pickable */;
@@ -58022,12 +58081,6 @@ Collisions: [],
 };
 }
 
-function disable(mask) {
-return (game, entity) => {
-game.World.Signature[entity] &= ~mask;
-};
-}
-
 function draw_selection(color) {
 return (game, entity) => {
 game.World.Signature[entity] |= 32 /* Draw */;
@@ -58095,33 +58148,6 @@ blueprint.push(pickable_unit(color, [1, 0.5, 0, 1], [1, 0, 0, 1]), selectable(),
 return blueprint;
 }
 
-function callback(fn) {
-return (game, entity) => {
-fn(game, entity);
-};
-}
-
-function control_always(direction, rotation) {
-return (game, entity) => {
-game.World.Signature[entity] |= 8 /* ControlAlways */;
-game.World.ControlAlways[entity] = {
-Direction: direction,
-Rotation: rotation,
-};
-};
-}
-
-function light_directional(color = [1, 1, 1], range = 1) {
-return (game, entity) => {
-game.World.Signature[entity] |= 128 /* Light */;
-game.World.Light[entity] = {
-Kind: 1 /* Directional */,
-Color: color,
-Intensity: range ** 2,
-};
-};
-}
-
 function scene_stage(game) {
 set_seed(25);
 game.World = new World();
@@ -58180,23 +58206,9 @@ game.TerritoryGraph = {
 
 instantiate(game, [...blueprint_camera(), transform([-25, 0, -50], [0, 1, 0, 0])]);
 
-instantiate(game, [
-transform(undefined, from_euler([0, 0, 0, 0], -30, 0, 0)),
-children([
-transform(undefined, from_euler([0, 0, 0, 0], 0, 35, 0)),
-control_always(null, [0, -1, 0, 0]),
-callback((game, entity) => (game.SunEntity = entity)),
-disable(8 /* ControlAlways */),
-move(0, 3.1),
-children([
-transform([0, 0, 100]),
-light_directional([1, 1, 1], 0.8),
-camera_framebuffer_ortho(game.Targets.Sun, 100, 1, 1000, [0, 0, 0, 1]),
-]),
-]),
-]);
+instantiate(game, blueprint_sun(game));
 
-instantiate(game, [transform([-1, 1, 1]), light_directional([1, 1, 1], 0.2)]);
+instantiate(game, [transform([-1, 1, -1]), light_directional([1, 1, 1], 0.2)]);
 
 instantiate(game, [
 transform(),
