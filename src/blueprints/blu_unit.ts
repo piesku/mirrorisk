@@ -7,9 +7,12 @@ import {disable} from "../components/com_disable.js";
 import {draw_selection} from "../components/com_draw.js";
 import {move} from "../components/com_move.js";
 import {nav_agent} from "../components/com_nav_agent.js";
+import {pickable_unit} from "../components/com_pickable.js";
 import {render_colored_specular} from "../components/com_render1.js";
+import {selectable} from "../components/com_selectable.js";
+import {team} from "../components/com_team.js";
 import {transform} from "../components/com_transform.js";
-import {Game, Layer} from "../game.js";
+import {Game, Layer, Player} from "../game.js";
 import {Has} from "../world.js";
 
 export function blueprint_unit(
@@ -17,9 +20,10 @@ export function blueprint_unit(
     translation: Vec3,
     color: Vec4, // TODO: add diffuse & specular?
     territory_id: number,
-    mesh: Mesh = game.MeshSoldier
+    mesh: Mesh = game.MeshSoldier,
+    team_id: number
 ) {
-    return [
+    let blueprint = [
         transform(translation),
         collide(true, Layer.None, Layer.None, [2, 6, 2]),
         nav_agent(territory_id),
@@ -37,5 +41,16 @@ export function blueprint_unit(
                 ]),
             ]
         ),
+        team(team_id),
     ];
+
+    if (game.Players[team_id] === Player.Human) {
+        blueprint.push(
+            pickable_unit(color, [1, 0.5, 0, 1], [1, 0, 0, 1]),
+            selectable(),
+            disable(Has.ControlPlayer)
+        );
+    }
+
+    return blueprint;
 }

@@ -6,18 +6,15 @@ import {camera_framebuffer_ortho} from "../components/com_camera.js";
 import {children} from "../components/com_children.js";
 import {collide} from "../components/com_collide.js";
 import {control_always} from "../components/com_control_always.js";
-import {disable} from "../components/com_disable.js";
 import {light_directional} from "../components/com_light.js";
 import {move} from "../components/com_move.js";
-import {pickable_territory, pickable_unit} from "../components/com_pickable.js";
+import {pickable_territory} from "../components/com_pickable.js";
 import {render_colored_specular} from "../components/com_render1.js";
-import {selectable} from "../components/com_selectable.js";
-import {team} from "../components/com_team.js";
 import {Continent, territory} from "../components/com_territory.js";
 import {transform} from "../components/com_transform.js";
 import {instantiate} from "../entity.js";
 import {Game, Layer} from "../game.js";
-import {Has, World} from "../world.js";
+import {World} from "../world.js";
 
 function blueprint_region(game: Game, continent: Continent, index: number) {
     let mesh = game.TerritoryMeshes[continent][index - 1];
@@ -90,46 +87,46 @@ export function scene_stage(game: Game) {
 
     // Units in Central Europe.
     for (let i = 0; i < 3; i++) {
-        instantiate(game, [
-            ...blueprint_unit(
+        instantiate(
+            game,
+            blueprint_unit(
                 game,
                 [-21 + float(-4, 4), 0, -52 + float(-4, 4)],
                 [1, 1, 0, 1],
                 3,
-                i < 1 ? game.MeshSoldier : game.MeshDragoon
-            ),
-            pickable_unit([1, 1, 0, 1], [1, 0.5, 0, 1], [1, 0, 0, 1]),
-            selectable(),
-            team(0),
-            disable(Has.ControlPlayer),
-        ]);
+                i < 1 ? game.MeshSoldier : game.MeshDragoon,
+                0
+            )
+        );
     }
 
     // Units in Iceland.
     for (let i = 0; i < 2; i++) {
-        instantiate(game, [
-            ...blueprint_unit(
+        instantiate(
+            game,
+            blueprint_unit(
                 game,
                 [7 + float(-3, 3), 0, -70 + float(-3, 3)],
                 [1, 0, 0, 1],
                 2,
-                i < 1 ? game.MeshSoldier : game.MeshCannon
-            ),
-            team(1),
-        ]);
+                i < 1 ? game.MeshSoldier : game.MeshCannon,
+                1
+            )
+        );
     }
 
     // Units in Russia.
     for (let i = 0; i < 3; i++) {
-        instantiate(game, [
-            ...blueprint_unit(
+        instantiate(
+            game,
+            blueprint_unit(
                 game,
                 [-42 + float(-3, 3), 0, -60 + float(-3, 3)],
                 [1, 0, 1, 1],
                 2,
-                i < 1 ? game.MeshSoldier : game.MeshCannon
-            ),
-            team(2),
-        ]);
+                i < 1 ? game.MeshSoldier : game.MeshCannon,
+                2
+            )
+        );
     }
 }
