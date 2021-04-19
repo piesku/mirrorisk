@@ -1,6 +1,6 @@
 import {link, Material} from "../common/material.js";
 import {GL_TRIANGLES} from "../common/webgl.js";
-import {ColoredSpecularLayout} from "./layout_colored_specular.js";
+import {TexturedSpecularLayout} from "./layout_textured_specular.js";
 
 let vertex = `
     uniform mat4 pv;
@@ -8,12 +8,15 @@ let vertex = `
     uniform mat4 self;
 
     attribute vec3 position;
+    attribute vec2 texcoord;
     attribute vec3 normal;
     varying vec4 vert_pos;
+    varying vec2 vert_texcoord;
     varying vec3 vert_normal;
 
     void main() {
         vert_pos = world * vec4(position, 1.0);
+        vert_texcoord = texcoord;
         vert_normal = (vec4(normal, 1.0) * self).xyz;
         gl_Position = pv * vert_pos;
     }
@@ -26,6 +29,7 @@ let fragment = `
     const int MAX_LIGHTS = 8;
 
     uniform vec3 eye;
+    uniform sampler2D diffuse_map;
     uniform vec4 color_diffuse;
     uniform vec4 color_specular;
     uniform float shininess;
@@ -35,6 +39,7 @@ let fragment = `
     uniform sampler2D shadow_map;
 
     varying vec4 vert_pos;
+    varying vec2 vert_texcoord;
     varying vec3 vert_normal;
 
     float shadow_factor(vec4 world_pos) {
@@ -107,13 +112,14 @@ let fragment = `
 
         vec3 ambient_rgb = color_diffuse.rgb * 0.1;
         vec3 shaded_rgb = ambient_rgb + light_acc * (1.0 - shadow_factor(vert_pos));
-        gl_FragColor = vec4(shaded_rgb, 1.0);
+        vec4 tex_color = texture2D(diffuse_map, vert_texcoord);
+        gl_FragColor = vec4(shaded_rgb, 1.0) * tex_color;
     }
 `;
 
-export function mat1_colored_specular_phong(
+export function mat1_textured_specular_phong(
     gl: WebGLRenderingContext
-): Material<ColoredSpecularLayout> {
+): Material<TexturedSpecularLayout> {
     let program = link(gl, vertex, fragment);
     return {
         Mode: GL_TRIANGLES,
@@ -123,14 +129,16 @@ export function mat1_colored_specular_phong(
             World: gl.getUniformLocation(program, "world")!,
             Self: gl.getUniformLocation(program, "self")!,
             Eye: gl.getUniformLocation(program, "eye")!,
-            ColorDiffuse: gl.getUniformLocation(program, "color_diffuse")!,
-            ColorSpecular: gl.getUniformLocation(program, "color_specular")!,
+            DiffuseMap: gl.getUniformLocation(program, "diffuse_map")!,
+            DiffuseColor: gl.getUniformLocation(program, "color_diffuse")!,
+            SpecularColor: gl.getUniformLocation(program, "color_specular")!,
             Shininess: gl.getUniformLocation(program, "shininess")!,
             LightPositions: gl.getUniformLocation(program, "light_positions")!,
             LightDetails: gl.getUniformLocation(program, "light_details")!,
             ShadowMap: gl.getUniformLocation(program, "shadow_map")!,
             ShadowSpace: gl.getUniformLocation(program, "shadow_space")!,
             VertexPosition: gl.getAttribLocation(program, "position")!,
+            VertexTexCoord: gl.getAttribLocation(program, "texcoord")!,
             VertexNormal: gl.getAttribLocation(program, "normal")!,
         },
     };

@@ -1,6 +1,6 @@
 import {float} from "../../common/random.js";
 import {pickable_territory} from "../components/com_pickable.js";
-import {render_colored_specular} from "../components/com_render1.js";
+import {render_textured_specular} from "../components/com_render1.js";
 import {Continent, territory} from "../components/com_territory.js";
 import {transform} from "../components/com_transform.js";
 import {Blueprint} from "../entity.js";
@@ -12,12 +12,17 @@ export function blueprint_territory(game: Game, continent: Continent, index: num
         transform([0, float(-1, 0), 0]),
         pickable_territory(
             mesh,
-            [0.3, 0.3, 0.8, 1],
-            [0.3, 0.5, 0.8, 1],
-            [0.3, 0.8, 0.3, 1],
-            [0.3, 0.5, 0.8, 1]
+            [0.8, 0.8, 0.3, 1],
+            [1, 1, 0.3, 1],
+            [0.5, 0.8, 0.3, 1],
+            [1, 0.5, 0.5, 1]
         ),
-        render_colored_specular(game.MaterialColoredSpecular, mesh, [0.3, 0.3, 0.8, 1]),
+        render_textured_specular(game.MaterialTexturedSpecular, mesh, game.Textures["paper"], 32, [
+            0.8,
+            0.8,
+            0.3,
+            1,
+        ]),
         territory(continent, index),
     ];
 }

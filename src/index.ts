@@ -1,3 +1,4 @@
+import {create_texture_from} from "../common/texture.js";
 import {mesh_af01} from "../meshes/af01.js";
 import {mesh_af02} from "../meshes/af02.js";
 import {mesh_af03} from "../meshes/af03.js";
@@ -52,6 +53,11 @@ window.game = game;
 
 // @ts-ignore
 window.$ = dispatch.bind(null, game);
+
+// @ts-ignore
+for (let texture of document.querySelectorAll("img")) {
+    game.Textures[texture.id] = create_texture_from(game.Gl, texture);
+}
 
 game.TerritoryMeshes = [
     [
