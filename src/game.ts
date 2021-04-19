@@ -52,8 +52,9 @@ export class Game {
         MouseY: 0,
     };
 
-    CurrentPlayer = 1;
+    CurrentPlayer = 0;
     Players: Player[] = [];
+    PlayerUnits: Record<Entity, Entity[]> = {};
 
     Ui = document.querySelector("main")!;
 

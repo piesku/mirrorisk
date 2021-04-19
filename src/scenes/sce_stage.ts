@@ -101,6 +101,7 @@ export function scene_stage(game: Game) {
             pickable_unit([1, 1, 0, 1], [1, 0.5, 0, 1], [1, 0, 0, 1]),
             selectable(),
             team(0),
+            disable(Has.ControlPlayer),
         ]);
     }
 
@@ -115,7 +116,6 @@ export function scene_stage(game: Game) {
                 i < 1 ? game.MeshSoldier : game.MeshCannon
             ),
             team(1),
-            disable(Has.ControlPlayer),
         ]);
     }
 
