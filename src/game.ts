@@ -10,6 +10,7 @@ import {mesh_soldier} from "../meshes/soldier.js";
 import {loop_start, loop_stop} from "./loop.js";
 import {sys_camera} from "./systems/sys_camera.js";
 import {sys_collide} from "./systems/sys_collide.js";
+import {sys_control_ai} from "./systems/sys_control_ai.js";
 import {sys_control_always} from "./systems/sys_control_always.js";
 import {sys_control_keyboard} from "./systems/sys_control_keyboard.js";
 import {sys_control_mouse} from "./systems/sys_control_mouse.js";
@@ -51,7 +52,7 @@ export class Game {
         MouseY: 0,
     };
 
-    CurrentPlayer = 0;
+    CurrentPlayer = 1;
     Players: Player[] = [];
 
     Ui = document.querySelector("main")!;
@@ -144,6 +145,7 @@ export class Game {
         sys_pick(this, delta);
         sys_select(this, delta);
         sys_highlight(this, delta);
+        sys_control_ai(this, delta);
         sys_control_pick(this, delta);
         sys_control_keyboard(this, delta);
         sys_control_mouse(this, delta);

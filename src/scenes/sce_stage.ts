@@ -6,7 +6,6 @@ import {camera_framebuffer_ortho} from "../components/com_camera.js";
 import {children} from "../components/com_children.js";
 import {collide} from "../components/com_collide.js";
 import {control_always} from "../components/com_control_always.js";
-import {control_player} from "../components/com_control_player.js";
 import {disable} from "../components/com_disable.js";
 import {light_directional} from "../components/com_light.js";
 import {move} from "../components/com_move.js";
@@ -99,8 +98,6 @@ export function scene_stage(game: Game) {
                 3,
                 i < 1 ? game.MeshSoldier : game.MeshDragoon
             ),
-            control_player(false, false, false, false),
-            disable(Has.ControlPlayer),
             pickable_unit([1, 1, 0, 1], [1, 0.5, 0, 1], [1, 0, 0, 1]),
             selectable(),
             team(0),
@@ -118,6 +115,7 @@ export function scene_stage(game: Game) {
                 i < 1 ? game.MeshSoldier : game.MeshCannon
             ),
             team(1),
+            disable(Has.ControlPlayer),
         ]);
     }
 

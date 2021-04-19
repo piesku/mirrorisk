@@ -1,14 +1,15 @@
+import {float, integer} from "../../common/random.js";
 import {Entity, Game, Player} from "../game.js";
 import {Has} from "../world.js";
 
-const QUERY = Has.ControlPlayer | Has.NavAgent | Has.Team;
+const QUERY = Has.NavAgent | Has.Team;
 
-export function sys_control_pick(game: Game, delta: number) {
+export function sys_control_ai(game: Game, delta: number) {
     for (let i = 0; i < game.World.Signature.length; i++) {
         if (
             (game.World.Signature[i] & QUERY) == QUERY &&
             game.World.Team[i].Id === game.CurrentPlayer &&
-            game.Players[game.World.Team[i].Id] === Player.Human
+            game.Players[game.World.Team[i].Id] === Player.AI
         ) {
             update(game, i);
         }
@@ -17,17 +18,17 @@ export function sys_control_pick(game: Game, delta: number) {
 
 function update(game: Game, entity: Entity) {
     let agent = game.World.NavAgent[entity];
-
-    if (game.InputDelta["Mouse2"] === 1 && game.Picked && agent.Actions > 0) {
-        let territory_entity = game.Picked.Entity;
+    if (agent.Actions > 0) {
+        // TODO: those are random moves right now
+        let territory_entity = game.TerritoryEntities[integer(1, 7)];
         let territory = game.World.Territory[territory_entity];
-        console.log(territory.Id);
 
         if (agent.TerritoryId !== territory.Id) {
             // Use the action up only when moving to another territory.
             agent.Actions -= 1;
         }
+
         agent.TerritoryId = territory.Id;
-        agent.Destination = game.Picked.Point;
+        agent.Destination = [float(-40, 7), 0, float(-70, -50)];
     }
 }
