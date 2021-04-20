@@ -1,4 +1,4 @@
-import {create_texture_from} from "../common/texture.js";
+import {create_texture_from, fetch_image} from "../common/texture.js";
 import {mesh_af01} from "../meshes/af01.js";
 import {mesh_af02} from "../meshes/af02.js";
 import {mesh_af03} from "../meshes/af03.js";
@@ -124,5 +124,31 @@ game.TerritoryMeshes = [
 
 game.Players = [Player.Human, Player.AI, Player.AI];
 
-scene_stage(game);
-loop_start(game);
+Promise.all([
+    load_texture(game, "background.jpg"),
+    load_texture(game, "paper.jpg"),
+    load_texture(game, "marble.jpg"),
+
+    load_texture(game, "Paper003_1K_Color.jpg"),
+    load_texture(game, "Paper003_1K_Normal.jpg"),
+    load_texture(game, "Paper003_1K_Roughness.jpg"),
+
+    load_texture(game, "Plastic003_1K_Color.jpg"),
+    load_texture(game, "Plastic003_1K_Normal.jpg"),
+    load_texture(game, "Plastic003_1K_Roughness.jpg"),
+
+    load_texture(game, "Wood063_1K_Color.jpg"),
+    load_texture(game, "Wood063_1K_Normal.jpg"),
+    load_texture(game, "Wood063_1K_Roughness.jpg"),
+]).then(() => {
+    scene_stage(game);
+    loop_start(game);
+});
+
+async function load_texture(game: Game, name: string) {
+    let image = await fetch_image("./textures/" + name);
+    game.Textures[name] = create_texture_from(game.Gl, image);
+
+    // Report loading progress.
+    game.Ui.innerHTML += `Loading <code>${name}</code>... ✓<br>`;
+}

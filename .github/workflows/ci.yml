@@ -18,7 +18,9 @@ jobs:
     - name: Lint
       run: npm run lint
     - name: Build 🔧
-      run: make -C play
+      run: |
+        make -C play
+        mv textures play/
     - name: Deploy 🚀
       uses: JamesIves/github-pages-deploy-action@4.1.1
       with:

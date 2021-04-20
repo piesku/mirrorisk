@@ -86,7 +86,7 @@ export function scene_stage(game: Game) {
         render_textured_specular(
             game.MaterialTexturedSpecular,
             game.MeshTable,
-            game.Textures["marble"],
+            game.Textures["marble.jpg"],
             32,
             [2, 2, 2, 1]
         ),
@@ -98,7 +98,7 @@ export function scene_stage(game: Game) {
         render_textured_specular(
             game.MaterialTexturedSpecular,
             game.MeshPlane,
-            game.Textures["background"],
+            game.Textures["background.jpg"],
             1,
             [1, 1, 1, 1]
         ),
