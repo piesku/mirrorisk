@@ -502,6 +502,7 @@ export function render_textured_mapped(
                 let delta_v2 = mesh.TexCoordArray[v2 * 2 + 1] - mesh.TexCoordArray[v0 * 2 + 1];
 
                 let r = 1 / (delta_u1 * delta_v2 - delta_u2 * delta_v1);
+                if (!Number.isFinite(r)) r = 1;
                 let tangent: Vec3 = [
                     r * (delta_v2 * edge1[0] - delta_v1 * edge2[0]),
                     r * (delta_v2 * edge1[1] - delta_v1 * edge2[1]),

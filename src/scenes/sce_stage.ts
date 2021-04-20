@@ -7,7 +7,7 @@ import {blueprint_unit} from "../blueprints/blu_unit.js";
 import {children} from "../components/com_children.js";
 import {collide} from "../components/com_collide.js";
 import {light_directional} from "../components/com_light.js";
-import {render_textured_specular} from "../components/com_render1.js";
+import {render_textured_mapped, render_textured_specular} from "../components/com_render1.js";
 import {Continent} from "../components/com_territory.js";
 import {transform} from "../components/com_transform.js";
 import {instantiate} from "../entity.js";
@@ -83,12 +83,12 @@ export function scene_stage(game: Game) {
     // Table
     instantiate(game, [
         transform([0, -222, 0], from_euler([0, 0, 0, 0], 0, 15, 0), [300, 300, 300]),
-        render_textured_specular(
-            game.MaterialTexturedSpecular,
+        render_textured_mapped(
+            game.MaterialTexturedMapped,
             game.MeshTable,
-            game.Textures["marble.jpg"],
-            32,
-            [2, 2, 2, 1]
+            game.Textures["Wood054_1K_Color.jpg"],
+            game.Textures["Wood054_1K_Normal.jpg"],
+            game.Textures["Wood054_1K_Roughness.jpg"]
         ),
     ]);
 

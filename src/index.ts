@@ -126,8 +126,6 @@ game.Players = [Player.Human, Player.AI, Player.AI];
 
 Promise.all([
     load_texture(game, "background.jpg"),
-    load_texture(game, "paper.jpg"),
-    load_texture(game, "marble.jpg"),
 
     load_texture(game, "Paper003_1K_Color.jpg"),
     load_texture(game, "Paper003_1K_Normal.jpg"),
@@ -140,6 +138,14 @@ Promise.all([
     load_texture(game, "Wood063_1K_Color.jpg"),
     load_texture(game, "Wood063_1K_Normal.jpg"),
     load_texture(game, "Wood063_1K_Roughness.jpg"),
+
+    load_texture(game, "Wood054_1K_Color.jpg"),
+    load_texture(game, "Wood054_1K_Normal.jpg"),
+    load_texture(game, "Wood054_1K_Roughness.jpg"),
+
+    load_texture(game, "Concrete019_1K_Color.jpg"),
+    load_texture(game, "Concrete019_1K_Normal.jpg"),
+    load_texture(game, "Concrete019_1K_Roughness.jpg"),
 ]).then(() => {
     scene_stage(game);
     loop_start(game);

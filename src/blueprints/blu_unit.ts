@@ -36,14 +36,6 @@ export function blueprint_unit(
                 render_textured_mapped(
                     game.MaterialTexturedMapped,
                     mesh,
-                    game.Textures["Plastic003_1K_Color.jpg"],
-                    game.Textures["Plastic003_1K_Normal.jpg"],
-                    game.Textures["Plastic003_1K_Roughness.jpg"],
-                    color
-                ),
-                render_textured_mapped(
-                    game.MaterialTexturedMapped,
-                    mesh,
                     game.Textures["Wood063_1K_Color.jpg"],
                     game.Textures["Wood063_1K_Normal.jpg"],
                     game.Textures["Wood063_1K_Roughness.jpg"],
