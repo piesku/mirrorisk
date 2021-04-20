@@ -58691,6 +58691,7 @@ game.ExtVao.bindVertexArrayOES(null);
 function use_textured_specular(game, material, eye) {
 game.Gl.useProgram(material.Program);
 game.Gl.uniformMatrix4fv(material.Locations.Pv, false, eye.Pv);
+game.Gl.uniform3fv(material.Locations.Eye, eye.Position);
 game.Gl.uniform4fv(material.Locations.LightPositions, game.LightPositions);
 game.Gl.uniform4fv(material.Locations.LightDetails, game.LightDetails);
 game.Gl.activeTexture(GL_TEXTURE0);
@@ -59102,7 +59103,7 @@ light_directional([1, 1, 1], 0.8),
 camera_framebuffer_ortho(game.Targets.Sun, 250, 1, 1000, [0, 0, 0, 1]),
 ], 
 
-[transform([0, 0, -50]), light_directional([0.8, 0.5, 0.5], 0.8)]),
+[transform([0, 0, -50]), light_directional([0.5, 0.5, 0.7], 0.8)]),
 ]),
 ];
 }
@@ -59392,7 +59393,7 @@ render_textured_specular(game.MaterialTexturedSpecular, game.MeshTable, game.Tex
 
 instantiate(game, [
 transform([0, -0.5, 0], undefined, [332, 1, 220]),
-render_textured_specular(game.MaterialTexturedSpecular, game.MeshPlane, game.Textures["background"], 1, [2, 2, 2, 1]),
+render_textured_specular(game.MaterialTexturedSpecular, game.MeshPlane, game.Textures["background"], 1, [1, 1, 1, 1]),
 ]);
 
 instantiate(game, [
