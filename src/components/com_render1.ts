@@ -502,7 +502,17 @@ export function render_textured_mapped(
                 let delta_v2 = mesh.TexCoordArray[v2 * 2 + 1] - mesh.TexCoordArray[v0 * 2 + 1];
 
                 let r = 1 / (delta_u1 * delta_v2 - delta_u2 * delta_v1);
-                if (!Number.isFinite(r)) r = 1;
+
+                // XXX Territory meshes were extruded after having unwrapped
+                // their UVs. In effect, the vertices of the side faces that
+                // differ only in Y have the exact same UVs. This can make the
+                // deltas 0, r Infinite, and the tangent [NaN, NaN, NaN].
+                // TODO Fix the UVs.
+                if (!Number.isFinite(r)) {
+                    // Assign an arbitrary value. Still better than NaN.
+                    r = 1;
+                }
+
                 let tangent: Vec3 = [
                     r * (delta_v2 * edge1[0] - delta_v1 * edge2[0]),
                     r * (delta_v2 * edge1[1] - delta_v1 * edge2[1]),
