@@ -183,6 +183,13 @@
     const GL_UNSIGNED_SHORT = 0x1403;
     const GL_FLOAT = 0x1406;
 
+    function fetch_image(path) {
+        return new Promise((resolve) => {
+            let image = new Image();
+            image.src = path;
+            image.onload = () => resolve(image);
+        });
+    }
     function create_texture_from(gl, image) {
         let texture = gl.createTexture();
         gl.bindTexture(GL_TEXTURE_2D, texture);
@@ -64178,12 +64185,7 @@
         return [
             transform([0, float(-1, 0), 0]),
             pickable_territory(mesh, [0.8, 0.8, 0.3, 1], [1, 1, 0.3, 1], [0.5, 0.8, 0.3, 1], [1, 0.5, 0.5, 1]),
-            render_textured_specular(game.MaterialTexturedSpecular, mesh, game.Textures["paper"], 32, [
-                0.8,
-                0.8,
-                0.3,
-                1,
-            ]),
+            render_textured_specular(game.MaterialTexturedSpecular, mesh, game.Textures["paper.jpg"], 32, [0.8, 0.8, 0.3, 1]),
             territory(continent, index),
         ];
     }
@@ -64268,8 +64270,8 @@
             control_player(false, false, false, false),
             children([transform(), draw_selection("#ff0"), disable(32 /* Draw */)], [
                 transform(),
-                render_textured_mapped(game.MaterialTexturedMapped, mesh, game.Textures["plastic_diffuse"], game.Textures["plastic_normal"], game.Textures["plastic_roughness"], color),
-                render_textured_mapped(game.MaterialTexturedMapped, mesh, game.Textures["wood_diffuse"], game.Textures["wood_normal"], game.Textures["wood_roughness"], color),
+                render_textured_mapped(game.MaterialTexturedMapped, mesh, game.Textures["Plastic003_1K_Color.jpg"], game.Textures["Plastic003_1K_Normal.jpg"], game.Textures["Plastic003_1K_Roughness.jpg"], color),
+                render_textured_mapped(game.MaterialTexturedMapped, mesh, game.Textures["Wood063_1K_Color.jpg"], game.Textures["Wood063_1K_Normal.jpg"], game.Textures["Wood063_1K_Roughness.jpg"], color),
             ]),
             team(team_id),
         ];
@@ -64343,12 +64345,12 @@
         // Table
         instantiate(game, [
             transform([0, -222, 0], from_euler([0, 0, 0, 0], 0, 15, 0), [300, 300, 300]),
-            render_textured_specular(game.MaterialTexturedSpecular, game.MeshTable, game.Textures["marble"], 32, [2, 2, 2, 1]),
+            render_textured_specular(game.MaterialTexturedSpecular, game.MeshTable, game.Textures["marble.jpg"], 32, [2, 2, 2, 1]),
         ]);
         // Board background.
         instantiate(game, [
             transform([0, -0.5, 0], undefined, [332, 1, 220]),
-            render_textured_specular(game.MaterialTexturedSpecular, game.MeshPlane, game.Textures["background"], 1, [1, 1, 1, 1]),
+            render_textured_specular(game.MaterialTexturedSpecular, game.MeshPlane, game.Textures["background.jpg"], 1, [1, 1, 1, 1]),
         ]);
         // World map.
         instantiate(game, [
@@ -64454,7 +64456,28 @@
         ],
     ];
     game.Players = [0 /* Human */, 1 /* AI */, 1 /* AI */];
-    scene_stage(game);
-    loop_start(game);
+    Promise.all([
+        load_texture(game, "background.jpg"),
+        load_texture(game, "paper.jpg"),
+        load_texture(game, "marble.jpg"),
+        load_texture(game, "Paper003_1K_Color.jpg"),
+        load_texture(game, "Paper003_1K_Normal.jpg"),
+        load_texture(game, "Paper003_1K_Roughness.jpg"),
+        load_texture(game, "Plastic003_1K_Color.jpg"),
+        load_texture(game, "Plastic003_1K_Normal.jpg"),
+        load_texture(game, "Plastic003_1K_Roughness.jpg"),
+        load_texture(game, "Wood063_1K_Color.jpg"),
+        load_texture(game, "Wood063_1K_Normal.jpg"),
+        load_texture(game, "Wood063_1K_Roughness.jpg"),
+    ]).then(() => {
+        scene_stage(game);
+        loop_start(game);
+    });
+    async function load_texture(game, name) {
+        let image = await fetch_image("./textures/" + name);
+        game.Textures[name] = create_texture_from(game.Gl, image);
+        // Report loading progress.
+        game.Ui.innerHTML += `Loading <code>${name}</code>... ✓<br>`;
+    }
 
 }());
