@@ -3,6 +3,7 @@ import {Mesh} from "../common/material.js";
 import {GL_CULL_FACE, GL_DEPTH_TEST} from "../common/webgl.js";
 import {mat1_colored_specular_phong} from "../materials/mat1_colored_specular_phong.js";
 import {mat1_depth} from "../materials/mat1_depth.js";
+import {mat1_textured_mapped} from "../materials/mat1_textured_mapped.js";
 import {mat1_textured_specular_phong} from "../materials/mat1_textured_specular_phong.js";
 import {mesh_cannon} from "../meshes/cannon.js";
 import {mesh_cube} from "../meshes/cube.js";
@@ -76,6 +77,7 @@ export class Game {
     MaterialDepth = mat1_depth(this.Gl);
     MaterialColoredSpecular = mat1_colored_specular_phong(this.Gl);
     MaterialTexturedSpecular = mat1_textured_specular_phong(this.Gl);
+    MaterialTexturedMapped = mat1_textured_mapped(this.Gl);
     MeshCube = mesh_cube(this.Gl);
     MeshPlane = mesh_plane(this.Gl);
     MeshTable = mesh_table_round(this.Gl);

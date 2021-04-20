@@ -8,7 +8,7 @@ import {draw_selection} from "../components/com_draw.js";
 import {move} from "../components/com_move.js";
 import {nav_agent} from "../components/com_nav_agent.js";
 import {pickable_unit} from "../components/com_pickable.js";
-import {render_colored_specular} from "../components/com_render1.js";
+import {render_textured_mapped} from "../components/com_render1.js";
 import {selectable} from "../components/com_selectable.js";
 import {team} from "../components/com_team.js";
 import {transform} from "../components/com_transform.js";
@@ -33,12 +33,22 @@ export function blueprint_unit(
             [transform(), draw_selection("#ff0"), disable(Has.Draw)],
             [
                 transform(),
-                render_colored_specular(game.MaterialColoredSpecular, mesh, color, 128, [
-                    1,
-                    1,
-                    1,
-                    1,
-                ]),
+                render_textured_mapped(
+                    game.MaterialTexturedMapped,
+                    mesh,
+                    game.Textures["plastic_diffuse"],
+                    game.Textures["plastic_normal"],
+                    game.Textures["plastic_roughness"],
+                    color
+                ),
+                render_textured_mapped(
+                    game.MaterialTexturedMapped,
+                    mesh,
+                    game.Textures["wood_diffuse"],
+                    game.Textures["wood_normal"],
+                    game.Textures["wood_roughness"],
+                    color
+                ),
             ]
         ),
         team(team_id),
