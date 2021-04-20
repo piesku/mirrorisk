@@ -100,7 +100,7 @@ export function scene_stage(game: Game) {
             game.MeshPlane,
             game.Textures["background"],
             1,
-            [2, 2, 2, 1]
+            [1, 1, 1, 1]
         ),
     ]);
 
