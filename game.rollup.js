@@ -64120,6 +64120,8 @@
                     let delta_u2 = mesh.TexCoordArray[v2 * 2 + 0] - mesh.TexCoordArray[v0 * 2 + 0];
                     let delta_v2 = mesh.TexCoordArray[v2 * 2 + 1] - mesh.TexCoordArray[v0 * 2 + 1];
                     let r = 1 / (delta_u1 * delta_v2 - delta_u2 * delta_v1);
+                    if (!Number.isFinite(r))
+                        r = 1;
                     let tangent = [
                         r * (delta_v2 * edge1[0] - delta_v1 * edge2[0]),
                         r * (delta_v2 * edge1[1] - delta_v1 * edge2[1]),
@@ -64183,9 +64185,9 @@
     function blueprint_territory(game, continent, index) {
         let mesh = game.TerritoryMeshes[continent][index - 1];
         return [
-            transform([0, float(-1, 0), 0]),
-            pickable_territory(mesh, [0.8, 0.8, 0.3, 1], [1, 1, 0.3, 1], [0.5, 0.8, 0.3, 1], [1, 0.5, 0.5, 1]),
-            render_textured_specular(game.MaterialTexturedSpecular, mesh, game.Textures["paper.jpg"], 32, [0.8, 0.8, 0.3, 1]),
+            transform(),
+            pickable_territory(mesh, [1, 1, 1, 1], [0, 0, 1, 1], [0, 1, 0, 1], [1, 0, 0, 1]),
+            render_textured_mapped(game.MaterialTexturedMapped, mesh, game.Textures["Concrete019_1K_Color.jpg"], game.Textures["Concrete019_1K_Normal.jpg"], game.Textures["Concrete019_1K_Roughness.jpg"]),
             territory(continent, index),
         ];
     }
@@ -64270,7 +64272,6 @@
             control_player(false, false, false, false),
             children([transform(), draw_selection("#ff0"), disable(32 /* Draw */)], [
                 transform(),
-                render_textured_mapped(game.MaterialTexturedMapped, mesh, game.Textures["Plastic003_1K_Color.jpg"], game.Textures["Plastic003_1K_Normal.jpg"], game.Textures["Plastic003_1K_Roughness.jpg"], color),
                 render_textured_mapped(game.MaterialTexturedMapped, mesh, game.Textures["Wood063_1K_Color.jpg"], game.Textures["Wood063_1K_Normal.jpg"], game.Textures["Wood063_1K_Roughness.jpg"], color),
             ]),
             team(team_id),
@@ -64345,7 +64346,7 @@
         // Table
         instantiate(game, [
             transform([0, -222, 0], from_euler([0, 0, 0, 0], 0, 15, 0), [300, 300, 300]),
-            render_textured_specular(game.MaterialTexturedSpecular, game.MeshTable, game.Textures["marble.jpg"], 32, [2, 2, 2, 1]),
+            render_textured_mapped(game.MaterialTexturedMapped, game.MeshTable, game.Textures["Wood054_1K_Color.jpg"], game.Textures["Wood054_1K_Normal.jpg"], game.Textures["Wood054_1K_Roughness.jpg"]),
         ]);
         // Board background.
         instantiate(game, [
@@ -64458,8 +64459,6 @@
     game.Players = [0 /* Human */, 1 /* AI */, 1 /* AI */];
     Promise.all([
         load_texture(game, "background.jpg"),
-        load_texture(game, "paper.jpg"),
-        load_texture(game, "marble.jpg"),
         load_texture(game, "Paper003_1K_Color.jpg"),
         load_texture(game, "Paper003_1K_Normal.jpg"),
         load_texture(game, "Paper003_1K_Roughness.jpg"),
@@ -64469,6 +64468,12 @@
         load_texture(game, "Wood063_1K_Color.jpg"),
         load_texture(game, "Wood063_1K_Normal.jpg"),
         load_texture(game, "Wood063_1K_Roughness.jpg"),
+        load_texture(game, "Wood054_1K_Color.jpg"),
+        load_texture(game, "Wood054_1K_Normal.jpg"),
+        load_texture(game, "Wood054_1K_Roughness.jpg"),
+        load_texture(game, "Concrete019_1K_Color.jpg"),
+        load_texture(game, "Concrete019_1K_Normal.jpg"),
+        load_texture(game, "Concrete019_1K_Roughness.jpg"),
     ]).then(() => {
         scene_stage(game);
         loop_start(game);
