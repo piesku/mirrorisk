@@ -40421,7 +40421,7 @@
         vec3 view_dir = eye - vert_pos.xyz;
         vec3 view_normal = normalize(view_dir);
 
-        vec4 tex_color = texture2D(diffuse_map, vert_texcoord);
+        vec4 tex_color = texture2D(diffuse_map, vec2(vert_texcoord.x, -vert_texcoord.y));
         vec3 unlit_rgb = tex_color.rgb * diffuse_color.rgb;
         // Ambient light.
         vec3 light_acc = unlit_rgb * 0.1;
@@ -40453,18 +40453,20 @@
 
                 // Blinn-Phong reflection model.
                 float roughness = texture2D(roughness_map, vert_texcoord).x;
-                float shininess = 2.0 / pow(roughness, 4.0) - 2.0;
-                vec3 h = normalize(light_normal + view_normal);
-                float specular_angle = max(dot(h, frag_normal), 0.0);
-                float specular_factor = pow(specular_angle, shininess);
+                if (roughness > 0.0) {
+                    float shininess = 2.0 / pow(roughness, 4.0) - 2.0;
+                    vec3 h = normalize(light_normal + view_normal);
+                    float specular_angle = max(dot(h, frag_normal), 0.0);
+                    float specular_factor = pow(specular_angle, shininess);
 
-                // Specular color.
-                light_acc += specular_factor * light_color * light_intensity;
+                    // Specular color.
+                    light_acc += unlit_rgb * specular_factor * light_color * light_intensity;
+                }
             }
         }
 
         vec3 shaded_rgb = light_acc * (1.0 - shadow_factor(vert_pos));
-        gl_FragColor = vec4(shaded_rgb, 1.0) * tex_color;
+        gl_FragColor = vec4(shaded_rgb, 1.0);
     }
 `;
     function mat1_textured_mapped(gl) {
@@ -40592,18 +40594,21 @@
                 // float specular_factor = pow(specular_angle, shininess);
 
                 // Blinn-Phong reflection model.
-                vec3 h = normalize(light_normal + view_normal);
-                float specular_angle = max(dot(h, frag_normal), 0.0);
-                float specular_factor = pow(specular_angle, shininess);
+                if (shininess > 0.0) {
+                    vec3 h = normalize(light_normal + view_normal);
+                    float specular_angle = max(dot(h, frag_normal), 0.0);
+                    float specular_factor = pow(specular_angle, shininess);
 
-                // Specular color.
-                light_acc += color_specular.rgb * specular_factor * light_color * light_intensity;
+                    // Specular color.
+                    light_acc += color_specular.rgb * specular_factor * light_color * light_intensity;
+                }
             }
         }
 
         vec3 ambient_rgb = color_diffuse.rgb * 0.1;
         vec3 shaded_rgb = ambient_rgb + light_acc * (1.0 - shadow_factor(vert_pos));
-        vec4 tex_color = texture2D(diffuse_map, vert_texcoord);
+        //vec4 tex_color = texture2D(diffuse_map, vert_texcoord);
+        vec4 tex_color = texture2D(diffuse_map, vec2(vert_texcoord.x, -vert_texcoord.y));
         gl_FragColor = vec4(shaded_rgb, 1.0) * tex_color;
     }
 `;
@@ -63859,11 +63864,11 @@
     function blueprint_camera(game) {
         return [
             control_player(true, true, false, false),
-            move(100, 0.1),
+            move(100, 0.5),
             children([
                 transform(),
                 control_player(false, false, true, false),
-                move(100, 0.1),
+                move(100, 0.5),
                 children([
                     transform([0, 40, -23], from_euler([0, 0, 0, 0], -60, 180, 0)),
                     control_player(false, false, false, true),
@@ -63906,6 +63911,16 @@
             };
         };
     }
+    function light_point(color = [1, 1, 1], range = 1) {
+        return (game, entity) => {
+            game.World.Signature[entity] |= 128 /* Light */;
+            game.World.Light[entity] = {
+                Kind: 2 /* Point */,
+                Color: color,
+                Intensity: range ** 2,
+            };
+        };
+    }
 
     function blueprint_sun(game) {
         return [
@@ -63920,7 +63935,7 @@
                 // The Sun.
                 [
                     transform([0, 0, 500]),
-                    light_directional([1, 1, 1], 0.8),
+                    light_directional([1, 1, 1], 0.9),
                     camera_framebuffer_ortho(game.Targets.Sun, 250, 1, 1000, [0, 0, 0, 1]),
                 ], 
                 // The Moon.
@@ -64100,8 +64115,9 @@
         let mesh = game.TerritoryMeshes[continent][index - 1];
         return [
             transform(),
-            pickable_territory(mesh, [1, 1, 1, 1], [0, 0, 1, 1], [0, 1, 0, 1], [1, 0, 0, 1]),
-            render_textured_mapped(game.MaterialTexturedMapped, mesh, game.Textures["Concrete019_1K_Color.jpg"], game.Textures["Concrete019_1K_Normal.jpg"], game.Textures["Concrete019_1K_Roughness.jpg"]),
+            pickable_territory(mesh, [1, 1, 1, 1], [2, 2, 2, 1], [1.2, 1.5, 1.2, 1], [2, 1.2, 1.2, 1]),
+            render_textured_mapped(game.MaterialTexturedMapped, mesh, game.Textures["eu.png"], game.Textures["Cardboard004_1K_Normal.jpg"], game.Textures["Cardboard004_1K_Roughness.jpg"]),
+            false ,
             territory(continent, index),
         ];
     }
@@ -64257,6 +64273,8 @@
         instantiate(game, blueprint_sun(game));
         // Directional backlight.
         instantiate(game, [transform([-1, 1, -1]), light_directional([1, 1, 1], 0.2)]);
+        // Lamp.
+        instantiate(game, [transform([-100, 100, -100]), light_point([1, 1, 0.9], 60)]);
         // Table
         instantiate(game, [
             transform([0, -222, 0], from_euler([0, 0, 0, 0], 0, 15, 0), [300, 300, 300]),
@@ -64264,7 +64282,7 @@
         ]);
         // Board background.
         instantiate(game, [
-            transform([0, -0.5, 0], undefined, [332, 1, 220]),
+            transform([0, 0, 0], undefined, [332, 1, 220]),
             render_textured_specular(game.MaterialTexturedSpecular, game.MeshPlane, game.Textures["background.jpg"], 1, [1, 1, 1, 1]),
         ]);
         // World map.
@@ -64373,12 +64391,28 @@
     game.Players = [0 /* Human */, 1 /* AI */, 1 /* AI */];
     Promise.all([
         load_texture(game, "background.jpg"),
+        load_texture(game, "paper.jpg"),
+        load_texture(game, "Paper001_1K_Color.jpg"),
+        load_texture(game, "Paper001_1K_Normal.jpg"),
+        load_texture(game, "Paper001_1K_Roughness.jpg"),
         load_texture(game, "Paper003_1K_Color.jpg"),
         load_texture(game, "Paper003_1K_Normal.jpg"),
         load_texture(game, "Paper003_1K_Roughness.jpg"),
+        load_texture(game, "Cardboard002_1K_Color.jpg"),
+        load_texture(game, "Cardboard002_1K_Normal.jpg"),
+        load_texture(game, "Cardboard002_1K_Roughness.jpg"),
+        load_texture(game, "Cardboard003_1K_Color.jpg"),
+        load_texture(game, "Cardboard003_1K_Normal.jpg"),
+        load_texture(game, "Cardboard003_1K_Roughness.jpg"),
+        load_texture(game, "Cardboard004_1K_Color.jpg"),
+        load_texture(game, "Cardboard004_1K_Normal.jpg"),
+        load_texture(game, "Cardboard004_1K_Roughness.jpg"),
         load_texture(game, "Plastic003_1K_Color.jpg"),
         load_texture(game, "Plastic003_1K_Normal.jpg"),
         load_texture(game, "Plastic003_1K_Roughness.jpg"),
+        load_texture(game, "Plaster001_1K_Color.jpg"),
+        load_texture(game, "Plaster001_1K_Normal.jpg"),
+        load_texture(game, "Plaster001_1K_Roughness.jpg"),
         load_texture(game, "Wood063_1K_Color.jpg"),
         load_texture(game, "Wood063_1K_Normal.jpg"),
         load_texture(game, "Wood063_1K_Roughness.jpg"),
@@ -64388,6 +64422,7 @@
         load_texture(game, "Concrete019_1K_Color.jpg"),
         load_texture(game, "Concrete019_1K_Normal.jpg"),
         load_texture(game, "Concrete019_1K_Roughness.jpg"),
+        load_texture(game, "eu.png"),
     ]).then(() => {
         scene_stage(game);
         loop_start(game);
