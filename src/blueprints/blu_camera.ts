@@ -10,11 +10,11 @@ import {Game} from "../game.js";
 export function blueprint_camera(game: Game): Blueprint {
     return [
         control_player(true, true, false, false),
-        move(100, 0.1),
+        move(100, 0.5),
         children([
             transform(),
             control_player(false, false, true, false),
-            move(100, 0.1),
+            move(100, 0.5),
             children([
                 transform([0, 40, -23], from_euler([0, 0, 0, 0], -60, 180, 0)),
                 control_player(false, false, false, true),

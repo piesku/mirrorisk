@@ -6,7 +6,7 @@ import {blueprint_territory} from "../blueprints/blu_territory.js";
 import {blueprint_unit} from "../blueprints/blu_unit.js";
 import {children} from "../components/com_children.js";
 import {collide} from "../components/com_collide.js";
-import {light_directional} from "../components/com_light.js";
+import {light_directional, light_point} from "../components/com_light.js";
 import {render_textured_mapped, render_textured_specular} from "../components/com_render1.js";
 import {Continent} from "../components/com_territory.js";
 import {transform} from "../components/com_transform.js";
@@ -80,6 +80,9 @@ export function scene_stage(game: Game) {
     // Directional backlight.
     instantiate(game, [transform([-1, 1, -1]), light_directional([1, 1, 1], 0.2)]);
 
+    // Lamp.
+    instantiate(game, [transform([-100, 100, -100]), light_point([1, 1, 0.9], 60)]);
+
     // Table
     instantiate(game, [
         transform([0, -222, 0], from_euler([0, 0, 0, 0], 0, 15, 0), [300, 300, 300]),
@@ -94,7 +97,7 @@ export function scene_stage(game: Game) {
 
     // Board background.
     instantiate(game, [
-        transform([0, -0.5, 0], undefined, [332, 1, 220]),
+        transform([0, 0, 0], undefined, [332, 1, 220]),
         render_textured_specular(
             game.MaterialTexturedSpecular,
             game.MeshPlane,

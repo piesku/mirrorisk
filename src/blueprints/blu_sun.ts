@@ -24,7 +24,7 @@ export function blueprint_sun(game: Game): Blueprint {
                 // The Sun.
                 [
                     transform([0, 0, 500]),
-                    light_directional([1, 1, 1], 0.8),
+                    light_directional([1, 1, 1], 0.9),
                     camera_framebuffer_ortho(game.Targets.Sun, 250, 1, 1000, [0, 0, 0, 1]),
                 ],
                 // The Moon.

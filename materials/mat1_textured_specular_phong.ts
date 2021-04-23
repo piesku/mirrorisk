@@ -101,18 +101,21 @@ let fragment = `
                 // float specular_factor = pow(specular_angle, shininess);
 
                 // Blinn-Phong reflection model.
-                vec3 h = normalize(light_normal + view_normal);
-                float specular_angle = max(dot(h, frag_normal), 0.0);
-                float specular_factor = pow(specular_angle, shininess);
+                if (shininess > 0.0) {
+                    vec3 h = normalize(light_normal + view_normal);
+                    float specular_angle = max(dot(h, frag_normal), 0.0);
+                    float specular_factor = pow(specular_angle, shininess);
 
-                // Specular color.
-                light_acc += color_specular.rgb * specular_factor * light_color * light_intensity;
+                    // Specular color.
+                    light_acc += color_specular.rgb * specular_factor * light_color * light_intensity;
+                }
             }
         }
 
         vec3 ambient_rgb = color_diffuse.rgb * 0.1;
         vec3 shaded_rgb = ambient_rgb + light_acc * (1.0 - shadow_factor(vert_pos));
-        vec4 tex_color = texture2D(diffuse_map, vert_texcoord);
+        //vec4 tex_color = texture2D(diffuse_map, vert_texcoord);
+        vec4 tex_color = texture2D(diffuse_map, vec2(vert_texcoord.x, -vert_texcoord.y));
         gl_FragColor = vec4(shaded_rgb, 1.0) * tex_color;
     }
 `;

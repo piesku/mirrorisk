@@ -79,7 +79,7 @@ let fragment = `
         vec3 view_dir = eye - vert_pos.xyz;
         vec3 view_normal = normalize(view_dir);
 
-        vec4 tex_color = texture2D(diffuse_map, vert_texcoord);
+        vec4 tex_color = texture2D(diffuse_map, vec2(vert_texcoord.x, -vert_texcoord.y));
         vec3 unlit_rgb = tex_color.rgb * diffuse_color.rgb;
         // Ambient light.
         vec3 light_acc = unlit_rgb * 0.1;
@@ -111,18 +111,20 @@ let fragment = `
 
                 // Blinn-Phong reflection model.
                 float roughness = texture2D(roughness_map, vert_texcoord).x;
-                float shininess = 2.0 / pow(roughness, 4.0) - 2.0;
-                vec3 h = normalize(light_normal + view_normal);
-                float specular_angle = max(dot(h, frag_normal), 0.0);
-                float specular_factor = pow(specular_angle, shininess);
+                if (roughness > 0.0) {
+                    float shininess = 2.0 / pow(roughness, 4.0) - 2.0;
+                    vec3 h = normalize(light_normal + view_normal);
+                    float specular_angle = max(dot(h, frag_normal), 0.0);
+                    float specular_factor = pow(specular_angle, shininess);
 
-                // Specular color.
-                light_acc += specular_factor * light_color * light_intensity;
+                    // Specular color.
+                    light_acc += unlit_rgb * specular_factor * light_color * light_intensity;
+                }
             }
         }
 
         vec3 shaded_rgb = light_acc * (1.0 - shadow_factor(vert_pos));
-        gl_FragColor = vec4(shaded_rgb, 1.0) * tex_color;
+        gl_FragColor = vec4(shaded_rgb, 1.0);
     }
 `;
 
