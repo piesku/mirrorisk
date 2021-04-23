@@ -9,7 +9,7 @@ export function blueprint_territory(game: Game, continent: Continent, index: num
     let mesh = game.TerritoryMeshes[continent][index - 1];
     return [
         transform(),
-        pickable_territory(mesh, [1, 1, 1, 1], [0, 0, 1, 1], [0, 1, 0, 1], [1, 0, 0, 1]),
+        pickable_territory(mesh, [1, 1, 1, 1], [2, 2, 2, 1], [1.2, 1.5, 1.2, 1], [2, 1.2, 1.2, 1]),
         render_textured_mapped(
             game.MaterialTexturedMapped,
             mesh,
