@@ -64102,12 +64102,12 @@
     }
 
     const textures_by_continent = {
-        [0 /* Europe */]: "euau.png",
-        [1 /* Africa */]: "afsa.png",
-        [2 /* Australia */]: "euau.png",
-        [4 /* SouthAmerica */]: "afsa.png",
-        [3 /* NorthAmerica */]: "na.png",
-        [5 /* Asia */]: "as.png",
+        [0 /* Europe */]: "euau.webp",
+        [1 /* Africa */]: "afsa.webp",
+        [2 /* Australia */]: "euau.webp",
+        [4 /* SouthAmerica */]: "afsa.webp",
+        [3 /* NorthAmerica */]: "na.webp",
+        [5 /* Asia */]: "as.webp",
     };
     function blueprint_territory(game, continent, index) {
         let mesh = game.TerritoryMeshes[continent][index - 1];
@@ -64388,10 +64388,10 @@
         // Portolan chart
         load_texture(game, "background.jpg"),
         // Continents
-        load_texture(game, "euau.png"),
-        load_texture(game, "afsa.png"),
-        load_texture(game, "na.png"),
-        load_texture(game, "as.png"),
+        load_texture(game, "euau.webp"),
+        load_texture(game, "afsa.webp"),
+        load_texture(game, "na.webp"),
+        load_texture(game, "as.webp"),
         load_texture(game, "Cardboard004_1K_Normal.jpg"),
         load_texture(game, "Cardboard004_1K_Roughness.jpg"),
         // Meeples
