@@ -64115,9 +64115,8 @@ function blueprint_territory(game, continent, index) {
 let mesh = game.TerritoryMeshes[continent][index - 1];
 return [
 transform(),
-pickable_territory(mesh, [1, 1, 1, 1], [2, 2, 2, 1], [1.2, 1.5, 1.2, 1], [2, 1.2, 1.2, 1]),
+pickable_territory(mesh, [1.1, 1.1, 1.1, 1], [2, 2, 2, 1], [1.2, 1.5, 1.2, 1], [2, 1.2, 1.2, 1]),
 render_textured_mapped(game.MaterialTexturedMapped, mesh, game.Textures["eu.png"], game.Textures["Cardboard004_1K_Normal.jpg"], game.Textures["Cardboard004_1K_Roughness.jpg"]),
-false ,
 territory(continent, index),
 ];
 }
@@ -64392,36 +64391,15 @@ game.Players = [0 /* Human */, 1 /* AI */, 1 /* AI */];
 Promise.all([
 load_texture(game, "background.jpg"),
 load_texture(game, "paper.jpg"),
-load_texture(game, "Paper001_1K_Color.jpg"),
-load_texture(game, "Paper001_1K_Normal.jpg"),
-load_texture(game, "Paper001_1K_Roughness.jpg"),
-load_texture(game, "Paper003_1K_Color.jpg"),
-load_texture(game, "Paper003_1K_Normal.jpg"),
-load_texture(game, "Paper003_1K_Roughness.jpg"),
-load_texture(game, "Cardboard002_1K_Color.jpg"),
-load_texture(game, "Cardboard002_1K_Normal.jpg"),
-load_texture(game, "Cardboard002_1K_Roughness.jpg"),
-load_texture(game, "Cardboard003_1K_Color.jpg"),
-load_texture(game, "Cardboard003_1K_Normal.jpg"),
-load_texture(game, "Cardboard003_1K_Roughness.jpg"),
 load_texture(game, "Cardboard004_1K_Color.jpg"),
 load_texture(game, "Cardboard004_1K_Normal.jpg"),
 load_texture(game, "Cardboard004_1K_Roughness.jpg"),
-load_texture(game, "Plastic003_1K_Color.jpg"),
-load_texture(game, "Plastic003_1K_Normal.jpg"),
-load_texture(game, "Plastic003_1K_Roughness.jpg"),
-load_texture(game, "Plaster001_1K_Color.jpg"),
-load_texture(game, "Plaster001_1K_Normal.jpg"),
-load_texture(game, "Plaster001_1K_Roughness.jpg"),
 load_texture(game, "Wood063_1K_Color.jpg"),
 load_texture(game, "Wood063_1K_Normal.jpg"),
 load_texture(game, "Wood063_1K_Roughness.jpg"),
 load_texture(game, "Wood054_1K_Color.jpg"),
 load_texture(game, "Wood054_1K_Normal.jpg"),
 load_texture(game, "Wood054_1K_Roughness.jpg"),
-load_texture(game, "Concrete019_1K_Color.jpg"),
-load_texture(game, "Concrete019_1K_Normal.jpg"),
-load_texture(game, "Concrete019_1K_Roughness.jpg"),
 load_texture(game, "eu.png"),
 ]).then(() => {
 scene_stage(game);
