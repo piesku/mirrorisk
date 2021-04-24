@@ -20,6 +20,7 @@ import {sys_control_always} from "./systems/sys_control_always.js";
 import {sys_control_keyboard} from "./systems/sys_control_keyboard.js";
 import {sys_control_mouse} from "./systems/sys_control_mouse.js";
 import {sys_control_pick} from "./systems/sys_control_pick.js";
+import {sys_deploy} from "./systems/sys_deploy.js";
 import {sys_draw} from "./systems/sys_draw.js";
 import {sys_framerate} from "./systems/sys_framerate.js";
 import {sys_highlight} from "./systems/sys_highlight.js";
@@ -46,6 +47,12 @@ export interface Player {
     Color: Vec4;
 }
 
+export const enum TurnPhase {
+    Deploy,
+    Move,
+    Fight,
+    Regroup,
+}
 export class Game {
     World = new World();
 
@@ -65,10 +72,16 @@ export class Game {
     CurrentPlayer = 0;
     Players: Player[] = [];
     PlayerUnits: Record<Entity, Entity[]> = {};
+    CurrentPlayerTerritories: Entity[] = [];
+
     AiActiveUnits: Entity[] = [];
     CurrentlyMovingAiUnit: Entity | null = null;
     // TODO: EndTurn Actions sets this, so it will break if AI moves first
     IsAiTurn: boolean = false;
+
+    TurnPhase: TurnPhase = TurnPhase.Deploy;
+    UnitsToDeploy: number = 0;
+    UnitsDeployed: number = 0;
 
     TooltipText: string | null = null;
     SunEntity: Entity = 0;
@@ -173,6 +186,7 @@ export class Game {
         sys_control_pick(this, delta);
         sys_control_keyboard(this, delta);
         sys_control_mouse(this, delta);
+        sys_deploy(this, delta);
 
         // AI.
         sys_control_always(this, delta);

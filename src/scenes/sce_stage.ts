@@ -1,4 +1,5 @@
 import {set_seed} from "../../common/random.js";
+import {Action, dispatch} from "../actions.js";
 import {blueprint_camera} from "../blueprints/blu_camera.js";
 import {blueprint_sun} from "../blueprints/blu_sun.js";
 import {blueprint_territory, get_coord_by_territory_id} from "../blueprints/blu_territory.js";
@@ -162,6 +163,7 @@ export function scene_stage(game: Game) {
         ),
     ]);
 
+    // Evenly distribute player units around the map
     let number_of_players = game.Players.length;
     let territory_entities = Object.keys(game.TerritoryEntities)
         .sort(() => 0.5 - Math.random())
@@ -174,45 +176,5 @@ export function scene_stage(game: Game) {
         instantiate(game, blueprint_unit(game, translation, territory.Id, game.MeshSoldier, team));
     }
 
-    // Units in Central Europe.
-    // for (let i = 0; i < 3; i++) {
-    //     instantiate(
-    //         game,
-    //         blueprint_unit(
-    //             game,
-    //             [-15 + float(-4, 4), 1, -48 + float(-4, 4)],
-    //             3,
-    //             i < 1 ? game.MeshSoldier : game.MeshDragoon,
-    //             0
-    //         )
-    //     );
-    // }
-
-    // // Units in Iceland.
-    // for (let i = 0; i < 2; i++) {
-    //     instantiate(
-    //         game,
-    //         blueprint_unit(
-    //             game,
-    //             [15 + float(-3, 3), 1, -63 + float(-3, 3)],
-    //             2,
-    //             i < 1 ? game.MeshSoldier : game.MeshCannon,
-    //             1
-    //         )
-    //     );
-    // }
-
-    // // Units in Russia.
-    // for (let i = 0; i < 3; i++) {
-    //     instantiate(
-    //         game,
-    //         blueprint_unit(
-    //             game,
-    //             [-42 + float(-3, 3), 1, -60 + float(-3, 3)],
-    //             2,
-    //             i < 1 ? game.MeshSoldier : game.MeshCannon,
-    //             2
-    //         )
-    //     );
-    // }
+    dispatch(game, Action.StartDeployment, {});
 }
