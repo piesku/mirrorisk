@@ -29,5 +29,10 @@ function update(game: Game, entity: Entity) {
         }
         agent.TerritoryId = territory.Id;
         agent.Destination = game.Picked.Point;
+        console.log(
+            `${territory.Id}: [${game.Picked.Point[0].toFixed(
+                2
+            )}, 1, ${game.Picked.Point[2].toFixed(2)}]`
+        );
     }
 }

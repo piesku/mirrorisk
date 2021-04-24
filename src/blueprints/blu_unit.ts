@@ -1,5 +1,5 @@
 import {Mesh} from "../../common/material.js";
-import {Vec3} from "../../common/math.js";
+import {Vec3, Vec4} from "../../common/math.js";
 import {children} from "../components/com_children.js";
 import {collide} from "../components/com_collide.js";
 import {control_player} from "../components/com_control_player.js";
@@ -22,6 +22,8 @@ export function blueprint_unit(
     mesh: Mesh = game.MeshSoldier,
     team_id: number
 ) {
+    let color = <Vec4>game.Players[team_id].Color.slice();
+
     let blueprint = [
         transform(translation),
         collide(true, Layer.None, Layer.None, [2, 6, 2]),
@@ -38,7 +40,7 @@ export function blueprint_unit(
                     game.Textures["Wood063_1K_Color.jpg"],
                     game.Textures["Wood063_1K_Normal.jpg"],
                     game.Textures["Wood063_1K_Roughness.jpg"],
-                    game.Players[team_id].Color
+                    color
                 ),
             ]
         ),
@@ -47,7 +49,7 @@ export function blueprint_unit(
 
     if (game.Players[team_id].Type === PlayerType.Human) {
         blueprint.push(
-            pickable_unit(game.Players[team_id].Color, [1, 0.5, 0, 1], [1, 0, 0, 1]),
+            pickable_unit(color, [1, 0.5, 0, 1], [1, 0, 0, 1]),
             selectable(),
             disable(Has.ControlPlayer)
         );
