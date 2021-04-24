@@ -21,7 +21,6 @@ function update(game: Game, entity: Entity) {
     if (game.InputDelta["Mouse2"] === 1 && game.Picked && agent.Actions > 0) {
         let territory_entity = game.Picked.Entity;
         let territory = game.World.Territory[territory_entity];
-        console.log(territory.Id);
 
         if (agent.TerritoryId !== territory.Id) {
             // Use the action up only when moving to another territory.
@@ -29,10 +28,5 @@ function update(game: Game, entity: Entity) {
         }
         agent.TerritoryId = territory.Id;
         agent.Destination = game.Picked.Point;
-        console.log(
-            `${territory.Id}: [${game.Picked.Point[0].toFixed(
-                2
-            )}, 1, ${game.Picked.Point[2].toFixed(2)}]`
-        );
     }
 }

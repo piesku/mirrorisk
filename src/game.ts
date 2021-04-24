@@ -70,6 +70,7 @@ export class Game {
     // TODO: EndTurn Actions sets this, so it will break if AI moves first
     IsAiTurn: boolean = false;
 
+    TooltipText: string | null = null;
     SunEntity: Entity = 0;
 
     Ui = document.querySelector("main")!;

@@ -3,6 +3,8 @@ import {Has} from "./world.js";
 
 export const enum Action {
     EndTurn,
+    ShowTooltipText,
+    ClearTooltipText,
 }
 
 export function dispatch(game: Game, action: Action, payload: unknown) {
@@ -29,6 +31,17 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                 game.World.Signature[game.SunEntity] &= ~Has.ControlAlways;
                 game.CurrentPlayer = next_player;
             }, 2000);
+            break;
+        }
+
+        case Action.ShowTooltipText: {
+            game.TooltipText = payload as string;
+            // console.log(payload);
+            break;
+        }
+
+        case Action.ClearTooltipText: {
+            game.TooltipText = null;
             break;
         }
     }

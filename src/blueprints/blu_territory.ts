@@ -7,7 +7,12 @@ import {transform} from "../components/com_transform.js";
 import {Blueprint} from "../entity.js";
 import {Game} from "../game.js";
 
-export function blueprint_territory(game: Game, continent: Continent, index: number): Blueprint {
+export function blueprint_territory(
+    game: Game,
+    continent: Continent,
+    index: number,
+    name: string = ""
+): Blueprint {
     let mesh = game.TerritoryMeshes[continent][index - 1];
     return [
         transform(),
@@ -27,7 +32,7 @@ export function blueprint_territory(game: Game, continent: Continent, index: num
                 32,
                 [1, 1, 1, 1]
             ),
-        territory(continent, index),
+        territory(continent, index, name),
     ];
 }
 
@@ -55,5 +60,7 @@ export function get_coord_by_territory_id(territory_id: number): Vec3 {
     };
 
     const coord: Vec3 = terrs_temp_map[territory_id];
-    return [coord[0] + float(-4, 4), 1, coord[2] + float(-4, 4)];
+    return coord
+        ? [coord[0] + float(-4, 4), 1, coord[2] + float(-4, 4)]
+        : [float(-4, 4), 1, float(-4, 4)];
 }

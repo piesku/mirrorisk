@@ -5,6 +5,7 @@ export interface Territory {
     Continent: Continent;
     Index: number;
     Id: number;
+    Name: string;
 }
 
 export const enum Continent {
@@ -17,7 +18,7 @@ export const enum Continent {
     Asia,
 }
 
-export function territory(continent: Continent, index: number) {
+export function territory(continent: Continent, index: number, name: string = "") {
     return (game: Game, entity: Entity) => {
         let id = continent * 10 + index;
         game.TerritoryEntities[id] = entity;
@@ -26,6 +27,7 @@ export function territory(continent: Continent, index: number) {
             Continent: continent,
             Index: index,
             Id: id,
+            Name: name,
         };
     };
 }
