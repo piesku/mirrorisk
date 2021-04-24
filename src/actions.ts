@@ -22,6 +22,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                 game,
                 game.CurrentPlayer
             );
+            // XXX: Add continent bonus here
             let units_to_deploy = ~~(game.CurrentPlayerTerritories.length / 3);
             Alert(`Select fields to deploy ${units_to_deploy} units.`);
             game.TurnPhase = TurnPhase.Deploy;
@@ -50,6 +51,12 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
 
             game.UnitsDeployed++;
 
+            break;
+        }
+
+        case Action.EndDeployment: {
+            game.TurnPhase = TurnPhase.Move;
+            game.UnitsDeployed = 0;
             break;
         }
         case Action.EndTurn: {
