@@ -62623,15 +62623,17 @@
             let agent = game.World.NavAgent[entity];
             if (agent.Actions > 0) {
                 // TODO: those are random moves right now
-                let territory_entity = game.TerritoryEntities[integer(1, 7)];
-                let territory = game.World.Territory[territory_entity];
+                let current_territory_neighbors = game.TerritoryGraph[agent.TerritoryId];
+                let destination_territory_id = element(current_territory_neighbors);
+                let destination_territory_entity = game.TerritoryEntities[destination_territory_id];
+                let territory = game.World.Territory[destination_territory_entity];
                 console.log(territory);
                 if (agent.TerritoryId !== territory.Id) {
                     // Use the action up only when moving to another territory.
                     agent.Actions -= 1;
                 }
                 let territory_mesh = game.TerritoryMeshes[territory.Continent][territory.Index - 1];
-                let territory_transform = game.World.Transform[territory_entity];
+                let territory_transform = game.World.Transform[destination_territory_entity];
                 let destination_worldspace = random_point_up_worldspace(territory_mesh, territory_transform.World);
                 agent.TerritoryId = territory.Id;
                 agent.Destination = destination_worldspace;
@@ -64385,7 +64387,7 @@
         }
         // Units in Russia.
         for (let i = 0; i < 3; i++) {
-            instantiate(game, blueprint_unit(game, [-42 + float(-3, 3), 1, -60 + float(-3, 3)], [1, 0, 1, 1], 2, i < 1 ? game.MeshSoldier : game.MeshCannon, 2));
+            instantiate(game, blueprint_unit(game, [-42 + float(-3, 3), 1, -60 + float(-3, 3)], [1, 0, 1, 1], 6, i < 1 ? game.MeshSoldier : game.MeshCannon, 2));
         }
     }
 
