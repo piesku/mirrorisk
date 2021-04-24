@@ -20,8 +20,10 @@ let vertex = `
 
     void main() {
         vert_pos = world * vec4(position, 1.0);
-        vert_texcoord = texcoord;
         gl_Position = pv * vert_pos;
+
+        // Flip the texture vertically.
+        vert_texcoord = vec2(texcoord.x, -texcoord.y);
 
         vert_tbn = mat3(tangent, bitangent, normal);
     }
@@ -79,7 +81,7 @@ let fragment = `
         vec3 view_dir = eye - vert_pos.xyz;
         vec3 view_normal = normalize(view_dir);
 
-        vec4 tex_color = texture2D(diffuse_map, vec2(vert_texcoord.x, -vert_texcoord.y));
+        vec4 tex_color = texture2D(diffuse_map, vert_texcoord);
         vec3 unlit_rgb = tex_color.rgb * diffuse_color.rgb;
         // Ambient light.
         vec3 light_acc = unlit_rgb * 0.1;
