@@ -1,11 +1,20 @@
 import {Vec3} from "../../common/math.js";
 import {float} from "../../common/random.js";
 import {pickable_territory} from "../components/com_pickable.js";
-import {render_textured_mapped, render_textured_specular} from "../components/com_render1.js";
+import {render_textured_mapped} from "../components/com_render1.js";
 import {Continent, territory} from "../components/com_territory.js";
 import {transform} from "../components/com_transform.js";
 import {Blueprint} from "../entity.js";
 import {Game} from "../game.js";
+
+const textures_by_continent: Record<Continent, string> = {
+    [Continent.Europe]: "euau.webp",
+    [Continent.Africa]: "afsa.webp",
+    [Continent.Australia]: "euau.webp",
+    [Continent.SouthAmerica]: "afsa.webp",
+    [Continent.NorthAmerica]: "na.webp",
+    [Continent.Asia]: "as.webp",
+};
 
 export function blueprint_territory(
     game: Game,
@@ -16,22 +25,20 @@ export function blueprint_territory(
     let mesh = game.TerritoryMeshes[continent][index - 1];
     return [
         transform(),
-        pickable_territory(mesh, [1, 1, 1, 1], [2, 2, 2, 1], [1.2, 1.5, 1.2, 1], [2, 1.2, 1.2, 1]),
+        pickable_territory(
+            mesh,
+            [1.2, 1.2, 1.2, 1],
+            [2, 2, 2, 1],
+            [1.2, 1.5, 1.2, 1],
+            [2, 1.2, 1.2, 1]
+        ),
         render_textured_mapped(
             game.MaterialTexturedMapped,
             mesh,
-            game.Textures["eu.png"],
+            game.Textures[textures_by_continent[continent]],
             game.Textures["Cardboard004_1K_Normal.jpg"],
             game.Textures["Cardboard004_1K_Roughness.jpg"]
         ),
-        false &&
-            render_textured_specular(
-                game.MaterialTexturedSpecular,
-                mesh,
-                game.Textures["eu.png"],
-                32,
-                [1, 1, 1, 1]
-            ),
         territory(continent, index, name),
     ];
 }

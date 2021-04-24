@@ -81,7 +81,7 @@ export function scene_stage(game: Game) {
     instantiate(game, [transform([-1, 1, -1]), light_directional([1, 1, 1], 0.2)]);
 
     // Lamp.
-    instantiate(game, [transform([-100, 100, -100]), light_point([1, 1, 0.9], 60)]);
+    false && instantiate(game, [transform([-100, 100, -100]), light_point([1, 1, 0.9], 60)]);
 
     // Table
     // instantiate(game, [
