@@ -11,7 +11,7 @@ export function blueprint_territory(game: Game, continent: Continent, index: num
         transform(),
         pickable_territory(
             mesh,
-            [1.1, 1.1, 1.1, 1],
+            [1.2, 1.2, 1.2, 1],
             [2, 2, 2, 1],
             [1.2, 1.5, 1.2, 1],
             [2, 1.2, 1.2, 1]
@@ -19,7 +19,7 @@ export function blueprint_territory(game: Game, continent: Continent, index: num
         render_textured_mapped(
             game.MaterialTexturedMapped,
             mesh,
-            game.Textures["eu.png"],
+            game.Textures["euau.png"],
             game.Textures["Cardboard004_1K_Normal.jpg"],
             game.Textures["Cardboard004_1K_Roughness.jpg"]
         ),

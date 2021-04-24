@@ -140,7 +140,7 @@ Promise.all([
     load_texture(game, "Wood054_1K_Normal.jpg"),
     load_texture(game, "Wood054_1K_Roughness.jpg"),
 
-    load_texture(game, "eu.png"),
+    load_texture(game, "euau.png"),
 ]).then(() => {
     scene_stage(game);
     loop_start(game);
