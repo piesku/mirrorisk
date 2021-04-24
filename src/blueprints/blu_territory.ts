@@ -6,12 +6,12 @@ import {Blueprint} from "../entity.js";
 import {Game} from "../game.js";
 
 const textures_by_continent: Record<Continent, string> = {
-    [Continent.Europe]: "euau.png",
-    [Continent.Africa]: "afsa.png",
-    [Continent.Australia]: "euau.png",
-    [Continent.SouthAmerica]: "afsa.png",
-    [Continent.NorthAmerica]: "na.png",
-    [Continent.Asia]: "as.png",
+    [Continent.Europe]: "euau.webp",
+    [Continent.Africa]: "afsa.webp",
+    [Continent.Australia]: "euau.webp",
+    [Continent.SouthAmerica]: "afsa.webp",
+    [Continent.NorthAmerica]: "na.webp",
+    [Continent.Asia]: "as.webp",
 };
 
 export function blueprint_territory(game: Game, continent: Continent, index: number): Blueprint {

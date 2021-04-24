@@ -129,10 +129,10 @@ Promise.all([
     load_texture(game, "background.jpg"),
 
     // Continents
-    load_texture(game, "euau.png"),
-    load_texture(game, "afsa.png"),
-    load_texture(game, "na.png"),
-    load_texture(game, "as.png"),
+    load_texture(game, "euau.webp"),
+    load_texture(game, "afsa.webp"),
+    load_texture(game, "na.webp"),
+    load_texture(game, "as.webp"),
     load_texture(game, "Cardboard004_1K_Normal.jpg"),
     load_texture(game, "Cardboard004_1K_Roughness.jpg"),
 
