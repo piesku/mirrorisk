@@ -42,7 +42,7 @@ import {mesh_sa02} from "../meshes/sa02.js";
 import {mesh_sa03} from "../meshes/sa03.js";
 import {mesh_sa04} from "../meshes/sa04.js";
 import {dispatch} from "./actions.js";
-import {Game, Player} from "./game.js";
+import {Game, PlayerType} from "./game.js";
 import {loop_start} from "./loop.js";
 import {scene_stage} from "./scenes/sce_stage.js";
 
@@ -122,7 +122,14 @@ game.TerritoryMeshes = [
     ],
 ];
 
-game.Players = [Player.Human, Player.AI, Player.AI];
+game.Players = [
+    {
+        Color: [1, 1, 0, 1],
+        Type: PlayerType.Human,
+    },
+    {Color: [1, 0, 0, 1], Type: PlayerType.AI},
+    {Color: [1, 0, 1, 1], Type: PlayerType.AI},
+];
 
 Promise.all([
     load_texture(game, "background.jpg"),

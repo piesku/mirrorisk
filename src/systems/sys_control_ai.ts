@@ -1,5 +1,5 @@
 import {float, integer} from "../../common/random.js";
-import {Entity, Game, Player} from "../game.js";
+import {Entity, Game, PlayerType} from "../game.js";
 import {Has} from "../world.js";
 
 const QUERY = Has.NavAgent | Has.Team;
@@ -9,7 +9,7 @@ export function sys_control_ai(game: Game, delta: number) {
         if (
             (game.World.Signature[i] & QUERY) == QUERY &&
             game.World.Team[i].Id === game.CurrentPlayer &&
-            game.Players[game.World.Team[i].Id] === Player.AI
+            game.Players[game.World.Team[i].Id].Type === PlayerType.AI
         ) {
             update(game, i);
         }

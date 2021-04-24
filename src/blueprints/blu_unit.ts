@@ -1,5 +1,5 @@
 import {Mesh} from "../../common/material.js";
-import {Vec3, Vec4} from "../../common/math.js";
+import {Vec3} from "../../common/math.js";
 import {children} from "../components/com_children.js";
 import {collide} from "../components/com_collide.js";
 import {control_player} from "../components/com_control_player.js";
@@ -12,13 +12,12 @@ import {render_textured_mapped} from "../components/com_render1.js";
 import {selectable} from "../components/com_selectable.js";
 import {team} from "../components/com_team.js";
 import {transform} from "../components/com_transform.js";
-import {Game, Layer, Player} from "../game.js";
+import {Game, Layer, PlayerType} from "../game.js";
 import {Has} from "../world.js";
 
 export function blueprint_unit(
     game: Game,
     translation: Vec3,
-    color: Vec4, // TODO: add diffuse & specular?
     territory_id: number,
     mesh: Mesh = game.MeshSoldier,
     team_id: number
@@ -39,16 +38,16 @@ export function blueprint_unit(
                     game.Textures["Wood063_1K_Color.jpg"],
                     game.Textures["Wood063_1K_Normal.jpg"],
                     game.Textures["Wood063_1K_Roughness.jpg"],
-                    color
+                    game.Players[team_id].Color
                 ),
             ]
         ),
         team(team_id),
     ];
 
-    if (game.Players[team_id] === Player.Human) {
+    if (game.Players[team_id].Type === PlayerType.Human) {
         blueprint.push(
-            pickable_unit(color, [1, 0.5, 0, 1], [1, 0, 0, 1]),
+            pickable_unit(game.Players[team_id].Color, [1, 0.5, 0, 1], [1, 0, 0, 1]),
             selectable(),
             disable(Has.ControlPlayer)
         );

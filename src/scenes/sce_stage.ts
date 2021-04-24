@@ -1,4 +1,3 @@
-import {from_euler} from "../../common/quat.js";
 import {float, set_seed} from "../../common/random.js";
 import {blueprint_camera} from "../blueprints/blu_camera.js";
 import {blueprint_sun} from "../blueprints/blu_sun.js";
@@ -7,7 +6,7 @@ import {blueprint_unit} from "../blueprints/blu_unit.js";
 import {children} from "../components/com_children.js";
 import {collide} from "../components/com_collide.js";
 import {light_directional, light_point} from "../components/com_light.js";
-import {render_textured_mapped, render_textured_specular} from "../components/com_render1.js";
+import {render_textured_specular} from "../components/com_render1.js";
 import {Continent} from "../components/com_territory.js";
 import {transform} from "../components/com_transform.js";
 import {instantiate} from "../entity.js";
@@ -84,16 +83,16 @@ export function scene_stage(game: Game) {
     instantiate(game, [transform([-100, 100, -100]), light_point([1, 1, 0.9], 60)]);
 
     // Table
-    instantiate(game, [
-        transform([0, -222, 0], from_euler([0, 0, 0, 0], 0, 15, 0), [300, 300, 300]),
-        render_textured_mapped(
-            game.MaterialTexturedMapped,
-            game.MeshTable,
-            game.Textures["Wood054_1K_Color.jpg"],
-            game.Textures["Wood054_1K_Normal.jpg"],
-            game.Textures["Wood054_1K_Roughness.jpg"]
-        ),
-    ]);
+    // instantiate(game, [
+    //     transform([0, -222, 0], from_euler([0, 0, 0, 0], 0, 15, 0), [300, 300, 300]),
+    //     render_textured_mapped(
+    //         game.MaterialTexturedMapped,
+    //         game.MeshTable,
+    //         game.Textures["Wood054_1K_Color.jpg"],
+    //         game.Textures["Wood054_1K_Normal.jpg"],
+    //         game.Textures["Wood054_1K_Roughness.jpg"]
+    //     ),
+    // ]);
 
     // Board background.
     instantiate(game, [
@@ -120,33 +119,33 @@ export function scene_stage(game: Game) {
             blueprint_territory(game, Continent.Europe, 5),
             blueprint_territory(game, Continent.Europe, 6),
             blueprint_territory(game, Continent.Europe, 7),
-            // Africa
-            blueprint_territory(game, Continent.Africa, 1),
-            blueprint_territory(game, Continent.Africa, 2),
-            blueprint_territory(game, Continent.Africa, 3),
-            blueprint_territory(game, Continent.Africa, 4),
-            blueprint_territory(game, Continent.Africa, 5),
-            blueprint_territory(game, Continent.Africa, 6),
-            // Australia
-            blueprint_territory(game, Continent.Australia, 1),
-            blueprint_territory(game, Continent.Australia, 2),
-            blueprint_territory(game, Continent.Australia, 3),
-            blueprint_territory(game, Continent.Australia, 4),
-            // North America
-            blueprint_territory(game, Continent.NorthAmerica, 1),
-            blueprint_territory(game, Continent.NorthAmerica, 2),
-            blueprint_territory(game, Continent.NorthAmerica, 3),
-            blueprint_territory(game, Continent.NorthAmerica, 4),
-            blueprint_territory(game, Continent.NorthAmerica, 5),
-            blueprint_territory(game, Continent.NorthAmerica, 6),
-            blueprint_territory(game, Continent.NorthAmerica, 7),
-            blueprint_territory(game, Continent.NorthAmerica, 8),
-            blueprint_territory(game, Continent.NorthAmerica, 9),
-            // South America
-            blueprint_territory(game, Continent.SouthAmerica, 1),
-            blueprint_territory(game, Continent.SouthAmerica, 2),
-            blueprint_territory(game, Continent.SouthAmerica, 3),
-            blueprint_territory(game, Continent.SouthAmerica, 4),
+            // // Africa
+            // blueprint_territory(game, Continent.Africa, 1),
+            // blueprint_territory(game, Continent.Africa, 2),
+            // blueprint_territory(game, Continent.Africa, 3),
+            // blueprint_territory(game, Continent.Africa, 4),
+            // blueprint_territory(game, Continent.Africa, 5),
+            // blueprint_territory(game, Continent.Africa, 6),
+            // // Australia
+            // blueprint_territory(game, Continent.Australia, 1),
+            // blueprint_territory(game, Continent.Australia, 2),
+            // blueprint_territory(game, Continent.Australia, 3),
+            // blueprint_territory(game, Continent.Australia, 4),
+            // // North America
+            // blueprint_territory(game, Continent.NorthAmerica, 1),
+            // blueprint_territory(game, Continent.NorthAmerica, 2),
+            // blueprint_territory(game, Continent.NorthAmerica, 3),
+            // blueprint_territory(game, Continent.NorthAmerica, 4),
+            // blueprint_territory(game, Continent.NorthAmerica, 5),
+            // blueprint_territory(game, Continent.NorthAmerica, 6),
+            // blueprint_territory(game, Continent.NorthAmerica, 7),
+            // blueprint_territory(game, Continent.NorthAmerica, 8),
+            // blueprint_territory(game, Continent.NorthAmerica, 9),
+            // // South America
+            // blueprint_territory(game, Continent.SouthAmerica, 1),
+            // blueprint_territory(game, Continent.SouthAmerica, 2),
+            // blueprint_territory(game, Continent.SouthAmerica, 3),
+            // blueprint_territory(game, Continent.SouthAmerica, 4),
             // Asia
             blueprint_territory(game, Continent.Asia, 1),
             blueprint_territory(game, Continent.Asia, 2),
@@ -170,7 +169,6 @@ export function scene_stage(game: Game) {
             blueprint_unit(
                 game,
                 [-15 + float(-4, 4), 1, -48 + float(-4, 4)],
-                [1, 1, 0, 1],
                 3,
                 i < 1 ? game.MeshSoldier : game.MeshDragoon,
                 0
@@ -185,7 +183,6 @@ export function scene_stage(game: Game) {
             blueprint_unit(
                 game,
                 [15 + float(-3, 3), 1, -63 + float(-3, 3)],
-                [1, 0, 0, 1],
                 2,
                 i < 1 ? game.MeshSoldier : game.MeshCannon,
                 1
@@ -200,7 +197,6 @@ export function scene_stage(game: Game) {
             blueprint_unit(
                 game,
                 [-42 + float(-3, 3), 1, -60 + float(-3, 3)],
-                [1, 0, 1, 1],
                 2,
                 i < 1 ? game.MeshSoldier : game.MeshCannon,
                 2

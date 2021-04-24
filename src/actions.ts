@@ -1,4 +1,4 @@
-import {Game, Player} from "./game.js";
+import {Game, PlayerType} from "./game.js";
 import {Has} from "./world.js";
 
 export const enum Action {
@@ -20,7 +20,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                     game.World.NavAgent[next_player_units[i]].Actions = 1;
                 }
 
-                game.IsAiTurn = game.Players[next_player] === Player.AI;
+                game.IsAiTurn = game.Players[next_player].Type === PlayerType.AI;
 
                 if (game.IsAiTurn) {
                     game.AiActiveUnits = next_player_units.slice();

@@ -1,5 +1,6 @@
 import {create_depth_target, DepthTarget} from "../common/framebuffer.js";
 import {Mesh} from "../common/material.js";
+import {Vec4} from "../common/math.js";
 import {GL_CULL_FACE, GL_DEPTH_TEST} from "../common/webgl.js";
 import {mat1_colored_specular_phong} from "../materials/mat1_colored_specular_phong.js";
 import {mat1_depth} from "../materials/mat1_depth.js";
@@ -35,9 +36,14 @@ import {World} from "./world.js";
 
 export type Entity = number;
 
-export const enum Player {
+export const enum PlayerType {
     Human,
     AI,
+}
+
+export interface Player {
+    Type: PlayerType;
+    Color: Vec4;
 }
 
 export class Game {
@@ -60,10 +66,11 @@ export class Game {
     Players: Player[] = [];
     PlayerUnits: Record<Entity, Entity[]> = {};
     AiActiveUnits: Entity[] = [];
+    CurrentlyMovingAiUnit: Entity | null = null;
     // TODO: EndTurn Actions sets this, so it will break if AI moves first
     IsAiTurn: boolean = false;
+
     SunEntity: Entity = 0;
-    CurrentlyMovingAiUnit: Entity | null = null;
 
     Ui = document.querySelector("main")!;
 
