@@ -171,9 +171,20 @@ export function scene_stage(game: Game) {
 
     for (let i = 0; i < territory_entities.length; i++) {
         let team = (number_of_players + i) % number_of_players;
-        let territory = game.World.Territory[game.TerritoryEntities[territory_entities[i]]];
-        let translation = get_coord_by_territory_id(territory.Id);
-        instantiate(game, blueprint_unit(game, translation, territory.Id, game.MeshSoldier, team));
+        let territory_entity_id = game.TerritoryEntities[territory_entities[i]];
+        let territory = game.World.Territory[territory_entity_id];
+        let translation = get_coord_by_territory_id(game, territory.Id);
+
+        if (translation) {
+            instantiate(
+                game,
+                blueprint_unit(game, translation, territory.Id, game.MeshSoldier, team)
+            );
+        } else {
+            console.error(
+                `Cannot find random point on territory ${JSON.stringify(territory, null, 2)}!`
+            );
+        }
     }
 
     dispatch(game, Action.StartDeployment, {});

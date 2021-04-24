@@ -37,17 +37,20 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             }
 
             let {territory_id} = payload as {territory_id: number};
-            let translation = get_coord_by_territory_id(territory_id);
-            instantiate(
-                game,
-                blueprint_unit(
+            let translation = get_coord_by_territory_id(game, territory_id);
+
+            if (translation) {
+                instantiate(
                     game,
-                    translation,
-                    territory_id,
-                    game.MeshSoldier,
-                    game.CurrentPlayer
-                )
-            );
+                    blueprint_unit(
+                        game,
+                        translation,
+                        territory_id,
+                        game.MeshSoldier,
+                        game.CurrentPlayer
+                    )
+                );
+            }
 
             game.UnitsDeployed++;
 

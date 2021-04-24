@@ -1,5 +1,5 @@
-import {random_point_up_worldspace} from "../../common/material.js";
 import {element} from "../../common/random.js";
+import {get_coord_by_territory_id} from "../blueprints/blu_territory.js";
 import {Entity, Game, PlayerType} from "../game.js";
 import {Has} from "../world.js";
 
@@ -26,7 +26,6 @@ function update(game: Game, entity: Entity) {
             let current_territory_neighbors = game.TerritoryGraph[agent.TerritoryId];
             let destination_territory_id = element(current_territory_neighbors);
             let destination_territory_entity = game.TerritoryEntities[destination_territory_id];
-
             let territory = game.World.Territory[destination_territory_entity];
             console.log(current_territory_neighbors, destination_territory_id, territory);
 
@@ -35,12 +34,7 @@ function update(game: Game, entity: Entity) {
                 agent.Actions -= 1;
             }
 
-            let territory_mesh = game.TerritoryMeshes[territory.Continent][territory.Index - 1];
-            let territory_transform = game.World.Transform[destination_territory_entity];
-            let destination_worldspace = random_point_up_worldspace(
-                territory_mesh,
-                territory_transform.World
-            );
+            let destination_worldspace = get_coord_by_territory_id(game, territory.Id);
 
             agent.TerritoryId = territory.Id;
             agent.Destination = destination_worldspace;
