@@ -23,7 +23,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                 game.CurrentPlayer
             );
             // XXX: Add continent bonus here
-            let units_to_deploy = ~~(game.CurrentPlayerTerritories.length / 3);
+            let units_to_deploy = Math.max(~~(game.CurrentPlayerTerritories.length / 3), 3);
             Alert(`Select fields to deploy ${units_to_deploy} units.`);
             game.TurnPhase = TurnPhase.Deploy;
             game.UnitsDeployed = 0;
@@ -59,6 +59,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             game.UnitsDeployed = 0;
             break;
         }
+
         case Action.EndTurn: {
             game.World.Signature[game.SunEntity] |= Has.ControlAlways;
 
