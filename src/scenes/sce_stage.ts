@@ -201,7 +201,7 @@ export function scene_stage(game: Game) {
                 game,
                 [-42 + float(-3, 3), 1, -60 + float(-3, 3)],
                 [1, 0, 1, 1],
-                2,
+                6,
                 i < 1 ? game.MeshSoldier : game.MeshCannon,
                 2
             )
