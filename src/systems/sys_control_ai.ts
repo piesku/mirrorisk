@@ -1,4 +1,5 @@
-import {float, integer} from "../../common/random.js";
+import {random_point_up_worldspace} from "../../common/material.js";
+import {element} from "../../common/random.js";
 import {Entity, Game, PlayerType} from "../game.js";
 import {Has} from "../world.js";
 
@@ -22,16 +23,27 @@ function update(game: Game, entity: Entity) {
         let agent = game.World.NavAgent[entity];
         if (agent.Actions > 0) {
             // TODO: those are random moves right now
-            let territory_entity = game.TerritoryEntities[integer(1, 7)];
-            let territory = game.World.Territory[territory_entity];
+            let current_territory_neighbors = game.TerritoryGraph[agent.TerritoryId];
+            let destination_territory_id = element(current_territory_neighbors);
+            let destination_territory_entity = game.TerritoryEntities[destination_territory_id];
+
+            let territory = game.World.Territory[destination_territory_entity];
+            console.log(current_territory_neighbors, destination_territory_id, territory);
 
             if (agent.TerritoryId !== territory.Id) {
                 // Use the action up only when moving to another territory.
                 agent.Actions -= 1;
             }
 
+            let territory_mesh = game.TerritoryMeshes[territory.Continent][territory.Index - 1];
+            let territory_transform = game.World.Transform[destination_territory_entity];
+            let destination_worldspace = random_point_up_worldspace(
+                territory_mesh,
+                territory_transform.World
+            );
+
             agent.TerritoryId = territory.Id;
-            agent.Destination = [float(-40, 7), 0, float(-70, -50)];
+            agent.Destination = destination_worldspace;
         }
     }
 }
