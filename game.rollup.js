@@ -40363,8 +40363,10 @@
 
     void main() {
         vert_pos = world * vec4(position, 1.0);
-        vert_texcoord = texcoord;
         gl_Position = pv * vert_pos;
+
+        // Flip the texture vertically.
+        vert_texcoord = vec2(texcoord.x, -texcoord.y);
 
         vert_tbn = mat3(tangent, bitangent, normal);
     }
@@ -40421,7 +40423,7 @@
         vec3 view_dir = eye - vert_pos.xyz;
         vec3 view_normal = normalize(view_dir);
 
-        vec4 tex_color = texture2D(diffuse_map, vec2(vert_texcoord.x, -vert_texcoord.y));
+        vec4 tex_color = texture2D(diffuse_map, vert_texcoord);
         vec3 unlit_rgb = tex_color.rgb * diffuse_color.rgb;
         // Ambient light.
         vec3 light_acc = unlit_rgb * 0.1;
@@ -40510,9 +40512,12 @@
 
     void main() {
         vert_pos = world * vec4(position, 1.0);
-        vert_texcoord = texcoord;
-        vert_normal = (vec4(normal, 1.0) * self).xyz;
         gl_Position = pv * vert_pos;
+
+        // Flip the texture vertically.
+        vert_texcoord = vec2(texcoord.x, -texcoord.y);
+
+        vert_normal = (vec4(normal, 1.0) * self).xyz;
     }
 `;
     let fragment = `
@@ -40607,8 +40612,7 @@
 
         vec3 ambient_rgb = color_diffuse.rgb * 0.1;
         vec3 shaded_rgb = ambient_rgb + light_acc * (1.0 - shadow_factor(vert_pos));
-        //vec4 tex_color = texture2D(diffuse_map, vert_texcoord);
-        vec4 tex_color = texture2D(diffuse_map, vec2(vert_texcoord.x, -vert_texcoord.y));
+        vec4 tex_color = texture2D(diffuse_map, vert_texcoord);
         gl_FragColor = vec4(shaded_rgb, 1.0) * tex_color;
     }
 `;
