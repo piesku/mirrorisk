@@ -77,6 +77,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                 }
 
                 game.IsAiTurn = game.Players[next_player].Type === PlayerType.AI;
+                game.TurnPhase = TurnPhase.Deploy;
 
                 if (game.IsAiTurn) {
                     game.AiActiveUnits = next_player_units.slice();
