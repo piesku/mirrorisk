@@ -30,6 +30,10 @@ function update(game: Game, entity: Entity) {
         let territory_entity = game.Picked.Entity;
         let territory = game.World.Territory[territory_entity];
 
+        if (!game.TerritoryGraph[agent.TerritoryId].includes(territory.Id)) {
+            // This aint adjacent territory
+            return;
+        }
         if (agent.TerritoryId !== territory.Id) {
             // Use the action up only when moving to another territory.
             agent.Actions -= 1;
