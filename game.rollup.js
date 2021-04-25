@@ -83205,6 +83205,12 @@
     const MOUSE_SENSITIVITY = 0.1;
     const ZOOM_FACTOR = 1.1;
     function sys_control_mouse(game, delta) {
+        if (game.InputState["Mouse0"] === 1) {
+            game.InputState["MousePressedTraveled"] += Math.abs(game.InputDelta["MouseX"] + game.InputDelta["MouseY"]);
+        }
+        if (game.InputDelta["Mouse0"] === -1) {
+            game.InputState["MousePressedTraveled"] = 0;
+        }
         for (let i = 0; i < game.World.Signature.length; i++) {
             if ((game.World.Signature[i] & QUERY$c) === QUERY$c) {
                 update$7(game, i);
@@ -83214,20 +83220,20 @@
     function update$7(game, entity) {
         let control = game.World.ControlCamera[entity];
         let move = game.World.Move[entity];
-        if (control.Move && game.InputState.Mouse0) {
+        if (control.Move && game.InputState["MousePressedTraveled"] > 10) {
             move.MoveSpeed = control.Move * game.CameraZoom ** ZOOM_FACTOR;
-            if (game.InputDelta.MouseX) {
-                let amount = game.InputDelta.MouseX * MOUSE_SENSITIVITY;
+            if (game.InputDelta["MouseX"]) {
+                let amount = game.InputDelta["MouseX"] * MOUSE_SENSITIVITY;
                 move.Directions.push([amount, 0, 0]);
             }
-            if (game.InputDelta.MouseY) {
-                let amount = game.InputDelta.MouseY * MOUSE_SENSITIVITY;
+            if (game.InputDelta["MouseY"]) {
+                let amount = game.InputDelta["MouseY"] * MOUSE_SENSITIVITY;
                 move.Directions.push([0, 0, amount]);
             }
         }
-        if (control.Zoom && game.InputDelta.WheelY) {
+        if (control.Zoom && game.InputDelta["WheelY"]) {
             move.MoveSpeed = control.Zoom * game.CameraZoom ** ZOOM_FACTOR;
-            move.Directions.push([0, 0, game.InputDelta.WheelY]);
+            move.Directions.push([0, 0, game.InputDelta["WheelY"]]);
         }
     }
 
@@ -83831,9 +83837,9 @@
     function update$1(game, entity, pickables) {
         let transform = game.World.Transform[entity];
         let camera = game.World.Camera[entity];
-        let x = (game.InputState.MouseX / game.ViewportWidth) * 2 - 1;
+        let x = (game.InputState["MouseX"] / game.ViewportWidth) * 2 - 1;
         // In the browser, +Y is down. Invert it, so that in NDC it's up.
-        let y = -(game.InputState.MouseY / game.ViewportHeight) * 2 + 1;
+        let y = -(game.InputState["MouseY"] / game.ViewportHeight) * 2 + 1;
         // The ray's origin is at the camera's world position.
         let origin = get_translation([0, 0, 0], transform.World);
         // The target is the point on the far plane where the mouse click happens;
@@ -84253,6 +84259,7 @@
             this.InputState = {
                 MouseX: 0,
                 MouseY: 0,
+                MousePressedTraveled: 0,
             };
             this.InputDelta = {
                 MouseX: 0,
@@ -84309,13 +84316,13 @@
                 this.InputDelta[`Mouse${evt.button}`] = -1;
             });
             this.Ui.addEventListener("mousemove", (evt) => {
-                this.InputState.MouseX = evt.offsetX;
-                this.InputState.MouseY = evt.offsetY;
-                this.InputDelta.MouseX = evt.movementX;
-                this.InputDelta.MouseY = evt.movementY;
+                this.InputState["MouseX"] = evt.offsetX;
+                this.InputState["MouseY"] = evt.offsetY;
+                this.InputDelta["MouseX"] = evt.movementX;
+                this.InputDelta["MouseY"] = evt.movementY;
             });
             this.Ui.addEventListener("wheel", (evt) => {
-                this.InputDelta.WheelY = evt.deltaY;
+                this.InputDelta["WheelY"] = evt.deltaY;
             });
             window.addEventListener("keydown", (evt) => {
                 if (!evt.repeat) {
@@ -84342,15 +84349,17 @@
         }
         FrameUpdate(delta) {
             let now = performance.now();
-            // User input.
+            // Camera controls.
+            sys_control_camera(this);
+            sys_control_keyboard(this);
+            sys_control_mouse(this);
+            // Picking and selection.
             sys_pick(this);
             sys_select(this);
             sys_highlight(this);
+            // Orders.
             sys_control_ai(this);
-            sys_control_camera(this);
             sys_control_player(this);
-            sys_control_keyboard(this);
-            sys_control_mouse(this);
             sys_deploy(this);
             // AI.
             sys_control_always(this);
@@ -84565,7 +84574,7 @@
             62: [54, 56, 60],
         };
         // Camera.
-        instantiate(game, [...blueprint_camera(), transform([-25, 0, -50], [0, 1, 0, 0])]);
+        instantiate(game, [...blueprint_camera(), transform([0, 0, 0], [0, 1, 0, 0])]);
         // The Sun and the Moon.
         instantiate(game, blueprint_sun(game));
         // Directional backlight.
