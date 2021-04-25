@@ -3,7 +3,7 @@ import {Has} from "../world.js";
 
 const QUERY = Has.Selectable | Has.NavAgent | Has.Team;
 
-export function sys_control_pick(game: Game, delta: number) {
+export function sys_control_player(game: Game, delta: number) {
     for (let i = 0; i < game.World.Signature.length; i++) {
         let team = game.World.Team[i];
         let selectable = game.World.Selectable[i];
