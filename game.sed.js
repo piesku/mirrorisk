@@ -40141,6 +40141,173 @@ function element(arr) {
 return arr[integer(0, arr.length - 1)];
 }
 
+function create_entity(world) {
+if (world.Graveyard.length > 0) {
+return world.Graveyard.pop();
+}
+if (DEBUG && world.Signature.length > 10000) {
+throw new Error("No more entities available.");
+}
+
+return world.Signature.push(0) - 1;
+}
+function destroy_entity(world, entity) {
+if (world.Signature[entity] & 2 /* Children */) {
+for (let child of world.Children[entity].Children) {
+destroy_entity(world, child);
+}
+}
+world.Signature[entity] = 0;
+if (DEBUG && world.Graveyard.includes(entity)) {
+throw new Error("Entity already in graveyard.");
+}
+world.Graveyard.push(entity);
+}
+function instantiate(game, blueprint) {
+let entity = create_entity(game.World);
+for (let mixin of blueprint) {
+if (mixin) {
+mixin(game, entity);
+}
+}
+return entity;
+}
+
+function children(...blueprints) {
+return (game, entity) => {
+let child_entities = [];
+for (let blueprint of blueprints) {
+let child = instantiate(game, blueprint);
+child_entities.push(child);
+}
+game.World.Signature[entity] |= 2 /* Children */;
+game.World.Children[entity] = {
+Children: child_entities,
+};
+};
+}
+/**
+* Yield entities matching a component mask. The query is tested against the
+* parent and all its descendants.
+*
+* @param world World object which stores the component data.
+* @param parent Parent entity to traverse.
+* @param mask Component mask to look for.
+*/
+function* query_all(world, parent, mask) {
+if (world.Signature[parent] & mask) {
+yield parent;
+}
+if (world.Signature[parent] & 2 /* Children */) {
+for (let child of world.Children[parent].Children) {
+yield* query_all(world, child, mask);
+}
+}
+}
+
+/**
+* Add the Collide component.
+*
+* @param dynamic Dynamic colliders collider with all colliders. Static
+* colliders collide only with dynamic colliders.
+* @param layers Bit field with layers this collider is on.
+* @param mask Bit mask with layers visible to this collider.
+* @param size Size of the collider relative to the entity's transform.
+*/
+function collide(dynamic, layers, mask, size = [1, 1, 1]) {
+return (game, entity) => {
+game.World.Signature[entity] |= 4 /* Collide */;
+game.World.Collide[entity] = {
+Entity: entity,
+New: true,
+Dynamic: dynamic,
+Layers: layers,
+Signature: mask,
+Size: size,
+Min: [0, 0, 0],
+Max: [0, 0, 0],
+Center: [0, 0, 0],
+Half: [0, 0, 0],
+Collisions: [],
+};
+};
+}
+
+function disable(mask) {
+return (game, entity) => {
+game.World.Signature[entity] &= ~mask;
+};
+}
+
+function draw_selection$1(color) {
+return (game, entity) => {
+game.World.Signature[entity] |= 32 /* Draw */;
+game.World.Draw[entity] = {
+Kind: 2 /* Selection */,
+Color: color,
+};
+};
+}
+
+/**
+* The Move mixin.
+*
+* @param move_speed - Movement speed in units per second.
+* @param rotation_speed - Rotation speed, in radians per second.
+*/
+function move(move_speed, rotation_speed) {
+return (game, entity) => {
+game.World.Signature[entity] |= 512 /* Move */;
+game.World.Move[entity] = {
+MoveSpeed: move_speed,
+RotationSpeed: rotation_speed,
+Directions: [],
+LocalRotations: [],
+SelfRotations: [],
+};
+};
+}
+
+function nav_agent(territory_id) {
+return (game, entity) => {
+game.World.Signature[entity] |= 1024 /* NavAgent */;
+game.World.NavAgent[entity] = {
+TerritoryId: territory_id,
+Destination: null,
+
+Actions: 1,
+};
+};
+}
+
+function pickable_territory(mesh, color_idle, color_hover, color_ready, color_selected) {
+return (game, entity) => {
+game.World.Signature[entity] |= 2048 /* Pickable */;
+game.World.Pickable[entity] = {
+Kind: 0 /* Territory */,
+Mesh: mesh,
+Hover: false,
+ColorIdle: color_idle,
+ColorHover: color_hover,
+ColorReady: color_ready,
+ColorSelected: color_selected,
+};
+};
+}
+function pickable_unit(color_idle, color_hover, color_selected) {
+return (game, entity) => {
+game.World.Signature[entity] |= 2048 /* Pickable */;
+game.World.Pickable[entity] = {
+Kind: 1 /* Unit */,
+Hover: false,
+ColorIdle: color_idle,
+ColorHover: color_hover,
+ColorReady: color_selected,
+ColorSelected: color_selected,
+};
+};
+}
+
 function create() {
 return [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 }
@@ -40330,6 +40497,67 @@ out[1] = mat[13];
 out[2] = mat[14];
 return out;
 }
+function get_scaling(out, mat) {
+let m11 = mat[0];
+let m12 = mat[1];
+let m13 = mat[2];
+let m21 = mat[4];
+let m22 = mat[5];
+let m23 = mat[6];
+let m31 = mat[8];
+let m32 = mat[9];
+let m33 = mat[10];
+out[0] = Math.hypot(m11, m12, m13);
+out[1] = Math.hypot(m21, m22, m23);
+out[2] = Math.hypot(m31, m32, m33);
+return out;
+}
+function get_rotation(out, mat) {
+let scaling = get_scaling([0, 0, 0], mat);
+let is1 = 1 / scaling[0];
+let is2 = 1 / scaling[1];
+let is3 = 1 / scaling[2];
+let sm11 = mat[0] * is1;
+let sm12 = mat[1] * is2;
+let sm13 = mat[2] * is3;
+let sm21 = mat[4] * is1;
+let sm22 = mat[5] * is2;
+let sm23 = mat[6] * is3;
+let sm31 = mat[8] * is1;
+let sm32 = mat[9] * is2;
+let sm33 = mat[10] * is3;
+let trace = sm11 + sm22 + sm33;
+let S = 0;
+if (trace > 0) {
+S = Math.sqrt(trace + 1.0) * 2;
+out[3] = 0.25 * S;
+out[0] = (sm23 - sm32) / S;
+out[1] = (sm31 - sm13) / S;
+out[2] = (sm12 - sm21) / S;
+}
+else if (sm11 > sm22 && sm11 > sm33) {
+S = Math.sqrt(1.0 + sm11 - sm22 - sm33) * 2;
+out[3] = (sm23 - sm32) / S;
+out[0] = 0.25 * S;
+out[1] = (sm12 + sm21) / S;
+out[2] = (sm31 + sm13) / S;
+}
+else if (sm22 > sm33) {
+S = Math.sqrt(1.0 + sm22 - sm11 - sm33) * 2;
+out[3] = (sm31 - sm13) / S;
+out[0] = (sm12 + sm21) / S;
+out[1] = 0.25 * S;
+out[2] = (sm23 + sm32) / S;
+}
+else {
+S = Math.sqrt(1.0 + sm33 - sm11 - sm22) * 2;
+out[3] = (sm12 - sm21) / S;
+out[0] = (sm31 + sm13) / S;
+out[1] = (sm23 + sm32) / S;
+out[2] = 0.25 * S;
+}
+return out;
+}
 
 function copy$1(out, a) {
 out[0] = a[0];
@@ -40412,119 +40640,14 @@ let y = b[1] - a[1];
 let z = b[2] - a[2];
 return x * x + y * y + z * z;
 }
-
-function link(gl, vertex, fragment) {
-let program = gl.createProgram();
-gl.attachShader(program, compile(gl, GL_VERTEX_SHADER, vertex));
-gl.attachShader(program, compile(gl, GL_FRAGMENT_SHADER, fragment));
-gl.linkProgram(program);
-if (!gl.getProgramParameter(program, GL_LINK_STATUS)) {
-throw new Error(gl.getProgramInfoLog(program));
-}
-return program;
-}
-function compile(gl, type, source) {
-let shader = gl.createShader(type);
-gl.shaderSource(shader, source);
-gl.compileShader(shader);
-if (!gl.getShaderParameter(shader, GL_COMPILE_STATUS)) {
-throw new Error(gl.getShaderInfoLog(shader));
-}
-return shader;
-}
-const up = [0, 1, 0];
-function random_point_up_worldspace(mesh, world_space) {
-let point_localspace = random_point_up(mesh);
-if (point_localspace === null) {
-return null;
-}
-return transform_point(point_localspace, point_localspace, world_space);
-}
-function random_point_up(mesh) {
-let up_face_indices = [];
-let face_count = mesh.IndexCount / 3;
-for (let f = 0; f < face_count; f++) {
-let v0 = mesh.IndexArray[f * 3 + 0];
-let v1 = mesh.IndexArray[f * 3 + 1];
-let v2 = mesh.IndexArray[f * 3 + 2];
-let n = normal(mesh.VertexArray, v0, v1, v2);
-if (dot(n, up) === 1) {
-up_face_indices.push(f);
-}
-}
-if (up_face_indices.length === 0) {
-
-return null;
-}
-let f = element(up_face_indices);
-let v0 = mesh.IndexArray[f * 3 + 0];
-let v1 = mesh.IndexArray[f * 3 + 1];
-let v2 = mesh.IndexArray[f * 3 + 2];
-let p0 = [
-mesh.VertexArray[v0 * 3 + 0],
-mesh.VertexArray[v0 * 3 + 1],
-mesh.VertexArray[v0 * 3 + 2],
-];
-let p1 = [
-mesh.VertexArray[v1 * 3 + 0],
-mesh.VertexArray[v1 * 3 + 1],
-mesh.VertexArray[v1 * 3 + 2],
-];
-let p2 = [
-mesh.VertexArray[v2 * 3 + 0],
-mesh.VertexArray[v2 * 3 + 1],
-mesh.VertexArray[v2 * 3 + 2],
-];
-
-let t0 = float(0, 1);
-let t1 = float(0, 1);
-if (t0 + t1 > 1) {
-t0 = 1 - t0;
-t1 = 1 - t1;
-}
-let t2 = 1 - t0 - t1;
-
-return [
-t0 * p0[0] + t1 * p1[0] + t2 * p2[0],
-t0 * p0[1] + t1 * p1[1] + t2 * p2[1],
-t0 * p0[2] + t1 * p1[2] + t2 * p2[2],
-];
-}
-function normal(vertices, a, b, c) {
-let edge1 = [0, 0, 0];
-let edge2 = [0, 0, 0];
-subtract(edge1, [vertices[b * 3 + 0], vertices[b * 3 + 1], vertices[b * 3 + 2]], [vertices[a * 3 + 0], vertices[a * 3 + 1], vertices[a * 3 + 2]]);
-subtract(edge2, [vertices[c * 3 + 0], vertices[c * 3 + 1], vertices[c * 3 + 2]], [vertices[b * 3 + 0], vertices[b * 3 + 1], vertices[b * 3 + 2]]);
-let product = cross([0, 0, 0], edge2, edge1);
-return normalize(product, product);
-}
-
-function pickable_territory(mesh, color_idle, color_hover, color_ready, color_selected) {
-return (game, entity) => {
-game.World.Signature[entity] |= 1024 /* Pickable */;
-game.World.Pickable[entity] = {
-Kind: 0 /* Territory */,
-Mesh: mesh,
-Hover: false,
-ColorIdle: color_idle,
-ColorHover: color_hover,
-ColorReady: color_ready,
-ColorSelected: color_selected,
-};
-};
-}
-function pickable_unit(color_idle, color_hover, color_selected) {
-return (game, entity) => {
-game.World.Signature[entity] |= 1024 /* Pickable */;
-game.World.Pickable[entity] = {
-Kind: 1 /* Unit */,
-Hover: false,
-ColorIdle: color_idle,
-ColorHover: color_hover,
-ColorReady: color_selected,
-ColorSelected: color_selected,
-};
-};
+function lerp(out, a, b, t) {
+let ax = a[0];
+let ay = a[1];
+let az = a[2];
+out[0] = ax + t * (b[0] - ax);
+out[1] = ay + t * (b[1] - ay);
+out[2] = az + t * (b[2] - az);
+return out;
 }
 
 let textured_specular_vaos = new WeakMap();
@@ -40547,7 +40670,7 @@ game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
 game.ExtVao.bindVertexArrayOES(null);
 textured_specular_vaos.set(mesh, vao);
 }
-game.World.Signature[entity] |= 2048 /* Render */;
+game.World.Signature[entity] |= 4096 /* Render */;
 game.World.Render[entity] = {
 Kind: 5 /* TexturedSpecular */,
 Material: material,
@@ -40638,7 +40761,7 @@ game.Gl.vertexAttribPointer(material.Locations.VertexBitangent, 3, GL_FLOAT, fal
 game.ExtVao.bindVertexArrayOES(null);
 textured_mapped_vaos.set(mesh, vao);
 }
-game.World.Signature[entity] |= 2048 /* Render */;
+game.World.Signature[entity] |= 4096 /* Render */;
 game.World.Render[entity] = {
 Kind: 6 /* TexturedMapped */,
 Material: material,
@@ -40653,213 +40776,9 @@ ColorDiffuse: diffuse_color,
 };
 }
 
-function territory(continent, index, name = "") {
-return (game, entity) => {
-let id = continent * 10 + index;
-game.TerritoryEntities[id] = entity;
-game.World.Signature[entity] |= 8192 /* Territory */;
-game.World.Territory[entity] = {
-Continent: continent,
-Index: index,
-Id: id,
-Name: name,
-};
-};
-}
-
-function transform(translation = [0, 0, 0], rotation = [0, 0, 0, 1], scale = [1, 1, 1]) {
-return (game, entity) => {
-game.World.Signature[entity] |= 16384 /* Transform */;
-game.World.Transform[entity] = {
-World: create(),
-Self: create(),
-Translation: translation,
-Rotation: rotation,
-Scale: scale,
-Dirty: true,
-};
-};
-}
-
-const textures_by_continent = {
-[0 /* Europe */]: "euau.webp",
-[1 /* Africa */]: "afsa.webp",
-[2 /* Australia */]: "euau.webp",
-[4 /* SouthAmerica */]: "afsa.webp",
-[3 /* NorthAmerica */]: "na.webp",
-[5 /* Asia */]: "as.webp",
-};
-function blueprint_territory(game, continent, index, name = "") {
-let mesh = game.TerritoryMeshes[continent][index - 1];
-return [
-transform(),
-pickable_territory(mesh, [1.2, 1.2, 1.2, 1], [2, 2, 2, 1], [1.2, 1.5, 1.2, 1], [2, 1.2, 1.2, 1]),
-render_textured_mapped(game.MaterialTexturedMapped, mesh, game.Textures[textures_by_continent[continent]], game.Textures["Cardboard004_1K_Normal.jpg"], game.Textures["Cardboard004_1K_Roughness.jpg"]),
-territory(continent, index, name),
-];
-}
-function get_coord_by_territory_id(game, territory_id) {
-let destination_territory_entity = game.TerritoryEntities[territory_id];
-let territory = game.World.Territory[destination_territory_entity];
-let territory_mesh = game.TerritoryMeshes[territory.Continent][territory.Index - 1];
-let territory_transform = game.World.Transform[destination_territory_entity];
-return random_point_up_worldspace(territory_mesh, territory_transform.World);
-}
-
-function create_entity(world) {
-if (world.Graveyard.length > 0) {
-return world.Graveyard.pop();
-}
-if (DEBUG && world.Signature.length > 10000) {
-throw new Error("No more entities available.");
-}
-
-return world.Signature.push(0) - 1;
-}
-function destroy_entity(world, entity) {
-if (world.Signature[entity] & 2 /* Children */) {
-for (let child of world.Children[entity].Children) {
-destroy_entity(world, child);
-}
-}
-world.Signature[entity] = 0;
-if (DEBUG && world.Graveyard.includes(entity)) {
-throw new Error("Entity already in graveyard.");
-}
-world.Graveyard.push(entity);
-}
-function instantiate(game, blueprint) {
-let entity = create_entity(game.World);
-for (let mixin of blueprint) {
-if (mixin) {
-mixin(game, entity);
-}
-}
-return entity;
-}
-
-function children(...blueprints) {
-return (game, entity) => {
-let child_entities = [];
-for (let blueprint of blueprints) {
-let child = instantiate(game, blueprint);
-child_entities.push(child);
-}
-game.World.Signature[entity] |= 2 /* Children */;
-game.World.Children[entity] = {
-Children: child_entities,
-};
-};
-}
-/**
-* Yield entities matching a component mask. The query is tested against the
-* parent and all its descendants.
-*
-* @param world World object which stores the component data.
-* @param parent Parent entity to traverse.
-* @param mask Component mask to look for.
-*/
-function* query_all(world, parent, mask) {
-if (world.Signature[parent] & mask) {
-yield parent;
-}
-if (world.Signature[parent] & 2 /* Children */) {
-for (let child of world.Children[parent].Children) {
-yield* query_all(world, child, mask);
-}
-}
-}
-
-/**
-* Add the Collide component.
-*
-* @param dynamic Dynamic colliders collider with all colliders. Static
-* colliders collide only with dynamic colliders.
-* @param layers Bit field with layers this collider is on.
-* @param mask Bit mask with layers visible to this collider.
-* @param size Size of the collider relative to the entity's transform.
-*/
-function collide(dynamic, layers, mask, size = [1, 1, 1]) {
-return (game, entity) => {
-game.World.Signature[entity] |= 4 /* Collide */;
-game.World.Collide[entity] = {
-Entity: entity,
-New: true,
-Dynamic: dynamic,
-Layers: layers,
-Signature: mask,
-Size: size,
-Min: [0, 0, 0],
-Max: [0, 0, 0],
-Center: [0, 0, 0],
-Half: [0, 0, 0],
-Collisions: [],
-};
-};
-}
-
-function control_player(move, yaw, pitch, zoom) {
-return (game, entity) => {
-game.World.Signature[entity] |= 16 /* ControlPlayer */;
-game.World.ControlPlayer[entity] = {
-Move: move,
-Yaw: yaw,
-Pitch: pitch,
-Zoom: zoom,
-};
-};
-}
-
-function disable(mask) {
-return (game, entity) => {
-game.World.Signature[entity] &= ~mask;
-};
-}
-
-function draw_selection$1(color) {
-return (game, entity) => {
-game.World.Signature[entity] |= 32 /* Draw */;
-game.World.Draw[entity] = {
-Kind: 2 /* Selection */,
-Color: color,
-};
-};
-}
-
-/**
-* The Move mixin.
-*
-* @param move_speed - Movement speed in units per second.
-* @param rotation_speed - Rotation speed, in radians per second.
-*/
-function move(move_speed, rotation_speed) {
-return (game, entity) => {
-game.World.Signature[entity] |= 256 /* Move */;
-game.World.Move[entity] = {
-MoveSpeed: move_speed,
-RotationSpeed: rotation_speed,
-Directions: [],
-LocalRotations: [],
-SelfRotations: [],
-};
-};
-}
-
-function nav_agent(territory_id) {
-return (game, entity) => {
-game.World.Signature[entity] |= 512 /* NavAgent */;
-game.World.NavAgent[entity] = {
-TerritoryId: territory_id,
-Destination: null,
-
-Actions: 1,
-};
-};
-}
-
 function selectable() {
 return (game, entity) => {
-game.World.Signature[entity] |= 4096 /* Selectable */;
+game.World.Signature[entity] |= 8192 /* Selectable */;
 game.World.Selectable[entity] = {
 Selected: false,
 };
@@ -40868,7 +40787,7 @@ Selected: false,
 
 function team(Id) {
 return (game, entity) => {
-game.World.Signature[entity] |= 32768 /* Team */;
+game.World.Signature[entity] |= 65536 /* Team */;
 game.World.Team[entity] = {
 Id,
 };
@@ -40886,7 +40805,7 @@ territories[territory_id]++;
 return territories;
 }
 function units_entity_ids(game, team_id) {
-let QUERY = 32768 /* Team */ | 512 /* NavAgent */;
+let QUERY = 65536 /* Team */ | 1024 /* NavAgent */;
 let units_entity_ids = [];
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY) === QUERY && game.World.Team[i].Id === team_id) {
@@ -40896,6 +40815,20 @@ units_entity_ids.push(i);
 return units_entity_ids;
 }
 
+function transform(translation = [0, 0, 0], rotation = [0, 0, 0, 1], scale = [1, 1, 1]) {
+return (game, entity) => {
+game.World.Signature[entity] |= 32768 /* Transform */;
+game.World.Transform[entity] = {
+World: create(),
+Self: create(),
+Translation: translation,
+Rotation: rotation,
+Scale: scale,
+Dirty: true,
+};
+};
+}
+
 function blueprint_unit(game, translation, territory_id, mesh = game.MeshSoldier, team_id) {
 let color = game.Players[team_id].Color.slice();
 let is_human_controlled = game.Players[team_id].Type === 0 /* Human */;
@@ -40903,8 +40836,7 @@ let blueprint = [
 transform(translation),
 collide(true, 0 /* None */, 0 /* None */, [2, 6, 2]),
 nav_agent(territory_id),
-is_human_controlled ? move(10, 5) : move(100, 50),
-control_player(false, false, false, false),
+is_human_controlled ? move(10, 5) : move(20, 50),
 children([transform(), draw_selection$1("#ff0"), disable(32 /* Draw */)], [
 transform(),
 render_textured_mapped(game.MaterialTexturedMapped, mesh, game.Textures["Wood063_1K_Color.jpg"], game.Textures["Wood063_1K_Normal.jpg"], game.Textures["Wood063_1K_Roughness.jpg"], color),
@@ -40912,7 +40844,7 @@ render_textured_mapped(game.MaterialTexturedMapped, mesh, game.Textures["Wood063
 team(team_id),
 ];
 if (is_human_controlled) {
-blueprint.push(pickable_unit(color, [1, 0.5, 0, 1], [1, 0, 0, 1]), selectable(), disable(16 /* ControlPlayer */));
+blueprint.push(pickable_unit(color, [1, 0.5, 0, 1], [1, 0, 0, 1]), selectable());
 }
 return blueprint;
 }
@@ -40987,12 +40919,11 @@ case 2 /* DeployUnit */: {
 if (game.UnitsDeployed === game.UnitsToDeploy) {
 return;
 }
-let { territory_id } = payload;
-let translation = get_coord_by_territory_id(game, territory_id);
-if (translation) {
+let { territory_id, position } = payload;
+if (position) {
 let territory_name = game.World.Territory[game.TerritoryEntities[territory_id]].Name;
 console.log(`Deploying one unit to ${territory_name} (Player ${game.CurrentPlayer})`);
-instantiate(game, blueprint_unit(game, translation, territory_id, game.MeshSoldier, game.CurrentPlayer));
+instantiate(game, blueprint_unit(game, position, territory_id, game.MeshSoldier, game.CurrentPlayer));
 }
 game.UnitsDeployed++;
 break;
@@ -41092,7 +41023,7 @@ return 1 /* DefenceWon */;
 }
 }
 function remove_defeated_units(game, territory_id, team_id) {
-let QUERY = 32768 /* Team */ | 512 /* NavAgent */;
+let QUERY = 65536 /* Team */ | 1024 /* NavAgent */;
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY) === QUERY &&
 game.World.NavAgent[i].TerritoryId === territory_id &&
@@ -41118,6 +41049,92 @@ if (status != GL_FRAMEBUFFER_COMPLETE) {
 throw new Error(`Failed to set up the framebuffer (${status}).`);
 }
 return target;
+}
+
+function link(gl, vertex, fragment) {
+let program = gl.createProgram();
+gl.attachShader(program, compile(gl, GL_VERTEX_SHADER, vertex));
+gl.attachShader(program, compile(gl, GL_FRAGMENT_SHADER, fragment));
+gl.linkProgram(program);
+if (!gl.getProgramParameter(program, GL_LINK_STATUS)) {
+throw new Error(gl.getProgramInfoLog(program));
+}
+return program;
+}
+function compile(gl, type, source) {
+let shader = gl.createShader(type);
+gl.shaderSource(shader, source);
+gl.compileShader(shader);
+if (!gl.getShaderParameter(shader, GL_COMPILE_STATUS)) {
+throw new Error(gl.getShaderInfoLog(shader));
+}
+return shader;
+}
+const up = [0, 1, 0];
+function random_point_up_worldspace(mesh, world_space) {
+let point_localspace = random_point_up(mesh);
+if (point_localspace === null) {
+return null;
+}
+return transform_point(point_localspace, point_localspace, world_space);
+}
+function random_point_up(mesh) {
+let up_face_indices = [];
+let face_count = mesh.IndexCount / 3;
+for (let f = 0; f < face_count; f++) {
+let v0 = mesh.IndexArray[f * 3 + 0];
+let v1 = mesh.IndexArray[f * 3 + 1];
+let v2 = mesh.IndexArray[f * 3 + 2];
+let n = normal(mesh.VertexArray, v0, v1, v2);
+if (dot(n, up) === 1) {
+up_face_indices.push(f);
+}
+}
+if (up_face_indices.length === 0) {
+
+return null;
+}
+let f = element(up_face_indices);
+let v0 = mesh.IndexArray[f * 3 + 0];
+let v1 = mesh.IndexArray[f * 3 + 1];
+let v2 = mesh.IndexArray[f * 3 + 2];
+let p0 = [
+mesh.VertexArray[v0 * 3 + 0],
+mesh.VertexArray[v0 * 3 + 1],
+mesh.VertexArray[v0 * 3 + 2],
+];
+let p1 = [
+mesh.VertexArray[v1 * 3 + 0],
+mesh.VertexArray[v1 * 3 + 1],
+mesh.VertexArray[v1 * 3 + 2],
+];
+let p2 = [
+mesh.VertexArray[v2 * 3 + 0],
+mesh.VertexArray[v2 * 3 + 1],
+mesh.VertexArray[v2 * 3 + 2],
+];
+
+let t0 = float(0, 1);
+let t1 = float(0, 1);
+if (t0 + t1 > 1) {
+t0 = 1 - t0;
+t1 = 1 - t1;
+}
+let t2 = 1 - t0 - t1;
+
+return [
+t0 * p0[0] + t1 * p1[0] + t2 * p2[0],
+t0 * p0[1] + t1 * p1[1] + t2 * p2[1],
+t0 * p0[2] + t1 * p1[2] + t2 * p2[2],
+];
+}
+function normal(vertices, a, b, c) {
+let edge1 = [0, 0, 0];
+let edge2 = [0, 0, 0];
+subtract(edge1, [vertices[b * 3 + 0], vertices[b * 3 + 1], vertices[b * 3 + 2]], [vertices[a * 3 + 0], vertices[a * 3 + 1], vertices[a * 3 + 2]]);
+subtract(edge2, [vertices[c * 3 + 0], vertices[c * 3 + 1], vertices[c * 3 + 2]], [vertices[b * 3 + 0], vertices[b * 3 + 1], vertices[b * 3 + 2]]);
+let product = cross([0, 0, 0], edge2, edge1);
+return normalize(product, product);
 }
 
 let vertex$3 = `
@@ -62987,7 +63004,7 @@ function loop_stop() {
 cancelAnimationFrame(raf);
 }
 
-const QUERY$g = 16384 /* Transform */ | 1 /* Camera */;
+const QUERY$i = 32768 /* Transform */ | 1 /* Camera */;
 function sys_camera(game, delta) {
 if (game.ViewportWidth != window.innerWidth || game.ViewportHeight != window.innerHeight) {
 game.ViewportWidth = game.CanvasScene.width = game.CanvasBillboard.width =
@@ -62998,7 +63015,7 @@ game.ViewportResized = true;
 }
 game.Cameras = [];
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$g) === QUERY$g) {
+if ((game.World.Signature[i] & QUERY$i) === QUERY$i) {
 let camera = game.World.Camera[i];
 game.Cameras.push(i);
 if (camera.Kind === 0 /* Display */) {
@@ -63120,13 +63137,13 @@ a.Min[2] < b.Max[2] &&
 a.Max[2] > b.Min[2]);
 }
 
-const QUERY$f = 16384 /* Transform */ | 4 /* Collide */;
+const QUERY$h = 32768 /* Transform */ | 4 /* Collide */;
 function sys_collide(game, delta) {
 
 let static_colliders = [];
 let dynamic_colliders = [];
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$f) === QUERY$f) {
+if ((game.World.Signature[i] & QUERY$h) === QUERY$h) {
 let transform = game.World.Transform[i];
 let collider = game.World.Collide[i];
 
@@ -63187,20 +63204,59 @@ Hit: negate([0, 0, 0], hit),
 }
 }
 
-const QUERY$e = 512 /* NavAgent */ | 32768 /* Team */;
+function territory(continent, index, name = "") {
+return (game, entity) => {
+let id = continent * 10 + index;
+game.TerritoryEntities[id] = entity;
+game.World.Signature[entity] |= 16384 /* Territory */;
+game.World.Territory[entity] = {
+Continent: continent,
+Index: index,
+Id: id,
+Name: name,
+};
+};
+}
+
+const textures_by_continent = {
+[0 /* Europe */]: "euau.webp",
+[1 /* Africa */]: "afsa.webp",
+[2 /* Australia */]: "euau.webp",
+[4 /* SouthAmerica */]: "afsa.webp",
+[3 /* NorthAmerica */]: "na.webp",
+[5 /* Asia */]: "as.webp",
+};
+function blueprint_territory(game, continent, index, name = "") {
+let mesh = game.TerritoryMeshes[continent][index - 1];
+return [
+transform(),
+pickable_territory(mesh, [1.2, 1.2, 1.2, 1], [2, 2, 2, 1], [1.2, 1.5, 1.2, 1], [2, 1.2, 1.2, 1]),
+render_textured_mapped(game.MaterialTexturedMapped, mesh, game.Textures[textures_by_continent[continent]], game.Textures["Cardboard004_1K_Normal.jpg"], game.Textures["Cardboard004_1K_Roughness.jpg"]),
+territory(continent, index, name),
+];
+}
+function get_coord_by_territory_id(game, territory_id) {
+let destination_territory_entity = game.TerritoryEntities[territory_id];
+let territory = game.World.Territory[destination_territory_entity];
+let territory_mesh = game.TerritoryMeshes[territory.Continent][territory.Index - 1];
+let territory_transform = game.World.Transform[destination_territory_entity];
+return random_point_up_worldspace(territory_mesh, territory_transform.World);
+}
+
+const QUERY$g = 1024 /* NavAgent */ | 65536 /* Team */;
 function sys_control_ai(game, delta) {
 if (!game.IsAiTurn) {
 return;
 }
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$e) == QUERY$e &&
+if ((game.World.Signature[i] & QUERY$g) == QUERY$g &&
 game.World.Team[i].Id === game.CurrentPlayer &&
 game.Players[game.World.Team[i].Id].Type === 1 /* AI */) {
-update$9(game, i);
+update$b(game, i);
 }
 }
 }
-function update$9(game, entity) {
+function update$b(game, entity) {
 if (game.TurnPhase === 1 /* Move */) {
 if (!game.CurrentlyMovingAiUnit && game.AiActiveUnits.includes(entity)) {
 game.CurrentlyMovingAiUnit = entity;
@@ -63233,15 +63289,15 @@ agent.Destination = destination_worldspace;
 }
 }
 
-const QUERY$d = 8 /* ControlAlways */ | 16384 /* Transform */ | 256 /* Move */;
+const QUERY$f = 8 /* ControlAlways */ | 32768 /* Transform */ | 512 /* Move */;
 function sys_control_always(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$d) === QUERY$d) {
-update$8(game, i);
+if ((game.World.Signature[i] & QUERY$f) === QUERY$f) {
+update$a(game, i);
 }
 }
 }
-function update$8(game, entity) {
+function update$a(game, entity) {
 let control = game.World.ControlAlways[entity];
 let move = game.World.Move[entity];
 if (control.Direction) {
@@ -63252,16 +63308,40 @@ move.LocalRotations.push(control.Rotation.slice());
 }
 }
 
-const QUERY$c = 256 /* Move */ | 16 /* ControlPlayer */;
+const QUERY$e = 16 /* ControlCamera */;
+const INITIAL_CAMERA_Y = 40;
+function sys_control_camera(game, delta) {
+for (let i = 0; i < game.World.Signature.length; i++) {
+if ((game.World.Signature[i] & QUERY$e) === QUERY$e) {
+update$9(game, i);
+}
+}
+}
+function update$9(game, entity) {
+let control = game.World.ControlCamera[entity];
+let transform = game.World.Transform[entity];
+if (game.World.Signature[entity] & 256 /* Mimic */) {
+let mimic = game.World.Mimic[entity];
+let current_team_type = game.Players[game.CurrentPlayer].Type;
+if (current_team_type === 1 /* AI */) {
+mimic.Target = game.CurrentlyMovingAiUnit;
+}
+}
+if (control.Zoom) {
+game.CameraZoom = transform.Translation[1] / INITIAL_CAMERA_Y;
+}
+}
+
+const QUERY$d = 512 /* Move */ | 16 /* ControlCamera */;
 function sys_control_keyboard(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$c) === QUERY$c) {
-update$7(game, i);
+if ((game.World.Signature[i] & QUERY$d) === QUERY$d) {
+update$8(game, i);
 }
 }
 }
-function update$7(game, entity) {
-let control = game.World.ControlPlayer[entity];
+function update$8(game, entity) {
+let control = game.World.ControlCamera[entity];
 if (control.Yaw) {
 
 
@@ -63290,44 +63370,50 @@ move.SelfRotations.push([1, 0, 0, 0]);
 }
 }
 
-const QUERY$b = 256 /* Move */ | 16 /* ControlPlayer */;
-const SENSITIVITY = 0.1;
+const QUERY$c = 512 /* Move */ | 16 /* ControlCamera */;
+const MOUSE_SENSITIVITY = 0.1;
+const ZOOM_FACTOR = 1.1;
 function sys_control_mouse(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$b) === QUERY$b) {
+if ((game.World.Signature[i] & QUERY$c) === QUERY$c) {
+update$7(game, i);
+}
+}
+}
+function update$7(game, entity) {
+let control = game.World.ControlCamera[entity];
+let move = game.World.Move[entity];
+if (control.Move && game.InputState.Mouse0) {
+move.MoveSpeed = control.Move * game.CameraZoom ** ZOOM_FACTOR;
+if (game.InputDelta.MouseX) {
+let amount = game.InputDelta.MouseX * MOUSE_SENSITIVITY;
+move.Directions.push([amount, 0, 0]);
+}
+if (game.InputDelta.MouseY) {
+let amount = game.InputDelta.MouseY * MOUSE_SENSITIVITY;
+move.Directions.push([0, 0, amount]);
+}
+}
+if (control.Zoom && game.InputDelta.WheelY) {
+move.MoveSpeed = control.Zoom * game.CameraZoom ** ZOOM_FACTOR;
+move.Directions.push([0, 0, game.InputDelta.WheelY]);
+}
+}
+
+const QUERY$b = 8192 /* Selectable */ | 1024 /* NavAgent */ | 65536 /* Team */;
+function sys_control_player(game, delta) {
+for (let i = 0; i < game.World.Signature.length; i++) {
+let team = game.World.Team[i];
+let selectable = game.World.Selectable[i];
+if ((game.World.Signature[i] & QUERY$b) == QUERY$b &&
+game.Players[team.Id].Type === 0 /* Human */ &&
+team.Id === game.CurrentPlayer &&
+selectable.Selected) {
 update$6(game, i);
 }
 }
 }
 function update$6(game, entity) {
-let control = game.World.ControlPlayer[entity];
-let move = game.World.Move[entity];
-if (control.Move && game.InputState.Mouse0) {
-if (game.InputDelta.MouseX) {
-let amount = game.InputDelta.MouseX * SENSITIVITY;
-move.Directions.push([amount, 0, 0]);
-}
-if (game.InputDelta.MouseY) {
-let amount = game.InputDelta.MouseY * SENSITIVITY;
-move.Directions.push([0, 0, amount]);
-}
-}
-if (control.Zoom && game.InputDelta.WheelY) {
-move.Directions.push([0, 0, game.InputDelta.WheelY]);
-}
-}
-
-const QUERY$a = 16 /* ControlPlayer */ | 512 /* NavAgent */ | 32768 /* Team */;
-function sys_control_pick(game, delta) {
-for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$a) == QUERY$a &&
-game.World.Team[i].Id === game.CurrentPlayer &&
-game.Players[game.World.Team[i].Id].Type === 0 /* Human */) {
-update$5(game, i);
-}
-}
-}
-function update$5(game, entity) {
 let agent = game.World.NavAgent[entity];
 if (game.InputDelta["Mouse2"] === 1 && game.Picked && agent.Actions > 0) {
 let territory_entity = game.Picked.Entity;
@@ -63348,7 +63434,8 @@ return;
 if (game.IsAiTurn) {
 for (let i = 0; i < game.UnitsToDeploy; i++) {
 let deploy_to = element(game.CurrentPlayerTerritories);
-dispatch(game, 2 /* DeployUnit */, { territory_id: deploy_to });
+let position = get_coord_by_territory_id(game, deploy_to);
+dispatch(game, 2 /* DeployUnit */, { territory_id: deploy_to, position });
 }
 setTimeout(() => {
 dispatch(game, 1 /* EndDeployment */, {});
@@ -63358,13 +63445,16 @@ else {
 if (game.InputDelta["Mouse0"] === 1 && game.Picked) {
 let territory = game.World.Territory[game.Picked.Entity];
 if (territory && game.CurrentPlayerTerritories.includes(territory.Id)) {
-dispatch(game, 2 /* DeployUnit */, { territory_id: territory.Id });
+dispatch(game, 2 /* DeployUnit */, {
+territory_id: territory.Id,
+position: game.Picked.Point.slice(),
+});
 }
 }
 }
 }
 
-const QUERY$9 = 16384 /* Transform */ | 32 /* Draw */;
+const QUERY$a = 32768 /* Transform */ | 32 /* Draw */;
 function sys_draw(game, delta) {
 game.Context2D.resetTransform();
 game.Context2D.clearRect(0, 0, game.ViewportWidth, game.ViewportHeight);
@@ -63383,7 +63473,7 @@ if (!display_camera) {
 return;
 }
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$9) == QUERY$9) {
+if ((game.World.Signature[i] & QUERY$a) == QUERY$a) {
 
 get_translation(position, game.World.Transform[i].World);
 
@@ -63444,11 +63534,11 @@ out[3] = a[3];
 return out;
 }
 
-const QUERY$8 = 1024 /* Pickable */;
+const QUERY$9 = 2048 /* Pickable */;
 function sys_highlight(game, delta) {
 dispatch(game, 7 /* ClearTooltipText */, {});
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$8) == QUERY$8) {
+if ((game.World.Signature[i] & QUERY$9) == QUERY$9) {
 let pickable = game.World.Pickable[i];
 switch (pickable.Kind) {
 case 0 /* Territory */: {
@@ -63513,19 +63603,19 @@ copy(render.ColorDiffuse, pickable.ColorIdle);
 }
 }
 
-const QUERY$7 = 16384 /* Transform */ | 128 /* Light */;
+const QUERY$8 = 32768 /* Transform */ | 128 /* Light */;
 function sys_light(game, delta) {
 game.LightPositions.fill(0);
 game.LightDetails.fill(0);
 let counter = 0;
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$7) === QUERY$7) {
-update$4(game, i, counter++);
+if ((game.World.Signature[i] & QUERY$8) === QUERY$8) {
+update$5(game, i, counter++);
 }
 }
 }
 let world_pos = [0, 0, 0];
-function update$4(game, entity, idx) {
+function update$5(game, entity, idx) {
 let light = game.World.Light[entity];
 let transform = game.World.Transform[entity];
 get_translation(world_pos, transform.World);
@@ -63622,7 +63712,34 @@ out[3] = scale0 * aw + scale1 * bw;
 return out;
 }
 
-const QUERY$6 = 16384 /* Transform */ | 256 /* Move */;
+const QUERY$7 = 32768 /* Transform */ | 256 /* Mimic */;
+function sys_mimic(game, delta) {
+for (let i = 0; i < game.World.Signature.length; i++) {
+if ((game.World.Signature[i] & QUERY$7) === QUERY$7) {
+update$4(game, i);
+}
+}
+}
+function update$4(game, entity) {
+let follower_transform = game.World.Transform[entity];
+let follower_mimic = game.World.Mimic[entity];
+if (follower_mimic.Target) {
+
+let target_transform = game.World.Transform[follower_mimic.Target];
+if (follower_mimic.Position) {
+let target_world_position = get_translation([0, 0, 0], target_transform.World);
+lerp(follower_transform.Translation, follower_transform.Translation, target_world_position, follower_mimic.Stiffness);
+follower_transform.Dirty = true;
+}
+if (follower_mimic.Rotation) {
+let target_world_rotation = get_rotation([0, 0, 0, 0], target_transform.World);
+slerp(follower_transform.Rotation, follower_transform.Rotation, target_world_rotation, follower_mimic.Stiffness);
+follower_transform.Dirty = true;
+}
+}
+}
+
+const QUERY$6 = 32768 /* Transform */ | 512 /* Move */;
 const NO_ROTATION = [0, 0, 0, 1];
 function sys_move(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
@@ -63684,7 +63801,7 @@ function multiply_rotations(acc, cur) {
 return multiply(acc, acc, cur);
 }
 
-const QUERY$5 = 16384 /* Transform */ | 512 /* NavAgent */ | 256 /* Move */;
+const QUERY$5 = 32768 /* Transform */ | 1024 /* NavAgent */ | 512 /* Move */;
 function sys_nav(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$5) == QUERY$5) {
@@ -63854,8 +63971,8 @@ return { TriIndex: tri, Point: intersection };
 return null;
 }
 
-const QUERY$4 = 1024 /* Pickable */;
-const TARGET = 16384 /* Transform */ | 4 /* Collide */;
+const QUERY$4 = 2048 /* Pickable */;
+const TARGET = 32768 /* Transform */ | 4 /* Collide */;
 function sys_pick(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$4) == QUERY$4) {
@@ -63897,7 +64014,7 @@ let collider = hit_aabb.Collider;
 let entity = collider.Entity;
 
 let territories = territories_controlled_by_team(game, game.CurrentPlayer);
-for (let child of query_all(game.World, entity, 1024 /* Pickable */)) {
+for (let child of query_all(game.World, entity, 2048 /* Pickable */)) {
 let pickable = game.World.Pickable[child];
 if (pickable.Kind === 1 /* Unit */) {
 let current_territory_id = game.World.NavAgent[child].TerritoryId;
@@ -63940,7 +64057,7 @@ return;
 }
 }
 
-const QUERY$3 = 16384 /* Transform */ | 2048 /* Render */;
+const QUERY$3 = 32768 /* Transform */ | 4096 /* Render */;
 function sys_render_depth(game, delta) {
 for (let camera_entity of game.Cameras) {
 let camera = game.World.Camera[camera_entity];
@@ -63978,7 +64095,7 @@ game.Gl.drawElements(game.MaterialDepth.Mode, render.Mesh.IndexCount, GL_UNSIGNE
 game.ExtVao.bindVertexArrayOES(null);
 }
 
-const QUERY$2 = 16384 /* Transform */ | 2048 /* Render */;
+const QUERY$2 = 32768 /* Transform */ | 4096 /* Render */;
 function sys_render_forward(game, delta) {
 for (let camera_entity of game.Cameras) {
 let camera = game.World.Camera[camera_entity];
@@ -64193,7 +64310,7 @@ game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_S
 game.ExtVao.bindVertexArrayOES(null);
 }
 
-const QUERY$1 = 16384 /* Transform */ | 1024 /* Pickable */ | 4096 /* Selectable */ | 2 /* Children */;
+const QUERY$1 = 32768 /* Transform */ | 2048 /* Pickable */ | 8192 /* Selectable */ | 2 /* Children */;
 function sys_select(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$1) == QUERY$1) {
@@ -64212,24 +64329,21 @@ game.Selected = i;
 }
 function update(game, entity) {
 var _a, _b;
-game.World.Children[entity];
 let selectable = game.World.Selectable[entity];
 if (game.InputDelta["Mouse0"] === -1) {
 
 
 if (!selectable.Selected && ((_a = game.Picked) === null || _a === void 0 ? void 0 : _a.Entity) === entity) {
 selectable.Selected = true;
-game.World.Signature[entity] |= 16 /* ControlPlayer */;
 }
 
 if (selectable.Selected && ((_b = game.Picked) === null || _b === void 0 ? void 0 : _b.Entity) !== entity) {
 selectable.Selected = false;
-game.World.Signature[entity] &= ~16 /* ControlPlayer */;
 }
 }
 }
 
-const QUERY = 16384 /* Transform */;
+const QUERY = 32768 /* Transform */;
 function sys_transform(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY) === QUERY) {
@@ -64251,7 +64365,7 @@ invert(transform.Self, transform.World);
 if (world.Signature[entity] & 2 /* Children */) {
 let children = world.Children[entity];
 for (let child of children.Children) {
-if (world.Signature[child] & 16384 /* Transform */) {
+if (world.Signature[child] & 32768 /* Transform */) {
 let child_transform = world.Transform[child];
 child_transform.Parent = entity;
 update_transform(world, child, child_transform);
@@ -64277,10 +64391,11 @@ this.Camera = [];
 this.Children = [];
 this.Collide = [];
 this.ControlAlways = [];
-this.ControlPlayer = [];
+this.ControlCamera = [];
 this.Draw = [];
 this.Highlightable = [];
 this.Light = [];
+this.Mimic = [];
 this.Move = [];
 this.NavAgent = [];
 this.Pickable = [];
@@ -64343,6 +64458,7 @@ this.TerritoryEntities = {};
 this.LightPositions = new Float32Array(4 * 8);
 this.LightDetails = new Float32Array(4 * 8);
 this.Cameras = [];
+this.CameraZoom = 1;
 document.addEventListener("visibilitychange", () => document.hidden ? loop_stop() : loop_start(this));
 this.Ui.addEventListener("contextmenu", (evt) => evt.preventDefault());
 this.Ui.addEventListener("mousedown", (evt) => {
@@ -64392,7 +64508,8 @@ sys_pick(this);
 sys_select(this);
 sys_highlight(this);
 sys_control_ai(this);
-sys_control_pick(this);
+sys_control_camera(this);
+sys_control_player(this);
 sys_control_keyboard(this);
 sys_control_mouse(this);
 sys_deploy(this);
@@ -64400,6 +64517,7 @@ sys_deploy(this);
 sys_control_always(this);
 
 sys_nav(this);
+sys_mimic(this);
 sys_move(this, delta);
 sys_transform(this);
 sys_collide(this);
@@ -64450,17 +64568,42 @@ ClearColor: clear_color,
 };
 }
 
+function control_camera(move, zoom, yaw, pitch) {
+return (game, entity) => {
+game.World.Signature[entity] |= 16 /* ControlCamera */;
+game.World.ControlCamera[entity] = {
+Move: move,
+Zoom: zoom,
+Yaw: yaw,
+Pitch: pitch,
+};
+};
+}
+
+function mimic(target, stiffness, position, rotation) {
+return (game, entity) => {
+game.World.Signature[entity] |= 256 /* Mimic */;
+game.World.Mimic[entity] = {
+Target: target,
+Stiffness: stiffness,
+Position: position,
+Rotation: rotation,
+};
+};
+}
+
 function blueprint_camera(game) {
 return [
-control_player(true, true, false, false),
+control_camera(100, 0, true, false),
+mimic(null, 0.1, true, false),
 move(100, 0.5),
 children([
-transform(),
-control_player(false, false, true, false),
-move(100, 0.5),
+transform(undefined, from_euler([0, 0, 0, 0], -30, 0, 0)),
+control_camera(0, 0, false, true),
+move(0, 0.5),
 children([
-transform([0, 40, -23], from_euler([0, 0, 0, 0], -60, 180, 0)),
-control_player(false, false, false, true),
+transform([0, 40, 0], from_euler([0, 0, 0, 0], -90, 180, 0)),
+control_camera(0, 200, false, false),
 move(200, 0),
 camera_display_perspective(1, 0.1, 1000),
 ]),
