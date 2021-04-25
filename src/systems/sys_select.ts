@@ -24,11 +24,9 @@ export function sys_select(game: Game, delta: number) {
 function update(game: Game, entity: Entity) {
     let selectable = game.World.Selectable[entity];
 
-    if (
-        game.TurnPhase === TurnPhase.Move &&
-        game.InputDelta["Mouse0"] === -1 &&
-        game.InputState["MousePressedTraveled"] < 10
-    ) {
+    if (game.TurnPhase !== TurnPhase.Move) {
+        selectable.Selected = false;
+    } else if (game.InputDelta["Mouse0"] === -1 && game.InputState["Mouse0DownTraveled"] < 10) {
         // When the user clicks…
 
         // …select.

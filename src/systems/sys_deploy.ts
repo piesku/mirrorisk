@@ -23,7 +23,7 @@ export function sys_deploy(game: Game, delta: number) {
     } else {
         if (
             game.InputDelta["Mouse0"] === -1 &&
-            game.InputState["MousePressedTraveled"] < 10 &&
+            game.InputState["Mouse0DownTraveled"] < 10 &&
             game.Picked
         ) {
             let territory = game.World.Territory[game.Picked.Entity];
