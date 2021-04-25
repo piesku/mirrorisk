@@ -124,11 +124,12 @@ game.TerritoryMeshes = [
 
 game.Players = [
     {
+        Name: "Yellow",
         Color: [1, 1, 0, 1],
         Type: PlayerType.Human,
     },
-    {Color: [1, 0, 0, 1], Type: PlayerType.AI},
-    {Color: [1, 0, 1, 1], Type: PlayerType.AI},
+    {Name: "Red", Color: [1, 0, 0, 1], Type: PlayerType.AI},
+    {Name: "Violet", Color: [1, 0, 1, 1], Type: PlayerType.AI},
 ];
 
 Promise.all([

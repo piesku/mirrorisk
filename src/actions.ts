@@ -19,23 +19,24 @@ export const enum Action {
 }
 
 export function dispatch(game: Game, action: Action, payload: unknown) {
+    let current_player_name = game.Players[game.CurrentPlayer].Name;
     switch (action) {
         case Action.StartDeployment: {
             game.Battles = [];
-            Logger(game, `C:&#92;> Player ${game.CurrentPlayer} turn`);
-            // console.log
-            game.CurrentPlayerTerritories = Object.keys(
-                territories_controlled_by_team(game, game.CurrentPlayer)
-            ).map((e) => parseInt(e, 10));
-
             for (let i = 0; i < game.Players.length; i++) {
                 Logger(
                     game,
-                    `Player ${i} controlls ${
+                    `${game.Players[i].Name} controlls ${
                         Object.keys(territories_controlled_by_team(game, i)).length
                     } territories`
                 );
             }
+
+            Logger(game, `C:&#92;> ${current_player_name}'s turn`);
+            game.CurrentPlayerTerritories = Object.keys(
+                territories_controlled_by_team(game, game.CurrentPlayer)
+            ).map((e) => parseInt(e, 10));
+
             // XXX: Add continent bonus here
             let units_to_deploy = Math.max(~~(game.CurrentPlayerTerritories.length / 3), 3);
             if (!game.IsAiTurn) {
@@ -57,10 +58,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             if (position) {
                 let territory_entity_id = game.TerritoryEntities[territory_id];
                 let territory_name = game.World.Territory[territory_entity_id].Name;
-                Logger(
-                    game,
-                    `Deploying one unit to ${territory_name} (Player ${game.CurrentPlayer})`
-                );
+                Logger(game, `${current_player_name} deploys a unit to ${territory_name}`);
 
                 let deployed_unit_entity = instantiate(
                     game,
@@ -68,7 +66,6 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                         game,
                         [position[0], -5, position[2]],
                         territory_id,
-                        game.MeshSoldier,
                         game.CurrentPlayer
                     )
                 );
@@ -117,32 +114,29 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                             TerritoryEntity: territory_entity,
                             Run: () => {
                                 let territory_name = game.World.Territory[territory_entity].Name;
+                                let enemy_territory_id = enemy_territory_ids[j];
                                 Logger(
                                     game,
-                                    `Player ${game.CurrentPlayer} (${
-                                        current_player_territories[enemy_territory_ids[j]]
-                                    } units) attacks Player ${i} (${
-                                        enemy_territories[enemy_territory_ids[j]]
-                                    } units) in ${territory_name}.`
+                                    `${current_player_name} attacks ${game.Players[i].Name} in ${territory_name} woth ${current_player_territories[enemy_territory_id]} unit(s) agains ${enemy_territories[enemy_territory_id]} unit(s).`
                                 );
 
                                 let battle_result = fight(
                                     game,
-                                    current_player_territories[enemy_territory_ids[j]],
-                                    enemy_territories[enemy_territory_ids[j]]
+                                    current_player_territories[enemy_territory_id],
+                                    enemy_territories[enemy_territory_id]
                                 );
 
                                 let looser;
                                 if (battle_result === BattleResult.AttackWon) {
-                                    Logger(game, `Player ${game.CurrentPlayer} won!`);
+                                    Logger(game, `${current_player_name} won!`);
                                     looser = i;
                                 } else {
-                                    Logger(game, `Player ${i} won!`);
+                                    Logger(game, `${game.Players[i].Name} won!`);
                                     looser = game.CurrentPlayer;
                                 }
 
                                 if (typeof looser !== undefined) {
-                                    remove_defeated_units(game, enemy_territory_ids[j], looser);
+                                    remove_defeated_units(game, enemy_territory_id, looser);
                                 }
                             },
                         });
@@ -162,22 +156,22 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
 
             let battle = game.Battles.pop()!;
 
+            // setTimeout(() => {
+            // XXX This isn't currently reset anywhere. Instead,
+            // sys_control_camera resets mimic.Target in the deploy
+            // phase.
+            game.CurrentlyFoughtOverTerritory = battle.TerritoryEntity;
+            let scheduled_battle = battle;
+            // Wait for the camera to move over the territory.
             setTimeout(() => {
-                // XXX This isn't currently reset anywhere. Instead,
-                // sys_control_camera resets mimic.Target in the deploy
-                // phase.
-                game.CurrentlyFoughtOverTerritory = battle.TerritoryEntity;
-                let scheduled_battle = battle;
-                // Wait for the camera to move over the territory.
+                scheduled_battle.Run();
                 setTimeout(() => {
-                    scheduled_battle.Run();
-                    setTimeout(() => {
-                        dispatch(game, Action.ResolveBattles, {});
-                    }, 1000);
+                    dispatch(game, Action.ResolveBattles, {});
                 }, 1000);
-
-                // setTimeout(() => {
             }, 1000);
+
+            // setTimeout(() => {
+            // }, 1000);
             // }, 3000);
             break;
         }

@@ -46,6 +46,7 @@ export const enum PlayerType {
 }
 
 export interface Player {
+    Name: string;
     Type: PlayerType;
     Color: Vec4;
 }

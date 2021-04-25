@@ -1,5 +1,5 @@
-import {Mesh} from "../../common/material.js";
 import {Vec3, Vec4} from "../../common/math.js";
+import {element} from "../../common/random.js";
 import {children} from "../components/com_children.js";
 import {collide} from "../components/com_collide.js";
 import {disable} from "../components/com_disable.js";
@@ -18,7 +18,6 @@ export function blueprint_unit(
     game: Game,
     translation: Vec3,
     territory_id: number,
-    mesh: Mesh = game.MeshSoldier,
     team_id: number
 ) {
     let color = <Vec4>game.Players[team_id].Color.slice();
@@ -35,7 +34,14 @@ export function blueprint_unit(
                 transform(),
                 render_textured_mapped(
                     game.MaterialTexturedMapped,
-                    mesh,
+                    element([
+                        game.MeshSoldier,
+                        game.MeshSoldier,
+                        game.MeshSoldier,
+                        game.MeshCannon,
+                        game.MeshDragoon,
+                        game.MeshDragoon,
+                    ]),
                     game.Textures["Wood063_1K_Color.jpg"],
                     game.Textures["Wood063_1K_Normal.jpg"],
                     game.Textures["Wood063_1K_Roughness.jpg"],

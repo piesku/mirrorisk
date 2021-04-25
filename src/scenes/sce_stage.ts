@@ -180,10 +180,7 @@ export function scene_stage(game: Game) {
         let translation = get_coord_by_territory_id(game, territory.Id);
 
         if (translation) {
-            instantiate(
-                game,
-                blueprint_unit(game, translation, territory.Id, game.MeshSoldier, team)
-            );
+            instantiate(game, blueprint_unit(game, translation, territory.Id, team));
         } else {
             console.error(
                 `Cannot find random point on territory ${JSON.stringify(territory, null, 2)}!`
