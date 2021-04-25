@@ -54,23 +54,29 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
 
             let {territory_id, position} = payload as {territory_id: number; position: Vec3};
             if (position) {
-                let territory_name =
-                    game.World.Territory[game.TerritoryEntities[territory_id]].Name;
+                let territory_entity_id = game.TerritoryEntities[territory_id];
+                let territory_name = game.World.Territory[territory_entity_id].Name;
                 Logger(
                     game,
                     `Deploying one unit to ${territory_name} (Player ${game.CurrentPlayer})`
                 );
 
-                instantiate(
+                let deployed_unit_entity = instantiate(
                     game,
                     blueprint_unit(
                         game,
-                        position,
+                        [position[0], -5, position[2]],
                         territory_id,
                         game.MeshSoldier,
                         game.CurrentPlayer
                     )
                 );
+
+                game.World.NavAgent[deployed_unit_entity].Destination = [
+                    position[0],
+                    position[1] + 1,
+                    position[2],
+                ];
             }
 
             game.UnitsDeployed++;
