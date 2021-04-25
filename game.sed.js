@@ -40861,7 +40861,7 @@ render_textured_mapped(game.MaterialTexturedMapped, mesh, game.Textures["Wood063
 team(team_id),
 ];
 if (is_human_controlled) {
-blueprint.push(pickable_unit(color), selectable(), audio_source(false));
+blueprint.push(pickable_unit(color), selectable(), audio_source(true));
 }
 return blueprint;
 }
@@ -41128,6 +41128,7 @@ game.TooltipText = null;
 break;
 }
 case 8 /* ClearAlert */: {
+game.Audio.resume();
 game.AlertText = null;
 break;
 }
@@ -82986,7 +82987,7 @@ const QUERY$j = 2 /* AudioSource */;
 function sys_audio_source(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$j) === QUERY$j) {
-update$c(game, i);
+update$c(game, i, delta);
 }
 }
 }
@@ -83005,10 +83006,14 @@ audio_source.Panner.orientationX.value = forward[0];
 audio_source.Panner.orientationY.value = forward[1];
 audio_source.Panner.orientationZ.value = forward[2];
 }
-let can_exit = !audio_source.Current;
+let can_exit = !audio_source.Current || audio_source.Time > audio_source.Current.duration;
 if (audio_source.Trigger && can_exit) {
 play_buffer(game.Audio, audio_source.Panner, audio_source.Trigger);
 audio_source.Current = audio_source.Trigger;
+audio_source.Time = 0;
+}
+else {
+audio_source.Time += delta;
 }
 
 
@@ -84423,8 +84428,9 @@ game.Selected = i;
 }
 }
 }
+const select_sfx = ["huh1.mp3", "huh2.mp3", "huh3.mp3", "huh4.mp3", "huh5.mp3"];
 function update(game, entity) {
-var _a, _b;
+var _a;
 let selectable = game.World.Selectable[entity];
 let audio_source = game.World.AudioSource[entity];
 if (game.TurnPhase !== 1 /* Move */) {
@@ -84432,13 +84438,15 @@ selectable.Selected = false;
 }
 else if (game.InputDelta["Mouse0"] === -1 && game.InputState["Mouse0DownTraveled"] < 10) {
 
+if (((_a = game.Picked) === null || _a === void 0 ? void 0 : _a.Entity) === entity) {
+audio_source.Trigger = game.Sounds[element(select_sfx)];
+if (!selectable.Selected) {
 
-if (!selectable.Selected && ((_a = game.Picked) === null || _a === void 0 ? void 0 : _a.Entity) === entity) {
 selectable.Selected = true;
-audio_source.Trigger = game.Sounds["huh1.mp3"];
 }
+}
+else if (selectable.Selected) {
 
-if (selectable.Selected && ((_b = game.Picked) === null || _b === void 0 ? void 0 : _b.Entity) !== entity) {
 selectable.Selected = false;
 }
 }
@@ -84664,7 +84672,7 @@ sys_transform(this);
 sys_collide(this);
 
 sys_audio_listener(this);
-sys_audio_source(this);
+sys_audio_source(this, delta);
 sys_camera(this);
 sys_light(this);
 sys_render_depth(this);
@@ -84673,6 +84681,12 @@ sys_draw(this);
 sys_ui(this);
 sys_framerate(this, delta, performance.now() - now);
 }
+}
+
+function audio_listener() {
+return (game, entity) => {
+game.World.Signature[entity] |= 1 /* AudioListener */;
+};
 }
 
 function camera_display_perspective(fovy, near, far, clear_color = [0.9, 0.9, 0.9, 1]) {
@@ -84749,6 +84763,7 @@ transform([0, 40, 0], from_euler([0, 0, 0, 0], -90, 180, 0)),
 control_camera(0, 200, 0, 0),
 move(200, 0),
 camera_display_perspective(1, 1, 10000),
+audio_listener(),
 ]),
 ]),
 ];
@@ -85029,6 +85044,10 @@ load_texture(game, "Wood063_1K_Color.jpg"),
 load_texture(game, "Wood063_1K_Normal.jpg"),
 load_texture(game, "Wood063_1K_Roughness.jpg"),
 load_audio(game, "huh1.mp3"),
+load_audio(game, "huh2.mp3"),
+load_audio(game, "huh3.mp3"),
+load_audio(game, "huh4.mp3"),
+load_audio(game, "huh5.mp3"),
 ]).then(() => {
 scene_stage(game);
 loop_start(game);
