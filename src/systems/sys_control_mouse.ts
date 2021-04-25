@@ -6,16 +6,6 @@ const MOUSE_SENSITIVITY = 0.1;
 const ZOOM_FACTOR = 1.1;
 
 export function sys_control_mouse(game: Game, delta: number) {
-    if (game.InputState["Mouse0"] === 1) {
-        game.InputState["MousePressedTraveled"] += Math.abs(
-            game.InputDelta["MouseX"] + game.InputDelta["MouseY"]
-        );
-    }
-
-    if (game.InputDelta["Mouse0"] === -1) {
-        game.InputState["MousePressedTraveled"] = 0;
-    }
-
     for (let i = 0; i < game.World.Signature.length; i++) {
         if ((game.World.Signature[i] & QUERY) === QUERY) {
             update(game, i);

@@ -182,8 +182,19 @@ export class Game {
         this.Gl.enable(GL_CULL_FACE);
     }
 
+    FrameSetup() {
+        if (this.InputState["Mouse0"] === 1) {
+            this.InputState["MousePressedTraveled"] += Math.abs(
+                this.InputDelta["MouseX"] + this.InputDelta["MouseY"]
+            );
+        }
+    }
+
     FrameReset() {
         this.ViewportResized = false;
+        if (this.InputDelta["Mouse0"] === -1) {
+            this.InputState["MousePressedTraveled"] = 0;
+        }
         for (let name in this.InputDelta) {
             this.InputDelta[name] = 0;
         }
