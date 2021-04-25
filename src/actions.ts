@@ -18,12 +18,15 @@ export const enum Action {
 export function dispatch(game: Game, action: Action, payload: unknown) {
     switch (action) {
         case Action.StartDeployment: {
+            console.log("Deployment, player ", game.CurrentPlayer);
             game.CurrentPlayerTerritories = Object.keys(
                 territories_controlled_by_team(game, game.CurrentPlayer)
             ).map((e) => parseInt(e, 10));
+
             // XXX: Add continent bonus here
             let units_to_deploy = Math.max(~~(game.CurrentPlayerTerritories.length / 3), 3);
             Alert(`Select territories to deploy ${units_to_deploy} units.`);
+
             game.TurnPhase = TurnPhase.Deploy;
             game.UnitsDeployed = 0;
             game.UnitsToDeploy = units_to_deploy;
@@ -41,7 +44,9 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             if (translation) {
                 let territory_name =
                     game.World.Territory[game.TerritoryEntities[territory_id]].Name;
-                console.log(`Deploying one unit to ${territory_name}`);
+                console.log(
+                    `Deploying one unit to ${territory_name} (Player ${game.CurrentPlayer})`
+                );
 
                 instantiate(
                     game,
@@ -80,7 +85,6 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                 }
 
                 game.IsAiTurn = game.Players[next_player].Type === PlayerType.AI;
-                game.TurnPhase = TurnPhase.Deploy;
 
                 if (game.IsAiTurn) {
                     game.AiActiveUnits = next_player_units.slice();
@@ -88,6 +92,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
 
                 game.World.Signature[game.SunEntity] &= ~Has.ControlAlways;
                 game.CurrentPlayer = next_player;
+                dispatch(game, Action.StartDeployment, {});
             }, 2000);
             break;
         }
