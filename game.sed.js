@@ -40141,6 +40141,24 @@ function element(arr) {
 return arr[integer(0, arr.length - 1)];
 }
 
+/**
+* Add the AudioSource component.
+*
+* @param spatial Does the source produce 3D sound?
+* @param idle The name of the clip to play by default, in a loop.
+*/
+function audio_source(spatial, idle) {
+return (game, entity) => {
+let panner = spatial ? game.Audio.createPanner() : undefined;
+game.World.Signature[entity] |= 2 /* AudioSource */;
+game.World.AudioSource[entity] = {
+Panner: panner,
+Idle: idle,
+Time: 0,
+};
+};
+}
+
 function create_entity(world) {
 if (world.Graveyard.length > 0) {
 return world.Graveyard.pop();
@@ -40152,7 +40170,7 @@ throw new Error("No more entities available.");
 return world.Signature.push(0) - 1;
 }
 function destroy_entity(world, entity) {
-if (world.Signature[entity] & 2 /* Children */) {
+if (world.Signature[entity] & 8 /* Children */) {
 for (let child of world.Children[entity].Children) {
 destroy_entity(world, child);
 }
@@ -40180,7 +40198,7 @@ for (let blueprint of blueprints) {
 let child = instantiate(game, blueprint);
 child_entities.push(child);
 }
-game.World.Signature[entity] |= 2 /* Children */;
+game.World.Signature[entity] |= 8 /* Children */;
 game.World.Children[entity] = {
 Children: child_entities,
 };
@@ -40198,7 +40216,7 @@ function* query_all(world, parent, mask) {
 if (world.Signature[parent] & mask) {
 yield parent;
 }
-if (world.Signature[parent] & 2 /* Children */) {
+if (world.Signature[parent] & 8 /* Children */) {
 for (let child of world.Children[parent].Children) {
 yield* query_all(world, child, mask);
 }
@@ -40216,7 +40234,7 @@ yield* query_all(world, child, mask);
 */
 function collide(dynamic, layers, mask, size = [1, 1, 1]) {
 return (game, entity) => {
-game.World.Signature[entity] |= 4 /* Collide */;
+game.World.Signature[entity] |= 16 /* Collide */;
 game.World.Collide[entity] = {
 Entity: entity,
 New: true,
@@ -40241,7 +40259,7 @@ game.World.Signature[entity] &= ~mask;
 
 function draw_selection$1(color) {
 return (game, entity) => {
-game.World.Signature[entity] |= 32 /* Draw */;
+game.World.Signature[entity] |= 128 /* Draw */;
 game.World.Draw[entity] = {
 Kind: 2 /* Selection */,
 Color: color,
@@ -40259,7 +40277,7 @@ Size: 0,
 */
 function move(move_speed, rotation_speed) {
 return (game, entity) => {
-game.World.Signature[entity] |= 512 /* Move */;
+game.World.Signature[entity] |= 2048 /* Move */;
 game.World.Move[entity] = {
 MoveSpeed: move_speed,
 RotationSpeed: rotation_speed,
@@ -40272,7 +40290,7 @@ SelfRotations: [],
 
 function nav_agent(territory_id) {
 return (game, entity) => {
-game.World.Signature[entity] |= 1024 /* NavAgent */;
+game.World.Signature[entity] |= 4096 /* NavAgent */;
 game.World.NavAgent[entity] = {
 TerritoryId: territory_id,
 Destination: null,
@@ -40284,7 +40302,7 @@ Actions: 1,
 
 function pickable_territory(mesh, color) {
 return (game, entity) => {
-game.World.Signature[entity] |= 2048 /* Pickable */;
+game.World.Signature[entity] |= 8192 /* Pickable */;
 game.World.Pickable[entity] = {
 Kind: 0 /* Territory */,
 Mesh: mesh,
@@ -40295,7 +40313,7 @@ Color: color,
 }
 function pickable_unit(color) {
 return (game, entity) => {
-game.World.Signature[entity] |= 2048 /* Pickable */;
+game.World.Signature[entity] |= 8192 /* Pickable */;
 game.World.Pickable[entity] = {
 Kind: 1 /* Unit */,
 Hover: false,
@@ -40487,6 +40505,18 @@ out[14] = (far + near) * nf;
 out[15] = 1;
 return out;
 }
+function get_up(out, mat) {
+out[0] = mat[4];
+out[1] = mat[5];
+out[2] = mat[6];
+return normalize(out, out);
+}
+function get_forward(out, mat) {
+out[0] = mat[8];
+out[1] = mat[9];
+out[2] = mat[10];
+return normalize(out, out);
+}
 function get_translation(out, mat) {
 out[0] = mat[12];
 out[1] = mat[13];
@@ -40660,7 +40690,7 @@ game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
 game.ExtVao.bindVertexArrayOES(null);
 colored_unlit_vaos.set(mesh, vao);
 }
-game.World.Signature[entity] |= 4096 /* Render */;
+game.World.Signature[entity] |= 16384 /* Render */;
 game.World.Render[entity] = {
 Kind: 0 /* ColoredUnlit */,
 Material: material,
@@ -40748,7 +40778,7 @@ game.Gl.vertexAttribPointer(material.Locations.VertexBitangent, 3, GL_FLOAT, fal
 game.ExtVao.bindVertexArrayOES(null);
 textured_mapped_vaos.set(mesh, vao);
 }
-game.World.Signature[entity] |= 4096 /* Render */;
+game.World.Signature[entity] |= 16384 /* Render */;
 game.World.Render[entity] = {
 Kind: 6 /* TexturedMapped */,
 Material: material,
@@ -40765,7 +40795,7 @@ ColorDiffuse: diffuse_color,
 
 function selectable() {
 return (game, entity) => {
-game.World.Signature[entity] |= 8192 /* Selectable */;
+game.World.Signature[entity] |= 32768 /* Selectable */;
 game.World.Selectable[entity] = {
 Selected: false,
 };
@@ -40774,7 +40804,7 @@ Selected: false,
 
 function team(Id) {
 return (game, entity) => {
-game.World.Signature[entity] |= 65536 /* Team */;
+game.World.Signature[entity] |= 262144 /* Team */;
 game.World.Team[entity] = {
 Id,
 };
@@ -40792,7 +40822,7 @@ territories[territory_id]++;
 return territories;
 }
 function units_entity_ids(game, team_id) {
-let QUERY = 65536 /* Team */ | 1024 /* NavAgent */;
+let QUERY = 262144 /* Team */ | 4096 /* NavAgent */;
 let units_entity_ids = [];
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY) === QUERY && game.World.Team[i].Id === team_id) {
@@ -40804,7 +40834,7 @@ return units_entity_ids;
 
 function transform(translation = [0, 0, 0], rotation = [0, 0, 0, 1], scale = [1, 1, 1]) {
 return (game, entity) => {
-game.World.Signature[entity] |= 32768 /* Transform */;
+game.World.Signature[entity] |= 131072 /* Transform */;
 game.World.Transform[entity] = {
 World: create(),
 Self: create(),
@@ -40824,14 +40854,14 @@ transform(translation),
 collide(true, 0 /* None */, 0 /* None */, [2, 6, 2]),
 nav_agent(territory_id),
 is_human_controlled ? move(10, 5) : move(20, 50),
-children([transform([0, 1, 0]), draw_selection$1("#ff0"), disable(32 /* Draw */)], [
+children([transform([0, 1, 0]), draw_selection$1("#ff0"), disable(128 /* Draw */)], [
 transform(),
 render_textured_mapped(game.MaterialTexturedMapped, mesh, game.Textures["Wood063_1K_Color.jpg"], game.Textures["Wood063_1K_Normal.jpg"], game.Textures["Wood063_1K_Roughness.jpg"], is_human_controlled ? undefined : color),
 ]),
 team(team_id),
 ];
 if (is_human_controlled) {
-blueprint.push(pickable_unit(color), selectable());
+blueprint.push(pickable_unit(color), selectable(), audio_source(false));
 }
 return blueprint;
 }
@@ -41070,7 +41100,7 @@ dispatch(game, 4 /* ResolveBattles */, {});
 break;
 }
 case 5 /* EndTurn */: {
-game.World.Signature[game.SunEntity] |= 8 /* ControlAlways */;
+game.World.Signature[game.SunEntity] |= 32 /* ControlAlways */;
 setTimeout(() => {
 let players_count = game.Players.length;
 let next_player = (players_count + game.CurrentPlayer + 1) % players_count;
@@ -41082,7 +41112,7 @@ game.IsAiTurn = game.Players[next_player].Type === 1 /* AI */;
 if (game.IsAiTurn) {
 game.AiActiveUnits = next_player_units.slice();
 }
-game.World.Signature[game.SunEntity] &= ~8 /* ControlAlways */;
+game.World.Signature[game.SunEntity] &= ~32 /* ControlAlways */;
 game.CurrentPlayer = next_player;
 dispatch(game, 0 /* StartDeployment */, {});
 }, 2000);
@@ -41113,7 +41143,7 @@ return 1 /* DefenceWon */;
 }
 }
 function remove_defeated_units(game, territory_id, team_id) {
-let QUERY = 65536 /* Team */ | 1024 /* NavAgent */;
+let QUERY = 262144 /* Team */ | 4096 /* NavAgent */;
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY) === QUERY &&
 game.World.NavAgent[i].TerritoryId === territory_id &&
@@ -82902,7 +82932,92 @@ function loop_stop() {
 cancelAnimationFrame(raf);
 }
 
-const QUERY$i = 32768 /* Transform */ | 1 /* Camera */;
+const QUERY$k = 1 /* AudioListener */ | 131072 /* Transform */;
+function sys_audio_listener(game, delta) {
+for (let i = 0; i < game.World.Signature.length; i++) {
+if ((game.World.Signature[i] & QUERY$k) === QUERY$k) {
+update$d(game, i);
+}
+}
+}
+let position$1 = [0, 0, 0];
+let forward$1 = [0, 0, 0];
+let up = [0, 0, 0];
+function update$d(game, entity) {
+let transform = game.World.Transform[entity];
+get_translation(position$1, transform.World);
+get_forward(forward$1, transform.World);
+get_up(up, transform.World);
+let listener = game.Audio.listener;
+if (listener.positionX) {
+
+listener.positionX.value = position$1[0];
+listener.positionY.value = position$1[1];
+listener.positionZ.value = position$1[2];
+listener.forwardX.value = forward$1[0];
+listener.forwardY.value = forward$1[1];
+listener.forwardZ.value = forward$1[2];
+listener.upX.value = up[0];
+listener.upY.value = up[1];
+listener.upZ.value = up[2];
+}
+else {
+
+listener.setPosition(...position$1);
+listener.setOrientation(...forward$1, ...up);
+}
+}
+
+function play_buffer(audio, panner, buffer) {
+let source = audio.createBufferSource();
+source.buffer = buffer;
+source.connect(audio.destination);
+if (panner) {
+source.connect(panner);
+panner.connect(audio.destination);
+}
+else {
+source.connect(audio.destination);
+}
+source.start();
+}
+
+const QUERY$j = 2 /* AudioSource */;
+function sys_audio_source(game, delta) {
+for (let i = 0; i < game.World.Signature.length; i++) {
+if ((game.World.Signature[i] & QUERY$j) === QUERY$j) {
+update$c(game, i);
+}
+}
+}
+let position = [0, 0, 0];
+let forward = [0, 0, 0];
+function update$c(game, entity, delta) {
+let audio_source = game.World.AudioSource[entity];
+if (audio_source.Panner) {
+let transform = game.World.Transform[entity];
+get_translation(position, transform.World);
+get_forward(forward, transform.World);
+audio_source.Panner.positionX.value = position[0];
+audio_source.Panner.positionY.value = position[1];
+audio_source.Panner.positionZ.value = position[2];
+audio_source.Panner.orientationX.value = forward[0];
+audio_source.Panner.orientationY.value = forward[1];
+audio_source.Panner.orientationZ.value = forward[2];
+}
+let can_exit = !audio_source.Current;
+if (audio_source.Trigger && can_exit) {
+play_buffer(game.Audio, audio_source.Panner, audio_source.Trigger);
+audio_source.Current = audio_source.Trigger;
+}
+
+
+
+
+audio_source.Trigger = audio_source.Idle;
+}
+
+const QUERY$i = 131072 /* Transform */ | 4 /* Camera */;
 function sys_camera(game, delta) {
 if (game.ViewportWidth != window.innerWidth || game.ViewportHeight != window.innerHeight) {
 game.ViewportWidth = game.CanvasScene.width = game.CanvasBillboard.width =
@@ -83035,7 +83150,7 @@ a.Min[2] < b.Max[2] &&
 a.Max[2] > b.Min[2]);
 }
 
-const QUERY$h = 32768 /* Transform */ | 4 /* Collide */;
+const QUERY$h = 131072 /* Transform */ | 16 /* Collide */;
 function sys_collide(game, delta) {
 
 let static_colliders = [];
@@ -83106,7 +83221,7 @@ function territory(continent, index, name = "") {
 return (game, entity) => {
 let id = continent * 10 + index;
 game.TerritoryEntities[id] = entity;
-game.World.Signature[entity] |= 16384 /* Territory */;
+game.World.Signature[entity] |= 65536 /* Territory */;
 game.World.Territory[entity] = {
 Continent: continent,
 Index: index,
@@ -83148,7 +83263,7 @@ let territory_transform = game.World.Transform[destination_territory_entity];
 return random_point_up_worldspace(territory_mesh, territory_transform.World);
 }
 
-const QUERY$g = 1024 /* NavAgent */ | 65536 /* Team */;
+const QUERY$g = 4096 /* NavAgent */ | 262144 /* Team */;
 function sys_control_ai(game, delta) {
 if (!game.IsAiTurn) {
 return;
@@ -83194,7 +83309,7 @@ agent.Destination = destination_worldspace;
 }
 }
 
-const QUERY$f = 8 /* ControlAlways */ | 32768 /* Transform */ | 512 /* Move */;
+const QUERY$f = 32 /* ControlAlways */ | 131072 /* Transform */ | 2048 /* Move */;
 function sys_control_always(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$f) === QUERY$f) {
@@ -83213,7 +83328,7 @@ move.LocalRotations.push(control.Rotation.slice());
 }
 }
 
-const QUERY$e = 16 /* ControlCamera */;
+const QUERY$e = 64 /* ControlCamera */;
 const INITIAL_CAMERA_Y = 40;
 function sys_control_camera(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
@@ -83225,7 +83340,7 @@ update$9(game, i);
 function update$9(game, entity) {
 let control = game.World.ControlCamera[entity];
 let transform = game.World.Transform[entity];
-if (game.World.Signature[entity] & 256 /* Mimic */) {
+if (game.World.Signature[entity] & 1024 /* Mimic */) {
 let mimic = game.World.Mimic[entity];
 let current_team_type = game.Players[game.CurrentPlayer].Type;
 switch (game.TurnPhase) {
@@ -83255,7 +83370,7 @@ game.CameraZoom = transform.Translation[1] / INITIAL_CAMERA_Y;
 }
 }
 
-const QUERY$d = 512 /* Move */ | 16 /* ControlCamera */;
+const QUERY$d = 2048 /* Move */ | 64 /* ControlCamera */;
 function sys_control_keyboard(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$d) === QUERY$d) {
@@ -83385,7 +83500,7 @@ out[3] = scale0 * aw + scale1 * bw;
 return out;
 }
 
-const QUERY$c = 512 /* Move */ | 16 /* ControlCamera */ | 32768 /* Transform */;
+const QUERY$c = 2048 /* Move */ | 64 /* ControlCamera */ | 131072 /* Transform */;
 const MOUSE_SENSITIVITY = 0.1;
 const ZOOM_FACTOR = 1.1;
 function sys_control_mouse(game, delta) {
@@ -83442,7 +83557,7 @@ transform.Dirty = true;
 }
 }
 
-const QUERY$b = 8192 /* Selectable */ | 1024 /* NavAgent */ | 65536 /* Team */;
+const QUERY$b = 32768 /* Selectable */ | 4096 /* NavAgent */ | 262144 /* Team */;
 function sys_control_player(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 let team = game.World.Team[i];
@@ -83505,14 +83620,14 @@ position: game.Picked.Point.slice(),
 }
 }
 
-const QUERY$a = 32768 /* Transform */ | 32 /* Draw */;
+const QUERY$a = 131072 /* Transform */ | 128 /* Draw */;
 function sys_draw(game, delta) {
 game.Context2D.resetTransform();
 game.Context2D.clearRect(0, 0, game.ViewportWidth, game.ViewportHeight);
 let position = [0, 0, 0];
 let display_camera = null;
 for (let i = 0; i < game.World.Signature.length; i++) {
-if (game.World.Signature[i] & 1 /* Camera */) {
+if (game.World.Signature[i] & 4 /* Camera */) {
 let camera = game.World.Camera[i];
 if (camera.Kind === 0 /* Display */) {
 display_camera = camera;
@@ -83591,7 +83706,7 @@ out[3] = a[3] * b;
 return out;
 }
 
-const QUERY$9 = 2048 /* Pickable */;
+const QUERY$9 = 8192 /* Pickable */;
 function sys_highlight(game, delta) {
 dispatch(game, 7 /* ClearTooltipText */, {});
 for (let i = 0; i < game.World.Signature.length; i++) {
@@ -83652,15 +83767,15 @@ else {
 copy(mesh_render.ColorDiffuse, pickable.Color);
 }
 if (selectable.Selected) {
-game.World.Signature[box_entity] |= 32 /* Draw */;
+game.World.Signature[box_entity] |= 128 /* Draw */;
 box_draw.Size = 80 / game.CameraZoom;
 }
 else {
-game.World.Signature[box_entity] &= ~32 /* Draw */;
+game.World.Signature[box_entity] &= ~128 /* Draw */;
 }
 }
 
-const QUERY$8 = 32768 /* Transform */ | 128 /* Light */;
+const QUERY$8 = 131072 /* Transform */ | 512 /* Light */;
 function sys_light(game, delta) {
 game.LightPositions.fill(0);
 game.LightDetails.fill(0);
@@ -83691,7 +83806,7 @@ game.LightDetails[4 * idx + 2] = light.Color[2];
 game.LightDetails[4 * idx + 3] = light.Intensity;
 }
 
-const QUERY$7 = 32768 /* Transform */ | 256 /* Mimic */;
+const QUERY$7 = 131072 /* Transform */ | 1024 /* Mimic */;
 function sys_mimic(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$7) === QUERY$7) {
@@ -83718,7 +83833,7 @@ follower_transform.Dirty = true;
 }
 }
 
-const QUERY$6 = 32768 /* Transform */ | 512 /* Move */;
+const QUERY$6 = 131072 /* Transform */ | 2048 /* Move */;
 const NO_ROTATION = [0, 0, 0, 1];
 function sys_move(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
@@ -83780,7 +83895,7 @@ function multiply_rotations(acc, cur) {
 return multiply(acc, acc, cur);
 }
 
-const QUERY$5 = 32768 /* Transform */ | 1024 /* NavAgent */ | 512 /* Move */;
+const QUERY$5 = 131072 /* Transform */ | 4096 /* NavAgent */ | 2048 /* Move */;
 function sys_nav(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$5) == QUERY$5) {
@@ -83950,8 +84065,8 @@ return { TriIndex: tri, Point: intersection };
 return null;
 }
 
-const QUERY$4 = 2048 /* Pickable */;
-const TARGET = 32768 /* Transform */ | 4 /* Collide */;
+const QUERY$4 = 8192 /* Pickable */;
+const TARGET = 131072 /* Transform */ | 16 /* Collide */;
 function sys_pick(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$4) == QUERY$4) {
@@ -83993,7 +84108,7 @@ let collider = hit_aabb.Collider;
 let entity = collider.Entity;
 
 let territories = territories_controlled_by_team(game, game.CurrentPlayer);
-for (let child of query_all(game.World, entity, 2048 /* Pickable */)) {
+for (let child of query_all(game.World, entity, 8192 /* Pickable */)) {
 let pickable = game.World.Pickable[child];
 if (pickable.Kind === 1 /* Unit */) {
 let current_territory_id = game.World.NavAgent[child].TerritoryId;
@@ -84038,7 +84153,7 @@ return;
 }
 }
 
-const QUERY$3 = 32768 /* Transform */ | 4096 /* Render */;
+const QUERY$3 = 131072 /* Transform */ | 16384 /* Render */;
 function sys_render_depth(game, delta) {
 for (let camera_entity of game.Cameras) {
 let camera = game.World.Camera[camera_entity];
@@ -84076,7 +84191,7 @@ game.Gl.drawElements(game.MaterialDepth.Mode, render.Mesh.IndexCount, GL_UNSIGNE
 game.ExtVao.bindVertexArrayOES(null);
 }
 
-const QUERY$2 = 32768 /* Transform */ | 4096 /* Render */;
+const QUERY$2 = 131072 /* Transform */ | 16384 /* Render */;
 function sys_render_forward(game, delta) {
 for (let camera_entity of game.Cameras) {
 let camera = game.World.Camera[camera_entity];
@@ -84291,7 +84406,7 @@ game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_S
 game.ExtVao.bindVertexArrayOES(null);
 }
 
-const QUERY$1 = 32768 /* Transform */ | 2048 /* Pickable */ | 8192 /* Selectable */ | 2 /* Children */;
+const QUERY$1 = 131072 /* Transform */ | 8192 /* Pickable */ | 32768 /* Selectable */ | 8 /* Children */;
 function sys_select(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$1) == QUERY$1) {
@@ -84311,6 +84426,7 @@ game.Selected = i;
 function update(game, entity) {
 var _a, _b;
 let selectable = game.World.Selectable[entity];
+let audio_source = game.World.AudioSource[entity];
 if (game.TurnPhase !== 1 /* Move */) {
 selectable.Selected = false;
 }
@@ -84319,6 +84435,7 @@ else if (game.InputDelta["Mouse0"] === -1 && game.InputState["Mouse0DownTraveled
 
 if (!selectable.Selected && ((_a = game.Picked) === null || _a === void 0 ? void 0 : _a.Entity) === entity) {
 selectable.Selected = true;
+audio_source.Trigger = game.Sounds["huh1.mp3"];
 }
 
 if (selectable.Selected && ((_b = game.Picked) === null || _b === void 0 ? void 0 : _b.Entity) !== entity) {
@@ -84327,7 +84444,7 @@ selectable.Selected = false;
 }
 }
 
-const QUERY = 32768 /* Transform */;
+const QUERY = 131072 /* Transform */;
 function sys_transform(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY) === QUERY) {
@@ -84346,10 +84463,10 @@ let parent_transform = world.Transform[transform.Parent];
 multiply$1(transform.World, parent_transform.World, transform.World);
 }
 invert(transform.Self, transform.World);
-if (world.Signature[entity] & 2 /* Children */) {
+if (world.Signature[entity] & 8 /* Children */) {
 let children = world.Children[entity];
 for (let child of children.Children) {
-if (world.Signature[child] & 32768 /* Transform */) {
+if (world.Signature[child] & 131072 /* Transform */) {
 let child_transform = world.Transform[child];
 child_transform.Parent = entity;
 update_transform(world, child, child_transform);
@@ -84377,6 +84494,8 @@ constructor() {
 this.Signature = [];
 this.Graveyard = [];
 
+this.AudioListener = [];
+this.AudioSource = [];
 this.Camera = [];
 this.Children = [];
 this.Collide = [];
@@ -84434,6 +84553,7 @@ this.Ui = document.querySelector("main");
 this.CanvasScene = document.querySelector("canvas#scene");
 this.Gl = this.CanvasScene.getContext("webgl");
 this.ExtVao = this.Gl.getExtension("OES_vertex_array_object");
+this.Audio = new (window["AudioContext"] || window.webkitAudioContext)();
 this.CanvasBillboard = document.querySelector("canvas#billboard");
 this.Context2D = this.CanvasBillboard.getContext("2d");
 this.MaterialDepth = mat1_depth(this.Gl);
@@ -84448,6 +84568,7 @@ this.MeshSoldier = mesh_soldier(this.Gl);
 this.MeshDragoon = mesh_dragoon(this.Gl);
 this.MeshCannon = mesh_cannon(this.Gl);
 this.Textures = {};
+this.Sounds = {};
 this.TerritoryMeshes = [];
 this.TerritoryGraph = {};
 this.TerritoryEntities = {};
@@ -84542,6 +84663,8 @@ sys_move(this, delta);
 sys_transform(this);
 sys_collide(this);
 
+sys_audio_listener(this);
+sys_audio_source(this);
 sys_camera(this);
 sys_light(this);
 sys_render_depth(this);
@@ -84554,7 +84677,7 @@ sys_framerate(this, delta, performance.now() - now);
 
 function camera_display_perspective(fovy, near, far, clear_color = [0.9, 0.9, 0.9, 1]) {
 return (game, entity) => {
-game.World.Signature[entity] |= 1 /* Camera */;
+game.World.Signature[entity] |= 4 /* Camera */;
 game.World.Camera[entity] = {
 Pv: create(),
 Position: [0, 0, 0],
@@ -84571,7 +84694,7 @@ ClearColor: clear_color,
 }
 function camera_framebuffer_ortho(target, radius, near, far, clear_color) {
 return (game, entity) => {
-game.World.Signature[entity] |= 1 /* Camera */;
+game.World.Signature[entity] |= 4 /* Camera */;
 game.World.Camera[entity] = {
 Pv: create(),
 Position: [0, 0, 0],
@@ -84590,7 +84713,7 @@ ClearColor: clear_color,
 
 function control_camera(move, zoom, yaw, pitch) {
 return (game, entity) => {
-game.World.Signature[entity] |= 16 /* ControlCamera */;
+game.World.Signature[entity] |= 64 /* ControlCamera */;
 game.World.ControlCamera[entity] = {
 Move: move,
 Zoom: zoom,
@@ -84602,7 +84725,7 @@ Pitch: pitch,
 
 function mimic(target, stiffness, position, rotation) {
 return (game, entity) => {
-game.World.Signature[entity] |= 256 /* Mimic */;
+game.World.Signature[entity] |= 1024 /* Mimic */;
 game.World.Mimic[entity] = {
 Target: target,
 Stiffness: stiffness,
@@ -84639,7 +84762,7 @@ fn(game, entity);
 
 function control_always(direction, rotation) {
 return (game, entity) => {
-game.World.Signature[entity] |= 8 /* ControlAlways */;
+game.World.Signature[entity] |= 32 /* ControlAlways */;
 game.World.ControlAlways[entity] = {
 Direction: direction,
 Rotation: rotation,
@@ -84649,7 +84772,7 @@ Rotation: rotation,
 
 function light_directional(color = [1, 1, 1], range = 1) {
 return (game, entity) => {
-game.World.Signature[entity] |= 128 /* Light */;
+game.World.Signature[entity] |= 512 /* Light */;
 game.World.Light[entity] = {
 Kind: 1 /* Directional */,
 Color: color,
@@ -84659,7 +84782,7 @@ Intensity: range ** 2,
 }
 function light_point(color = [1, 1, 1], range = 1) {
 return (game, entity) => {
-game.World.Signature[entity] |= 128 /* Light */;
+game.World.Signature[entity] |= 512 /* Light */;
 game.World.Light[entity] = {
 Kind: 2 /* Point */,
 Color: color,
@@ -84675,7 +84798,7 @@ children([
 callback((game, entity) => (game.SunEntity = entity)),
 transform(undefined, from_euler([0, 0, 0, 0], 0, 35, 0)),
 control_always(null, [0, -1, 0, 0]),
-disable(8 /* ControlAlways */),
+disable(32 /* ControlAlways */),
 move(0, 3.1),
 children(
 
@@ -84905,6 +85028,7 @@ load_texture(game, "Cardboard004_1K_Roughness.jpg"),
 load_texture(game, "Wood063_1K_Color.jpg"),
 load_texture(game, "Wood063_1K_Normal.jpg"),
 load_texture(game, "Wood063_1K_Roughness.jpg"),
+load_audio(game, "huh1.mp3"),
 ]).then(() => {
 scene_stage(game);
 loop_start(game);
@@ -84912,6 +85036,13 @@ loop_start(game);
 async function load_texture(game, name) {
 let image = await fetch_image("./textures/" + name);
 game.Textures[name] = create_texture_from(game.Gl, image);
+
+game.Ui.innerHTML += `Loading <code>${name}</code>... ✓<br>`;
+}
+async function load_audio(game, name) {
+let response = await fetch("./sounds/" + name);
+let arrayBuffer = await response.arrayBuffer();
+game.Sounds[name] = await game.Audio.decodeAudioData(arrayBuffer);
 
 game.Ui.innerHTML += `Loading <code>${name}</code>... ✓<br>`;
 }
