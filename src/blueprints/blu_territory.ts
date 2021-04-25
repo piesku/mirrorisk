@@ -1,7 +1,8 @@
-import {random_point_up_worldspace} from "../../common/material.js";
+import {random_point_up, random_point_up_worldspace} from "../../common/material.js";
 import {Vec3} from "../../common/math.js";
+import {children} from "../components/com_children.js";
 import {pickable_territory} from "../components/com_pickable.js";
-import {render_textured_mapped} from "../components/com_render1.js";
+import {render_colored_unlit, render_textured_mapped} from "../components/com_render1.js";
 import {Continent, territory} from "../components/com_territory.js";
 import {transform} from "../components/com_transform.js";
 import {Blueprint} from "../entity.js";
@@ -23,6 +24,14 @@ export function blueprint_territory(
     name: string = ""
 ): Blueprint {
     let mesh = game.TerritoryMeshes[continent][index - 1];
+
+    // The anchor entity is used by the camera to move a battle into view.
+    // XXX This relies on the fact that territories have an identity matrix as World.
+    let anchor_position = random_point_up(mesh);
+    if (!anchor_position) {
+        throw new Error("Territory without anchor is illegal.");
+    }
+
     return [
         transform(),
         pickable_territory(
@@ -40,6 +49,7 @@ export function blueprint_territory(
             game.Textures["Cardboard004_1K_Roughness.jpg"]
         ),
         territory(continent, index, name),
+        children([transform(anchor_position)]),
     ];
 }
 

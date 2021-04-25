@@ -1,4 +1,4 @@
-import {Entity, Game, PlayerType} from "../game.js";
+import {Entity, Game, PlayerType, TurnPhase} from "../game.js";
 import {Has} from "../world.js";
 
 const QUERY = Has.ControlCamera;
@@ -20,8 +20,24 @@ function update(game: Game, entity: Entity) {
         let mimic = game.World.Mimic[entity];
 
         let current_team_type = game.Players[game.CurrentPlayer].Type;
-        if (current_team_type === PlayerType.AI) {
-            mimic.Target = game.CurrentlyMovingAiUnit;
+        switch (game.TurnPhase) {
+            case TurnPhase.Deploy:
+                mimic.Target = null;
+            case TurnPhase.Move:
+                if (current_team_type === PlayerType.AI) {
+                    mimic.Target = game.CurrentlyMovingAiUnit;
+                } else {
+                    mimic.Target = null;
+                }
+                break;
+            case TurnPhase.Battle:
+                let territory_entity = game.CurrentlyFoughtOverTerritory;
+                if (territory_entity) {
+                    let territory_children = game.World.Children[territory_entity];
+                    mimic.Target = territory_children.Children[0];
+                } else {
+                    mimic.Target = null;
+                }
         }
     }
 

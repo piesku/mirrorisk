@@ -55,6 +55,12 @@ export const enum TurnPhase {
     Battle,
     Regroup,
 }
+
+interface BattleCallback {
+    TerritoryEntity: number;
+    Run: Function;
+}
+
 export class Game {
     World = new World();
 
@@ -77,10 +83,11 @@ export class Game {
 
     AiActiveUnits: Entity[] = [];
     CurrentlyMovingAiUnit: Entity | null = null;
+    CurrentlyFoughtOverTerritory: Entity | null = null;
     // TODO: EndTurn Actions sets this, so it will break if AI moves first
     IsAiTurn: boolean = false;
 
-    Battles: Function[] = [];
+    Battles: Array<BattleCallback> = [];
 
     TurnPhase: TurnPhase = TurnPhase.Deploy;
     UnitsToDeploy: number = 0;

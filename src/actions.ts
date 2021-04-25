@@ -100,37 +100,40 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
 
                 for (let j = 0; j < enemy_territory_ids.length; j++) {
                     if (current_player_territory_ids.includes(enemy_territory_ids[j])) {
-                        game.Battles.push(() => {
-                            let territory_name =
-                                game.World.Territory[game.TerritoryEntities[enemy_territory_ids[j]]]
-                                    .Name;
+                        let territory_id = enemy_territory_ids[j];
+                        let territory_entity = game.TerritoryEntities[territory_id];
+                        game.Battles.push({
+                            TerritoryEntity: territory_entity,
+                            Run: () => {
+                                let territory_name = game.World.Territory[territory_entity].Name;
 
-                            console.log(
-                                `Player ${game.CurrentPlayer} (${
-                                    current_player_territories[enemy_territory_ids[j]]
-                                } units) attacks Player ${i} (${
+                                console.log(
+                                    `Player ${game.CurrentPlayer} (${
+                                        current_player_territories[enemy_territory_ids[j]]
+                                    } units) attacks Player ${i} (${
+                                        enemy_territories[enemy_territory_ids[j]]
+                                    } units) in ${territory_name}.`
+                                );
+
+                                let battle_result = fight(
+                                    game,
+                                    current_player_territories[enemy_territory_ids[j]],
                                     enemy_territories[enemy_territory_ids[j]]
-                                } units) in ${territory_name}.`
-                            );
+                                );
 
-                            let battle_result = fight(
-                                game,
-                                current_player_territories[enemy_territory_ids[j]],
-                                enemy_territories[enemy_territory_ids[j]]
-                            );
+                                let looser;
+                                if (battle_result === BattleResult.AttackWon) {
+                                    console.log(`Player ${game.CurrentPlayer} won!`);
+                                    looser = i;
+                                } else {
+                                    console.log(`Player ${i} won!`);
+                                    looser = game.CurrentPlayer;
+                                }
 
-                            let looser;
-                            if (battle_result === BattleResult.AttackWon) {
-                                console.log(`Player ${game.CurrentPlayer} won!`);
-                                looser = i;
-                            } else {
-                                console.log(`Player ${i} won!`);
-                                looser = game.CurrentPlayer;
-                            }
-
-                            if (typeof looser !== undefined) {
-                                remove_defeated_units(game, enemy_territory_ids[j], looser);
-                            }
+                                if (typeof looser !== undefined) {
+                                    remove_defeated_units(game, enemy_territory_ids[j], looser);
+                                }
+                            },
                         });
                     }
                 }
@@ -149,7 +152,15 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             setTimeout(() => {
                 let battle = game.Battles.pop();
                 if (battle) {
-                    battle();
+                    // XXX This isn't currently reset anywhere. Instead,
+                    // sys_control_camera resets mimic.Target in the deploy
+                    // phase.
+                    game.CurrentlyFoughtOverTerritory = battle.TerritoryEntity;
+                    let scheduled_battle = battle;
+                    // Wait for the camera to move over the territory.
+                    setTimeout(() => {
+                        scheduled_battle.Run();
+                    }, 1000);
                 }
                 dispatch(game, Action.ResolveBattles, {});
             }, integer(500, 2000));
