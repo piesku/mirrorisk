@@ -2,7 +2,7 @@ import {create_depth_target, DepthTarget} from "../common/framebuffer.js";
 import {Mesh} from "../common/material.js";
 import {Vec4} from "../common/math.js";
 import {GL_CULL_FACE, GL_DEPTH_TEST} from "../common/webgl.js";
-import {mat1_colored_specular_phong} from "../materials/mat1_colored_specular_phong.js";
+import {mat1_colored_unlit_triangles} from "../materials/mat1_colored_unlit_triangles.js";
 import {mat1_depth} from "../materials/mat1_depth.js";
 import {mat1_textured_mapped} from "../materials/mat1_textured_mapped.js";
 import {mat1_textured_specular_phong} from "../materials/mat1_textured_specular_phong.js";
@@ -106,7 +106,7 @@ export class Game {
     Context2D = this.CanvasBillboard.getContext("2d")!;
 
     MaterialDepth = mat1_depth(this.Gl);
-    MaterialColoredSpecular = mat1_colored_specular_phong(this.Gl);
+    MaterialBasic = mat1_colored_unlit_triangles(this.Gl);
     MaterialTexturedSpecular = mat1_textured_specular_phong(this.Gl);
     MaterialTexturedMapped = mat1_textured_mapped(this.Gl);
     MeshCube = mesh_cube(this.Gl);

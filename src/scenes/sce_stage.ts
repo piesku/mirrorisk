@@ -7,7 +7,7 @@ import {blueprint_unit} from "../blueprints/blu_unit.js";
 import {children} from "../components/com_children.js";
 import {collide} from "../components/com_collide.js";
 import {light_directional, light_point} from "../components/com_light.js";
-import {render_textured_specular} from "../components/com_render1.js";
+import {render_colored_unlit, render_textured_specular} from "../components/com_render1.js";
 import {Continent} from "../components/com_territory.js";
 import {transform} from "../components/com_transform.js";
 import {instantiate} from "../entity.js";
@@ -81,19 +81,7 @@ export function scene_stage(game: Game) {
     instantiate(game, [transform([-1, 1, -1]), light_directional([1, 1, 1], 0.2)]);
 
     // Lamp.
-    false && instantiate(game, [transform([-100, 100, -100]), light_point([1, 1, 0.9], 60)]);
-
-    // Table
-    // instantiate(game, [
-    //     transform([0, -222, 0], from_euler([0, 0, 0, 0], 0, 15, 0), [300, 300, 300]),
-    //     render_textured_mapped(
-    //         game.MaterialTexturedMapped,
-    //         game.MeshTable,
-    //         game.Textures["Wood054_1K_Color.jpg"],
-    //         game.Textures["Wood054_1K_Normal.jpg"],
-    //         game.Textures["Wood054_1K_Roughness.jpg"]
-    //     ),
-    // ]);
+    instantiate(game, [transform([-100, 100, -100]), light_point([1, 1, 0.9], 40)]);
 
     // Board background.
     instantiate(game, [
@@ -105,6 +93,10 @@ export function scene_stage(game: Game) {
             1,
             [1, 1, 1, 1]
         ),
+        children([
+            transform(undefined, [1, 0, 0, 0]),
+            render_colored_unlit(game.MaterialBasic, game.MeshPlane, [0, 0, 0, 1]),
+        ]),
     ]);
 
     // World map.
