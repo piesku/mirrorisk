@@ -11,11 +11,13 @@ export function sys_deploy(game: Game, delta: number) {
     }
     if (game.IsAiTurn) {
         for (let i = 0; i < game.UnitsToDeploy; i++) {
-            // setTimeout(() => {
             let deploy_to = element(game.CurrentPlayerTerritories);
             dispatch(game, Action.DeployUnit, {territory_id: deploy_to});
-            // }, )
         }
+
+        setTimeout(() => {
+            dispatch(game, Action.EndDeployment, {});
+        }, 1500);
     } else {
         if (game.InputDelta["Mouse0"] === 1 && game.Picked) {
             let territory = game.World.Territory[game.Picked.Entity];
