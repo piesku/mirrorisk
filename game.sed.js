@@ -83255,7 +83255,99 @@ move.SelfRotations.push([1, 0, 0, 0]);
 }
 }
 
-const QUERY$c = 512 /* Move */ | 16 /* ControlCamera */;
+const EPSILON = 0.000001;
+const DEG_TO_RAD = Math.PI / 180;
+
+function multiply(out, a, b) {
+let ax = a[0], ay = a[1], az = a[2], aw = a[3];
+let bx = b[0], by = b[1], bz = b[2], bw = b[3];
+out[0] = ax * bw + aw * bx + ay * bz - az * by;
+out[1] = ay * bw + aw * by + az * bx - ax * bz;
+out[2] = az * bw + aw * bz + ax * by - ay * bx;
+out[3] = aw * bw - ax * bx - ay * by - az * bz;
+return out;
+}
+/**
+* Compute a quaternion out of three Euler angles given in degrees. The order of rotation is YXZ.
+* @param out Quaternion to write to.
+* @param x Rotation about the X axis, in degrees.
+* @param y Rotation around the Y axis, in degress.
+* @param z Rotation around the Z axis, in degress.
+*/
+function from_euler(out, x, y, z) {
+let sx = Math.sin((x / 2) * DEG_TO_RAD);
+let cx = Math.cos((x / 2) * DEG_TO_RAD);
+let sy = Math.sin((y / 2) * DEG_TO_RAD);
+let cy = Math.cos((y / 2) * DEG_TO_RAD);
+let sz = Math.sin((z / 2) * DEG_TO_RAD);
+let cz = Math.cos((z / 2) * DEG_TO_RAD);
+out[0] = sx * cy * cz + cx * sy * sz;
+out[1] = cx * sy * cz - sx * cy * sz;
+out[2] = cx * cy * sz - sx * sy * cz;
+out[3] = cx * cy * cz + sx * sy * sz;
+return out;
+}
+/**
+* Compute a quaternion from an axis and an angle of rotation around the axis.
+* @param out Quaternion to write to.
+* @param axis Axis of rotation.
+* @param angle Rotation in radians.
+*/
+function from_axis(out, axis, angle) {
+let half = angle / 2;
+out[0] = Math.sin(half) * axis[0];
+out[1] = Math.sin(half) * axis[1];
+out[2] = Math.sin(half) * axis[2];
+out[3] = Math.cos(half);
+return out;
+}
+/**
+* Performs a spherical linear interpolation between two quat
+*
+* @param out - the receiving quaternion
+* @param a - the first operand
+* @param b - the second operand
+* @param t - interpolation amount, in the range [0-1], between the two inputs
+*/
+function slerp(out, a, b, t) {
+
+
+let ax = a[0], ay = a[1], az = a[2], aw = a[3];
+let bx = b[0], by = b[1], bz = b[2], bw = b[3];
+let omega, cosom, sinom, scale0, scale1;
+
+cosom = ax * bx + ay * by + az * bz + aw * bw;
+
+if (cosom < 0.0) {
+cosom = -cosom;
+bx = -bx;
+by = -by;
+bz = -bz;
+bw = -bw;
+}
+
+if (1.0 - cosom > EPSILON) {
+
+omega = Math.acos(cosom);
+sinom = Math.sin(omega);
+scale0 = Math.sin((1.0 - t) * omega) / sinom;
+scale1 = Math.sin(t * omega) / sinom;
+}
+else {
+
+
+scale0 = 1.0 - t;
+scale1 = t;
+}
+
+out[0] = scale0 * ax + scale1 * bx;
+out[1] = scale0 * ay + scale1 * by;
+out[2] = scale0 * az + scale1 * bz;
+out[3] = scale0 * aw + scale1 * bw;
+return out;
+}
+
+const QUERY$c = 512 /* Move */ | 16 /* ControlCamera */ | 32768 /* Transform */;
 const MOUSE_SENSITIVITY = 0.1;
 const ZOOM_FACTOR = 1.1;
 function sys_control_mouse(game, delta) {
@@ -83265,10 +83357,13 @@ update$7(game, i);
 }
 }
 }
+const axis_x = [1, 0, 0];
+const axis_y = [0, 1, 0];
+const rotation = [0, 0, 0, 0];
 function update$7(game, entity) {
 let control = game.World.ControlCamera[entity];
 let move = game.World.Move[entity];
-if (control.Move && game.InputState["MousePressedTraveled"] > 10) {
+if (control.Move && game.InputState["Mouse0DownTraveled"] > 10) {
 move.MoveSpeed = control.Move * game.CameraZoom ** ZOOM_FACTOR;
 if (game.InputDelta["MouseX"]) {
 let amount = game.InputDelta["MouseX"] * MOUSE_SENSITIVITY;
@@ -83282,6 +83377,30 @@ move.Directions.push([0, 0, amount]);
 if (control.Zoom && game.InputDelta["WheelY"]) {
 move.MoveSpeed = control.Zoom * game.CameraZoom ** ZOOM_FACTOR;
 move.Directions.push([0, 0, game.InputDelta["WheelY"]]);
+}
+if (control.Yaw && game.InputState["Mouse2DownTraveled"] > 10 && game.InputDelta["MouseX"]) {
+
+let amount = game.InputDelta["MouseX"] * control.Yaw;
+
+
+
+
+
+from_axis(rotation, axis_y, -amount * DEG_TO_RAD);
+let transform = game.World.Transform[entity];
+
+
+multiply(transform.Rotation, rotation, transform.Rotation);
+transform.Dirty = true;
+}
+if (control.Pitch && game.InputState["Mouse2DownTraveled"] > 10 && game.InputDelta["MouseY"]) {
+let amount = game.InputDelta["MouseY"] * control.Pitch;
+from_axis(rotation, axis_x, amount * DEG_TO_RAD);
+let transform = game.World.Transform[entity];
+
+
+multiply(transform.Rotation, transform.Rotation, rotation);
+transform.Dirty = true;
 }
 }
 
@@ -83300,7 +83419,10 @@ update$6(game, i);
 }
 function update$6(game, entity) {
 let agent = game.World.NavAgent[entity];
-if (game.InputDelta["Mouse2"] === 1 && game.Picked && agent.Actions > 0) {
+if (game.InputDelta["Mouse2"] === -1 &&
+game.InputState["Mouse2DownTraveled"] < 10 &&
+game.Picked &&
+agent.Actions > 0) {
 let territory_entity = game.Picked.Entity;
 let territory = game.World.Territory[territory_entity];
 if (agent.TerritoryId !== territory.Id) {
@@ -83328,7 +83450,7 @@ dispatch(game, 1 /* EndDeployment */, {});
 }
 else {
 if (game.InputDelta["Mouse0"] === -1 &&
-game.InputState["MousePressedTraveled"] < 10 &&
+game.InputState["Mouse0DownTraveled"] < 10 &&
 game.Picked) {
 let territory = game.World.Territory[game.Picked.Entity];
 if (territory && game.CurrentPlayerTerritories.includes(territory.Id)) {
@@ -83525,84 +83647,6 @@ game.LightDetails[4 * idx + 0] = light.Color[0];
 game.LightDetails[4 * idx + 1] = light.Color[1];
 game.LightDetails[4 * idx + 2] = light.Color[2];
 game.LightDetails[4 * idx + 3] = light.Intensity;
-}
-
-const EPSILON = 0.000001;
-const DEG_TO_RAD = Math.PI / 180;
-
-function multiply(out, a, b) {
-let ax = a[0], ay = a[1], az = a[2], aw = a[3];
-let bx = b[0], by = b[1], bz = b[2], bw = b[3];
-out[0] = ax * bw + aw * bx + ay * bz - az * by;
-out[1] = ay * bw + aw * by + az * bx - ax * bz;
-out[2] = az * bw + aw * bz + ax * by - ay * bx;
-out[3] = aw * bw - ax * bx - ay * by - az * bz;
-return out;
-}
-/**
-* Compute a quaternion out of three Euler angles given in degrees. The order of rotation is YXZ.
-* @param out Quaternion to write to.
-* @param x Rotation about the X axis, in degrees.
-* @param y Rotation around the Y axis, in degress.
-* @param z Rotation around the Z axis, in degress.
-*/
-function from_euler(out, x, y, z) {
-let sx = Math.sin((x / 2) * DEG_TO_RAD);
-let cx = Math.cos((x / 2) * DEG_TO_RAD);
-let sy = Math.sin((y / 2) * DEG_TO_RAD);
-let cy = Math.cos((y / 2) * DEG_TO_RAD);
-let sz = Math.sin((z / 2) * DEG_TO_RAD);
-let cz = Math.cos((z / 2) * DEG_TO_RAD);
-out[0] = sx * cy * cz + cx * sy * sz;
-out[1] = cx * sy * cz - sx * cy * sz;
-out[2] = cx * cy * sz - sx * sy * cz;
-out[3] = cx * cy * cz + sx * sy * sz;
-return out;
-}
-/**
-* Performs a spherical linear interpolation between two quat
-*
-* @param out - the receiving quaternion
-* @param a - the first operand
-* @param b - the second operand
-* @param t - interpolation amount, in the range [0-1], between the two inputs
-*/
-function slerp(out, a, b, t) {
-
-
-let ax = a[0], ay = a[1], az = a[2], aw = a[3];
-let bx = b[0], by = b[1], bz = b[2], bw = b[3];
-let omega, cosom, sinom, scale0, scale1;
-
-cosom = ax * bx + ay * by + az * bz + aw * bw;
-
-if (cosom < 0.0) {
-cosom = -cosom;
-bx = -bx;
-by = -by;
-bz = -bz;
-bw = -bw;
-}
-
-if (1.0 - cosom > EPSILON) {
-
-omega = Math.acos(cosom);
-sinom = Math.sin(omega);
-scale0 = Math.sin((1.0 - t) * omega) / sinom;
-scale1 = Math.sin(t * omega) / sinom;
-}
-else {
-
-
-scale0 = 1.0 - t;
-scale1 = t;
-}
-
-out[0] = scale0 * ax + scale1 * bx;
-out[1] = scale0 * ay + scale1 * by;
-out[2] = scale0 * az + scale1 * bz;
-out[3] = scale0 * aw + scale1 * bw;
-return out;
 }
 
 const QUERY$7 = 32768 /* Transform */ | 256 /* Mimic */;
@@ -84226,7 +84270,7 @@ let selectable = game.World.Selectable[entity];
 if (game.TurnPhase !== 1 /* Move */) {
 selectable.Selected = false;
 }
-else if (game.InputDelta["Mouse0"] === -1 && game.InputState["MousePressedTraveled"] < 10) {
+else if (game.InputDelta["Mouse0"] === -1 && game.InputState["Mouse0DownTraveled"] < 10) {
 
 
 if (!selectable.Selected && ((_a = game.Picked) === null || _a === void 0 ? void 0 : _a.Entity) === entity) {
@@ -84318,7 +84362,9 @@ this.ViewportResized = false;
 this.InputState = {
 MouseX: 0,
 MouseY: 0,
-MousePressedTraveled: 0,
+Mouse0DownTraveled: 0,
+Mouse1DownTraveled: 0,
+Mouse2DownTraveled: 0,
 };
 this.InputDelta = {
 MouseX: 0,
@@ -84402,14 +84448,27 @@ this.Gl.enable(GL_DEPTH_TEST);
 this.Gl.enable(GL_CULL_FACE);
 }
 FrameSetup() {
+let traveled = Math.abs(this.InputDelta["MouseX"] + this.InputDelta["MouseY"]);
 if (this.InputState["Mouse0"] === 1) {
-this.InputState["MousePressedTraveled"] += Math.abs(this.InputDelta["MouseX"] + this.InputDelta["MouseY"]);
+this.InputState["Mouse0DownTraveled"] += traveled;
+}
+if (this.InputState["Mouse1"] === 1) {
+this.InputState["Mouse1DownTraveled"] += traveled;
+}
+if (this.InputState["Mouse2"] === 1) {
+this.InputState["Mouse2DownTraveled"] += traveled;
 }
 }
 FrameReset() {
 this.ViewportResized = false;
 if (this.InputDelta["Mouse0"] === -1) {
-this.InputState["MousePressedTraveled"] = 0;
+this.InputState["Mouse0DownTraveled"] = 0;
+}
+if (this.InputDelta["Mouse1"] === -1) {
+this.InputState["Mouse1DownTraveled"] = 0;
+}
+if (this.InputDelta["Mouse2"] === -1) {
+this.InputState["Mouse2DownTraveled"] = 0;
 }
 for (let name in this.InputDelta) {
 this.InputDelta[name] = 0;
@@ -84510,16 +84569,16 @@ Rotation: rotation,
 
 function blueprint_camera(game) {
 return [
-control_camera(100, 0, true, false),
+control_camera(100, 0, 1, 0),
 mimic(null, 0.1, true, false),
 move(100, 0.5),
 children([
 transform(undefined, from_euler([0, 0, 0, 0], -30, 0, 0)),
-control_camera(0, 0, false, true),
+control_camera(0, 0, 0, 1),
 move(0, 0.5),
 children([
 transform([0, 40, 0], from_euler([0, 0, 0, 0], -90, 180, 0)),
-control_camera(0, 200, false, false),
+control_camera(0, 200, 0, 0),
 move(200, 0),
 camera_display_perspective(1, 1, 10000),
 ]),
