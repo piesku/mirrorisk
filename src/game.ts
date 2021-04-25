@@ -72,6 +72,7 @@ export class Game {
     InputState: Record<string, number> = {
         MouseX: 0,
         MouseY: 0,
+        MousePressedTraveled: 0,
     };
     InputDelta: Record<string, number> = {
         MouseX: 0,
@@ -191,16 +192,19 @@ export class Game {
     FrameUpdate(delta: number) {
         let now = performance.now();
 
-        // User input.
+        // Camera controls.
+        sys_control_camera(this, delta);
+        sys_control_keyboard(this, delta);
+        sys_control_mouse(this, delta);
+
+        // Picking and selection.
         sys_pick(this, delta);
         sys_select(this, delta);
         sys_highlight(this, delta);
 
+        // Orders.
         sys_control_ai(this, delta);
-        sys_control_camera(this, delta);
         sys_control_player(this, delta);
-        sys_control_keyboard(this, delta);
-        sys_control_mouse(this, delta);
         sys_deploy(this, delta);
 
         // AI.
