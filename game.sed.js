@@ -82798,6 +82798,7 @@ function loop_start(game) {
 let last = performance.now();
 let tick = (now) => {
 let delta = (now - last) / 1000;
+game.FrameSetup();
 game.FrameUpdate(delta);
 game.FrameReset();
 last = now;
@@ -83205,12 +83206,6 @@ const QUERY$c = 512 /* Move */ | 16 /* ControlCamera */;
 const MOUSE_SENSITIVITY = 0.1;
 const ZOOM_FACTOR = 1.1;
 function sys_control_mouse(game, delta) {
-if (game.InputState["Mouse0"] === 1) {
-game.InputState["MousePressedTraveled"] += Math.abs(game.InputDelta["MouseX"] + game.InputDelta["MouseY"]);
-}
-if (game.InputDelta["Mouse0"] === -1) {
-game.InputState["MousePressedTraveled"] = 0;
-}
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$c) === QUERY$c) {
 update$7(game, i);
@@ -84173,7 +84168,9 @@ game.Selected = i;
 function update(game, entity) {
 var _a, _b;
 let selectable = game.World.Selectable[entity];
-if (game.TurnPhase === 1 /* Move */ && game.InputDelta["Mouse0"] === -1) {
+if (game.TurnPhase === 1 /* Move */ &&
+game.InputDelta["Mouse0"] === -1 &&
+game.InputState["MousePressedTraveled"] < 10) {
 
 
 if (!selectable.Selected && ((_a = game.Picked) === null || _a === void 0 ? void 0 : _a.Entity) === entity) {
@@ -84341,8 +84338,16 @@ Sun: create_depth_target(this.Gl, 2048, 2048),
 this.Gl.enable(GL_DEPTH_TEST);
 this.Gl.enable(GL_CULL_FACE);
 }
+FrameSetup() {
+if (this.InputState["Mouse0"] === 1) {
+this.InputState["MousePressedTraveled"] += Math.abs(this.InputDelta["MouseX"] + this.InputDelta["MouseY"]);
+}
+}
 FrameReset() {
 this.ViewportResized = false;
+if (this.InputDelta["Mouse0"] === -1) {
+this.InputState["MousePressedTraveled"] = 0;
+}
 for (let name in this.InputDelta) {
 this.InputDelta[name] = 0;
 }
