@@ -40989,9 +40989,15 @@ Piesku&#10094;R&#10095; Mirrorisk
                 }
                 let { territory_id, position } = payload;
                 if (position) {
-                    let territory_name = game.World.Territory[game.TerritoryEntities[territory_id]].Name;
+                    let territory_entity_id = game.TerritoryEntities[territory_id];
+                    let territory_name = game.World.Territory[territory_entity_id].Name;
                     Logger(game, `Deploying one unit to ${territory_name} (Player ${game.CurrentPlayer})`);
-                    instantiate(game, blueprint_unit(game, position, territory_id, game.MeshSoldier, game.CurrentPlayer));
+                    let deployed_unit_entity = instantiate(game, blueprint_unit(game, [position[0], -5, position[2]], territory_id, game.MeshSoldier, game.CurrentPlayer));
+                    game.World.NavAgent[deployed_unit_entity].Destination = [
+                        position[0],
+                        position[1] + 1,
+                        position[2],
+                    ];
                 }
                 game.UnitsDeployed++;
                 break;
