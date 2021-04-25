@@ -1,3 +1,4 @@
+import {element} from "../../common/random.js";
 import {Entity, Game, TurnPhase} from "../game.js";
 import {Has} from "../world.js";
 
@@ -21,6 +22,8 @@ export function sys_select(game: Game, delta: number) {
     }
 }
 
+const select_sfx = ["huh1.mp3", "huh2.mp3", "huh3.mp3", "huh4.mp3", "huh5.mp3"];
+
 function update(game: Game, entity: Entity) {
     let selectable = game.World.Selectable[entity];
     let audio_source = game.World.AudioSource[entity];
@@ -30,14 +33,15 @@ function update(game: Game, entity: Entity) {
     } else if (game.InputDelta["Mouse0"] === -1 && game.InputState["Mouse0DownTraveled"] < 10) {
         // When the user clicks…
 
-        // …select.
-        if (!selectable.Selected && game.Picked?.Entity === entity) {
-            selectable.Selected = true;
-            audio_source.Trigger = game.Sounds["huh1.mp3"];
-        }
+        if (game.Picked?.Entity === entity) {
+            audio_source.Trigger = game.Sounds[element(select_sfx)];
 
-        // …deselect.
-        if (selectable.Selected && game.Picked?.Entity !== entity) {
+            if (!selectable.Selected) {
+                // …select.
+                selectable.Selected = true;
+            }
+        } else if (selectable.Selected) {
+            // …deselect.
             selectable.Selected = false;
         }
     }

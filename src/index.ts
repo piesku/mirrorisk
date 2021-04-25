@@ -151,6 +151,10 @@ Promise.all([
     load_texture(game, "Wood063_1K_Roughness.jpg"),
 
     load_audio(game, "huh1.mp3"),
+    load_audio(game, "huh2.mp3"),
+    load_audio(game, "huh3.mp3"),
+    load_audio(game, "huh4.mp3"),
+    load_audio(game, "huh5.mp3"),
 ]).then(() => {
     scene_stage(game);
     loop_start(game);

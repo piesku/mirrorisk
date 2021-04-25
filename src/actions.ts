@@ -215,6 +215,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
         }
 
         case Action.ClearAlert: {
+            game.Audio.resume();
             game.AlertText = null;
             break;
         }

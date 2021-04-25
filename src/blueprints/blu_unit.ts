@@ -48,7 +48,7 @@ export function blueprint_unit(
     ];
 
     if (is_human_controlled) {
-        blueprint.push(pickable_unit(color), selectable(), audio_source(false));
+        blueprint.push(pickable_unit(color), selectable(), audio_source(true));
     }
 
     return blueprint;

@@ -33,10 +33,13 @@ function update(game: Game, entity: Entity, delta: number) {
         audio_source.Panner.orientationZ.value = forward[2];
     }
 
-    let can_exit = !audio_source.Current;
+    let can_exit = !audio_source.Current || audio_source.Time > audio_source.Current.duration;
     if (audio_source.Trigger && can_exit) {
         play_buffer(game.Audio, audio_source.Panner, audio_source.Trigger);
         audio_source.Current = audio_source.Trigger;
+        audio_source.Time = 0;
+    } else {
+        audio_source.Time += delta;
     }
 
     // Audio triggers are only valid in the frame they're set; they don't stack
