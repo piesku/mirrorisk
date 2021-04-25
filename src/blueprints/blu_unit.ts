@@ -28,7 +28,7 @@ export function blueprint_unit(
         transform(translation),
         collide(true, Layer.None, Layer.None, [2, 6, 2]),
         nav_agent(territory_id),
-        is_human_controlled ? move(10, 5) : move(100, 50),
+        is_human_controlled ? move(10, 5) : move(20, 50),
         children(
             [transform(), draw_selection("#ff0"), disable(Has.Draw)],
             [

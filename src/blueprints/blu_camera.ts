@@ -2,6 +2,7 @@ import {from_euler} from "../../common/quat.js";
 import {camera_display_perspective} from "../components/com_camera.js";
 import {children} from "../components/com_children.js";
 import {control_player} from "../components/com_control_player.js";
+import {mimic} from "../components/com_mimic.js";
 import {move} from "../components/com_move.js";
 import {transform} from "../components/com_transform.js";
 import {Blueprint} from "../entity.js";
@@ -10,6 +11,7 @@ import {Game} from "../game.js";
 export function blueprint_camera(game: Game): Blueprint {
     return [
         control_player(true, true, false, false),
+        mimic(null, 0.1, true, false),
         move(100, 0.5),
         children([
             transform(),

@@ -17,6 +17,7 @@ import {sys_camera} from "./systems/sys_camera.js";
 import {sys_collide} from "./systems/sys_collide.js";
 import {sys_control_ai} from "./systems/sys_control_ai.js";
 import {sys_control_always} from "./systems/sys_control_always.js";
+import {sys_control_camera} from "./systems/sys_control_camera.js";
 import {sys_control_keyboard} from "./systems/sys_control_keyboard.js";
 import {sys_control_mouse} from "./systems/sys_control_mouse.js";
 import {sys_control_pick} from "./systems/sys_control_pick.js";
@@ -25,6 +26,7 @@ import {sys_draw} from "./systems/sys_draw.js";
 import {sys_framerate} from "./systems/sys_framerate.js";
 import {sys_highlight} from "./systems/sys_highlight.js";
 import {sys_light} from "./systems/sys_light.js";
+import {sys_mimic} from "./systems/sys_mimic.js";
 import {sys_move} from "./systems/sys_move.js";
 import {sys_nav} from "./systems/sys_nav.js";
 import {Picked, sys_pick} from "./systems/sys_pick.js";
@@ -183,7 +185,9 @@ export class Game {
         sys_pick(this, delta);
         sys_select(this, delta);
         sys_highlight(this, delta);
+
         sys_control_ai(this, delta);
+        sys_control_camera(this, delta);
         sys_control_pick(this, delta);
         sys_control_keyboard(this, delta);
         sys_control_mouse(this, delta);
@@ -194,6 +198,7 @@ export class Game {
 
         // Game logic.
         sys_nav(this, delta);
+        sys_mimic(this, delta);
         sys_move(this, delta);
         sys_transform(this, delta);
         sys_collide(this, delta);
