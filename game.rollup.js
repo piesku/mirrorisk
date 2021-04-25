@@ -40852,6 +40852,29 @@
         return strings.reduce((out, cur) => out + shift(values) + cur);
     }
 
+    let alertWidth = 300;
+    function AlertWindow(game) {
+        if (!game.AlertText) {
+            return "";
+        }
+        return html `<div
+        class="window"
+        style="width: ${alertWidth}px;position: absolute; left: ${(window.innerWidth - alertWidth) /
+        2}px"
+    >
+        <div class="title-bar">
+            <div class="title-bar-text">Alert</div>
+            <div class="title-bar-controls">
+                <button aria-label="Close"></button>
+            </div>
+        </div>
+        <div class="window-body">
+            <p>${game.AlertText}</p>
+            <button style="cursor:pointer" onclick="$(${8 /* ClearAlert */})">Close</button>
+        </div>
+    </div>`;
+    }
+
     function LogWindow(game) {
         return html `<div
         class="window"
@@ -40931,25 +40954,30 @@ Piesku&#10094;R&#10095; Mirrorisk
     }
 
     function App(game) {
-        return html ` ${Toolbar(game)} ${Tooltip(game)} ${LogWindow(game)}`;
+        return html ` ${Toolbar(game)} ${Tooltip(game)} ${LogWindow(game)} ${AlertWindow(game)}`;
     }
-    function Alert(game, text) {
+    function Logger(game, text) {
         // alert(text);
         game.Logs += `${text}<br/>`;
+    }
+    function Alert(game, text) {
+        game.AlertText = text;
     }
 
     function dispatch(game, action, payload) {
         switch (action) {
             case 0 /* StartDeployment */: {
                 game.Battles = [];
-                Alert(game, `Player ${game.CurrentPlayer} turn`);
+                Logger(game, `Player ${game.CurrentPlayer} turn`);
                 game.CurrentPlayerTerritories = Object.keys(territories_controlled_by_team(game, game.CurrentPlayer)).map((e) => parseInt(e, 10));
                 for (let i = 0; i < game.Players.length; i++) {
-                    Alert(game, `Player ${i} controlls ${Object.keys(territories_controlled_by_team(game, i)).length} territories`);
+                    Logger(game, `Player ${i} controlls ${Object.keys(territories_controlled_by_team(game, i)).length} territories`);
                 }
                 // XXX: Add continent bonus here
                 let units_to_deploy = Math.max(~~(game.CurrentPlayerTerritories.length / 3), 3);
-                Alert(game, `Select territories to deploy ${units_to_deploy} units.`);
+                if (!game.IsAiTurn) {
+                    Alert(game, `Select territories to deploy ${units_to_deploy} units.`);
+                }
                 game.TurnPhase = 0 /* Deploy */;
                 game.UnitsDeployed = 0;
                 game.UnitsToDeploy = units_to_deploy;
@@ -40962,7 +40990,7 @@ Piesku&#10094;R&#10095; Mirrorisk
                 let { territory_id, position } = payload;
                 if (position) {
                     let territory_name = game.World.Territory[game.TerritoryEntities[territory_id]].Name;
-                    Alert(game, `Deploying one unit to ${territory_name} (Player ${game.CurrentPlayer})`);
+                    Logger(game, `Deploying one unit to ${territory_name} (Player ${game.CurrentPlayer})`);
                     instantiate(game, blueprint_unit(game, position, territory_id, game.MeshSoldier, game.CurrentPlayer));
                 }
                 game.UnitsDeployed++;
@@ -40991,15 +41019,15 @@ Piesku&#10094;R&#10095; Mirrorisk
                                 TerritoryEntity: territory_entity,
                                 Run: () => {
                                     let territory_name = game.World.Territory[territory_entity].Name;
-                                    Alert(game, `Player ${game.CurrentPlayer} (${current_player_territories[enemy_territory_ids[j]]} units) attacks Player ${i} (${enemy_territories[enemy_territory_ids[j]]} units) in ${territory_name}.`);
+                                    Logger(game, `Player ${game.CurrentPlayer} (${current_player_territories[enemy_territory_ids[j]]} units) attacks Player ${i} (${enemy_territories[enemy_territory_ids[j]]} units) in ${territory_name}.`);
                                     let battle_result = fight(game, current_player_territories[enemy_territory_ids[j]], enemy_territories[enemy_territory_ids[j]]);
                                     let looser;
                                     if (battle_result === 0 /* AttackWon */) {
-                                        Alert(game, `Player ${game.CurrentPlayer} won!`);
+                                        Logger(game, `Player ${game.CurrentPlayer} won!`);
                                         looser = i;
                                     }
                                     else {
-                                        Alert(game, `Player ${i} won!`);
+                                        Logger(game, `Player ${i} won!`);
                                         looser = game.CurrentPlayer;
                                     }
                                     if (typeof looser !== undefined) {
@@ -41061,6 +41089,10 @@ Piesku&#10094;R&#10095; Mirrorisk
             }
             case 7 /* ClearTooltipText */: {
                 game.TooltipText = null;
+                break;
+            }
+            case 8 /* ClearAlert */: {
+                game.AlertText = null;
                 break;
             }
         }
@@ -84371,6 +84403,7 @@ Piesku&#10094;R&#10095; Mirrorisk
                 MouseY: 0,
             };
             this.Logs = "";
+            this.AlertText = null;
             this.CurrentPlayer = 0;
             this.Players = [];
             this.CurrentPlayerTerritories = [];
