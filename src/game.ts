@@ -80,6 +80,7 @@ export class Game {
     };
 
     Logs: string = "";
+    AlertText: string | null = null;
     CurrentPlayer = 0;
     Players: Player[] = [];
     CurrentPlayerTerritories: Entity[] = [];

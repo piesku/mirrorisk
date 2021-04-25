@@ -4,9 +4,8 @@ import {blueprint_unit} from "./blueprints/blu_unit.js";
 import {territories_controlled_by_team, units_entity_ids} from "./components/com_team.js";
 import {destroy_entity, instantiate} from "./entity.js";
 import {Game, PlayerType, TurnPhase} from "./game.js";
-import {Alert} from "./ui/App.js";
+import {Alert, Logger} from "./ui/App.js";
 import {Has} from "./world.js";
-
 export const enum Action {
     StartDeployment,
     EndDeployment,
@@ -16,19 +15,20 @@ export const enum Action {
     EndTurn,
     ShowTooltipText,
     ClearTooltipText,
+    ClearAlert,
 }
 
 export function dispatch(game: Game, action: Action, payload: unknown) {
     switch (action) {
         case Action.StartDeployment: {
             game.Battles = [];
-            Alert(game, `Player ${game.CurrentPlayer} turn`);
+            Logger(game, `Player ${game.CurrentPlayer} turn`);
             game.CurrentPlayerTerritories = Object.keys(
                 territories_controlled_by_team(game, game.CurrentPlayer)
             ).map((e) => parseInt(e, 10));
 
             for (let i = 0; i < game.Players.length; i++) {
-                Alert(
+                Logger(
                     game,
                     `Player ${i} controlls ${
                         Object.keys(territories_controlled_by_team(game, i)).length
@@ -37,7 +37,9 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             }
             // XXX: Add continent bonus here
             let units_to_deploy = Math.max(~~(game.CurrentPlayerTerritories.length / 3), 3);
-            Alert(game, `Select territories to deploy ${units_to_deploy} units.`);
+            if (!game.IsAiTurn) {
+                Alert(game, `Select territories to deploy ${units_to_deploy} units.`);
+            }
 
             game.TurnPhase = TurnPhase.Deploy;
             game.UnitsDeployed = 0;
@@ -54,7 +56,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             if (position) {
                 let territory_name =
                     game.World.Territory[game.TerritoryEntities[territory_id]].Name;
-                Alert(
+                Logger(
                     game,
                     `Deploying one unit to ${territory_name} (Player ${game.CurrentPlayer})`
                 );
@@ -109,7 +111,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                             Run: () => {
                                 let territory_name = game.World.Territory[territory_entity].Name;
 
-                                Alert(
+                                Logger(
                                     game,
                                     `Player ${game.CurrentPlayer} (${
                                         current_player_territories[enemy_territory_ids[j]]
@@ -126,10 +128,10 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
 
                                 let looser;
                                 if (battle_result === BattleResult.AttackWon) {
-                                    Alert(game, `Player ${game.CurrentPlayer} won!`);
+                                    Logger(game, `Player ${game.CurrentPlayer} won!`);
                                     looser = i;
                                 } else {
-                                    Alert(game, `Player ${i} won!`);
+                                    Logger(game, `Player ${i} won!`);
                                     looser = game.CurrentPlayer;
                                 }
 
@@ -203,6 +205,11 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
 
         case Action.ClearTooltipText: {
             game.TooltipText = null;
+            break;
+        }
+
+        case Action.ClearAlert: {
+            game.AlertText = null;
             break;
         }
     }
