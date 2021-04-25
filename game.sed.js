@@ -40123,47 +40123,6 @@ let index_arr$6 = Uint16Array.from([
 0, 42, 32
 ]);
 
-function dispatch(game, action, payload) {
-switch (action) {
-case 0 /* EndTurn */: {
-game.World.Signature[game.SunEntity] |= 8 /* ControlAlways */;
-setTimeout(() => {
-let players_count = game.Players.length;
-let next_player = (players_count + game.CurrentPlayer + 1) % players_count;
-let next_player_units = game.PlayerUnits[next_player];
-for (let i = 0; i < next_player_units.length; i++) {
-game.World.NavAgent[next_player_units[i]].Actions = 1;
-}
-game.IsAiTurn = game.Players[next_player] === 1 /* AI */;
-if (game.IsAiTurn) {
-game.AiActiveUnits = next_player_units.slice();
-}
-game.World.Signature[game.SunEntity] &= ~8 /* ControlAlways */;
-game.CurrentPlayer = next_player;
-}, 2000);
-break;
-}
-}
-}
-
-function create_depth_target(gl, width, height) {
-let target = {
-Framebuffer: gl.createFramebuffer(),
-Width: width,
-Height: height,
-ColorTexture: resize_texture_rgba(gl, gl.createTexture(), width, height),
-DepthTexture: resize_texture_depth(gl, gl.createTexture(), width, height),
-};
-gl.bindFramebuffer(GL_FRAMEBUFFER, target.Framebuffer);
-gl.framebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, target.DepthTexture, 0);
-gl.framebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, target.ColorTexture, 0);
-let status = gl.checkFramebufferStatus(GL_FRAMEBUFFER);
-if (status != GL_FRAMEBUFFER_COMPLETE) {
-throw new Error(`Failed to set up the framebuffer (${status}).`);
-}
-return target;
-}
-
 let seed = 1;
 function set_seed(new_seed) {
 seed = 198706 * new_seed;
@@ -40538,6 +40497,627 @@ subtract(edge1, [vertices[b * 3 + 0], vertices[b * 3 + 1], vertices[b * 3 + 2]],
 subtract(edge2, [vertices[c * 3 + 0], vertices[c * 3 + 1], vertices[c * 3 + 2]], [vertices[b * 3 + 0], vertices[b * 3 + 1], vertices[b * 3 + 2]]);
 let product = cross([0, 0, 0], edge2, edge1);
 return normalize(product, product);
+}
+
+function pickable_territory(mesh, color_idle, color_hover, color_ready, color_selected) {
+return (game, entity) => {
+game.World.Signature[entity] |= 1024 /* Pickable */;
+game.World.Pickable[entity] = {
+Kind: 0 /* Territory */,
+Mesh: mesh,
+Hover: false,
+ColorIdle: color_idle,
+ColorHover: color_hover,
+ColorReady: color_ready,
+ColorSelected: color_selected,
+};
+};
+}
+function pickable_unit(color_idle, color_hover, color_selected) {
+return (game, entity) => {
+game.World.Signature[entity] |= 1024 /* Pickable */;
+game.World.Pickable[entity] = {
+Kind: 1 /* Unit */,
+Hover: false,
+ColorIdle: color_idle,
+ColorHover: color_hover,
+ColorReady: color_selected,
+ColorSelected: color_selected,
+};
+};
+}
+
+let textured_specular_vaos = new WeakMap();
+function render_textured_specular(material, mesh, diffuse_map, shininess = 1, diffuse_color = [1, 1, 1, 1], specular_color = [1, 1, 1, 1]) {
+return (game, entity) => {
+if (!textured_specular_vaos.has(mesh)) {
+
+let vao = game.ExtVao.createVertexArrayOES();
+game.ExtVao.bindVertexArrayOES(vao);
+game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.VertexBuffer);
+game.Gl.enableVertexAttribArray(material.Locations.VertexPosition);
+game.Gl.vertexAttribPointer(material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
+game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.NormalBuffer);
+game.Gl.enableVertexAttribArray(material.Locations.VertexNormal);
+game.Gl.vertexAttribPointer(material.Locations.VertexNormal, 3, GL_FLOAT, false, 0, 0);
+game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.TexCoordBuffer);
+game.Gl.enableVertexAttribArray(material.Locations.VertexTexCoord);
+game.Gl.vertexAttribPointer(material.Locations.VertexTexCoord, 2, GL_FLOAT, false, 0, 0);
+game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
+game.ExtVao.bindVertexArrayOES(null);
+textured_specular_vaos.set(mesh, vao);
+}
+game.World.Signature[entity] |= 2048 /* Render */;
+game.World.Render[entity] = {
+Kind: 5 /* TexturedSpecular */,
+Material: material,
+Mesh: mesh,
+FrontFace: GL_CW,
+Vao: textured_specular_vaos.get(mesh),
+DiffuseMap: diffuse_map,
+ColorDiffuse: diffuse_color,
+ColorSpecular: specular_color,
+Shininess: shininess,
+};
+};
+}
+let textured_mapped_vaos = new WeakMap();
+function render_textured_mapped(material, mesh, diffuse_map, normal_map, roughness_map, diffuse_color = [1, 1, 1, 1]) {
+return (game, entity) => {
+if (!textured_mapped_vaos.has(mesh)) {
+
+let vao = game.ExtVao.createVertexArrayOES();
+game.ExtVao.bindVertexArrayOES(vao);
+game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.VertexBuffer);
+game.Gl.enableVertexAttribArray(material.Locations.VertexPosition);
+game.Gl.vertexAttribPointer(material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
+game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.NormalBuffer);
+game.Gl.enableVertexAttribArray(material.Locations.VertexNormal);
+game.Gl.vertexAttribPointer(material.Locations.VertexNormal, 3, GL_FLOAT, false, 0, 0);
+game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.TexCoordBuffer);
+game.Gl.enableVertexAttribArray(material.Locations.VertexTexCoord);
+game.Gl.vertexAttribPointer(material.Locations.VertexTexCoord, 2, GL_FLOAT, false, 0, 0);
+game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
+let tangent_arr = new Float32Array(mesh.NormalArray.length);
+let bitangent_arr = new Float32Array(mesh.NormalArray.length);
+for (let i = 0; i < mesh.IndexCount; i += 3) {
+let v0 = mesh.IndexArray[i + 0];
+let v1 = mesh.IndexArray[i + 1];
+let v2 = mesh.IndexArray[i + 2];
+let p0 = [
+mesh.VertexArray[v0 * 3 + 0],
+mesh.VertexArray[v0 * 3 + 1],
+mesh.VertexArray[v0 * 3 + 2],
+];
+let p1 = [
+mesh.VertexArray[v1 * 3 + 0],
+mesh.VertexArray[v1 * 3 + 1],
+mesh.VertexArray[v1 * 3 + 2],
+];
+let p2 = [
+mesh.VertexArray[v2 * 3 + 0],
+mesh.VertexArray[v2 * 3 + 1],
+mesh.VertexArray[v2 * 3 + 2],
+];
+let edge1 = subtract([0, 0, 0], p1, p0);
+let edge2 = subtract([0, 0, 0], p2, p0);
+let delta_u1 = mesh.TexCoordArray[v1 * 2 + 0] - mesh.TexCoordArray[v0 * 2 + 0];
+let delta_v1 = mesh.TexCoordArray[v1 * 2 + 1] - mesh.TexCoordArray[v0 * 2 + 1];
+let delta_u2 = mesh.TexCoordArray[v2 * 2 + 0] - mesh.TexCoordArray[v0 * 2 + 0];
+let delta_v2 = mesh.TexCoordArray[v2 * 2 + 1] - mesh.TexCoordArray[v0 * 2 + 1];
+let r = 1 / (delta_u1 * delta_v2 - delta_u2 * delta_v1);
+let tangent = [
+r * (delta_v2 * edge1[0] - delta_v1 * edge2[0]),
+r * (delta_v2 * edge1[1] - delta_v1 * edge2[1]),
+r * (delta_v2 * edge1[2] - delta_v1 * edge2[2]),
+];
+let bitangent = [
+r * (-delta_u2 * edge1[0] + delta_u1 * edge2[0]),
+r * (-delta_u2 * edge1[1] + delta_u1 * edge2[1]),
+r * (-delta_u2 * edge1[2] + delta_u1 * edge2[2]),
+];
+normalize(tangent, tangent);
+tangent_arr.set(tangent, v0 * 2);
+tangent_arr.set(tangent, v1 * 2);
+tangent_arr.set(tangent, v2 * 2);
+normalize(bitangent, bitangent);
+bitangent_arr.set(bitangent, v0 * 2);
+bitangent_arr.set(bitangent, v1 * 2);
+bitangent_arr.set(bitangent, v2 * 2);
+}
+let tangent_buf = game.Gl.createBuffer();
+game.Gl.bindBuffer(GL_ARRAY_BUFFER, tangent_buf);
+game.Gl.bufferData(GL_ARRAY_BUFFER, tangent_arr, GL_STATIC_DRAW);
+game.Gl.enableVertexAttribArray(material.Locations.VertexTangent);
+game.Gl.vertexAttribPointer(material.Locations.VertexTangent, 3, GL_FLOAT, false, 0, 0);
+let bitangent_buf = game.Gl.createBuffer();
+game.Gl.bindBuffer(GL_ARRAY_BUFFER, bitangent_buf);
+game.Gl.bufferData(GL_ARRAY_BUFFER, bitangent_arr, GL_STATIC_DRAW);
+game.Gl.enableVertexAttribArray(material.Locations.VertexBitangent);
+game.Gl.vertexAttribPointer(material.Locations.VertexBitangent, 3, GL_FLOAT, false, 0, 0);
+game.ExtVao.bindVertexArrayOES(null);
+textured_mapped_vaos.set(mesh, vao);
+}
+game.World.Signature[entity] |= 2048 /* Render */;
+game.World.Render[entity] = {
+Kind: 6 /* TexturedMapped */,
+Material: material,
+Mesh: mesh,
+FrontFace: GL_CW,
+Vao: textured_mapped_vaos.get(mesh),
+DiffuseMap: diffuse_map,
+NormalMap: normal_map,
+RoughnessMap: roughness_map,
+ColorDiffuse: diffuse_color,
+};
+};
+}
+
+function territory(continent, index, name = "") {
+return (game, entity) => {
+let id = continent * 10 + index;
+game.TerritoryEntities[id] = entity;
+game.World.Signature[entity] |= 8192 /* Territory */;
+game.World.Territory[entity] = {
+Continent: continent,
+Index: index,
+Id: id,
+Name: name,
+};
+};
+}
+
+function transform(translation = [0, 0, 0], rotation = [0, 0, 0, 1], scale = [1, 1, 1]) {
+return (game, entity) => {
+game.World.Signature[entity] |= 16384 /* Transform */;
+game.World.Transform[entity] = {
+World: create(),
+Self: create(),
+Translation: translation,
+Rotation: rotation,
+Scale: scale,
+Dirty: true,
+};
+};
+}
+
+const textures_by_continent = {
+[0 /* Europe */]: "euau.webp",
+[1 /* Africa */]: "afsa.webp",
+[2 /* Australia */]: "euau.webp",
+[4 /* SouthAmerica */]: "afsa.webp",
+[3 /* NorthAmerica */]: "na.webp",
+[5 /* Asia */]: "as.webp",
+};
+function blueprint_territory(game, continent, index, name = "") {
+let mesh = game.TerritoryMeshes[continent][index - 1];
+return [
+transform(),
+pickable_territory(mesh, [1.2, 1.2, 1.2, 1], [2, 2, 2, 1], [1.2, 1.5, 1.2, 1], [2, 1.2, 1.2, 1]),
+render_textured_mapped(game.MaterialTexturedMapped, mesh, game.Textures[textures_by_continent[continent]], game.Textures["Cardboard004_1K_Normal.jpg"], game.Textures["Cardboard004_1K_Roughness.jpg"]),
+territory(continent, index, name),
+];
+}
+function get_coord_by_territory_id(game, territory_id) {
+let destination_territory_entity = game.TerritoryEntities[territory_id];
+let territory = game.World.Territory[destination_territory_entity];
+let territory_mesh = game.TerritoryMeshes[territory.Continent][territory.Index - 1];
+let territory_transform = game.World.Transform[destination_territory_entity];
+return random_point_up_worldspace(territory_mesh, territory_transform.World);
+}
+
+function create_entity(world) {
+if (world.Graveyard.length > 0) {
+return world.Graveyard.pop();
+}
+if (DEBUG && world.Signature.length > 10000) {
+throw new Error("No more entities available.");
+}
+
+return world.Signature.push(0) - 1;
+}
+function destroy_entity(world, entity) {
+if (world.Signature[entity] & 2 /* Children */) {
+for (let child of world.Children[entity].Children) {
+destroy_entity(world, child);
+}
+}
+world.Signature[entity] = 0;
+if (DEBUG && world.Graveyard.includes(entity)) {
+throw new Error("Entity already in graveyard.");
+}
+world.Graveyard.push(entity);
+}
+function instantiate(game, blueprint) {
+let entity = create_entity(game.World);
+for (let mixin of blueprint) {
+if (mixin) {
+mixin(game, entity);
+}
+}
+return entity;
+}
+
+function children(...blueprints) {
+return (game, entity) => {
+let child_entities = [];
+for (let blueprint of blueprints) {
+let child = instantiate(game, blueprint);
+child_entities.push(child);
+}
+game.World.Signature[entity] |= 2 /* Children */;
+game.World.Children[entity] = {
+Children: child_entities,
+};
+};
+}
+/**
+* Yield entities matching a component mask. The query is tested against the
+* parent and all its descendants.
+*
+* @param world World object which stores the component data.
+* @param parent Parent entity to traverse.
+* @param mask Component mask to look for.
+*/
+function* query_all(world, parent, mask) {
+if (world.Signature[parent] & mask) {
+yield parent;
+}
+if (world.Signature[parent] & 2 /* Children */) {
+for (let child of world.Children[parent].Children) {
+yield* query_all(world, child, mask);
+}
+}
+}
+
+/**
+* Add the Collide component.
+*
+* @param dynamic Dynamic colliders collider with all colliders. Static
+* colliders collide only with dynamic colliders.
+* @param layers Bit field with layers this collider is on.
+* @param mask Bit mask with layers visible to this collider.
+* @param size Size of the collider relative to the entity's transform.
+*/
+function collide(dynamic, layers, mask, size = [1, 1, 1]) {
+return (game, entity) => {
+game.World.Signature[entity] |= 4 /* Collide */;
+game.World.Collide[entity] = {
+Entity: entity,
+New: true,
+Dynamic: dynamic,
+Layers: layers,
+Signature: mask,
+Size: size,
+Min: [0, 0, 0],
+Max: [0, 0, 0],
+Center: [0, 0, 0],
+Half: [0, 0, 0],
+Collisions: [],
+};
+};
+}
+
+function control_player(move, yaw, pitch, zoom) {
+return (game, entity) => {
+game.World.Signature[entity] |= 16 /* ControlPlayer */;
+game.World.ControlPlayer[entity] = {
+Move: move,
+Yaw: yaw,
+Pitch: pitch,
+Zoom: zoom,
+};
+};
+}
+
+function disable(mask) {
+return (game, entity) => {
+game.World.Signature[entity] &= ~mask;
+};
+}
+
+function draw_selection$1(color) {
+return (game, entity) => {
+game.World.Signature[entity] |= 32 /* Draw */;
+game.World.Draw[entity] = {
+Kind: 2 /* Selection */,
+Color: color,
+};
+};
+}
+
+/**
+* The Move mixin.
+*
+* @param move_speed - Movement speed in units per second.
+* @param rotation_speed - Rotation speed, in radians per second.
+*/
+function move(move_speed, rotation_speed) {
+return (game, entity) => {
+game.World.Signature[entity] |= 256 /* Move */;
+game.World.Move[entity] = {
+MoveSpeed: move_speed,
+RotationSpeed: rotation_speed,
+Directions: [],
+LocalRotations: [],
+SelfRotations: [],
+};
+};
+}
+
+function nav_agent(territory_id) {
+return (game, entity) => {
+game.World.Signature[entity] |= 512 /* NavAgent */;
+game.World.NavAgent[entity] = {
+TerritoryId: territory_id,
+Destination: null,
+
+Actions: 1,
+};
+};
+}
+
+function selectable() {
+return (game, entity) => {
+game.World.Signature[entity] |= 4096 /* Selectable */;
+game.World.Selectable[entity] = {
+Selected: false,
+};
+};
+}
+
+function team(Id) {
+return (game, entity) => {
+game.World.Signature[entity] |= 32768 /* Team */;
+game.World.Team[entity] = {
+Id,
+};
+};
+}
+function territories_controlled_by_team(game, team_id) {
+let territories = {};
+let team_units = units_entity_ids(game, team_id);
+for (let i = 0; i < team_units.length; i++) {
+let entity = team_units[i];
+let territory_id = game.World.NavAgent[entity].TerritoryId;
+territories[territory_id] = territories[territory_id] || 0;
+territories[territory_id]++;
+}
+return territories;
+}
+function units_entity_ids(game, team_id) {
+let QUERY = 32768 /* Team */ | 512 /* NavAgent */;
+let units_entity_ids = [];
+for (let i = 0; i < game.World.Signature.length; i++) {
+if ((game.World.Signature[i] & QUERY) === QUERY && game.World.Team[i].Id === team_id) {
+units_entity_ids.push(i);
+}
+}
+return units_entity_ids;
+}
+
+function blueprint_unit(game, translation, territory_id, mesh = game.MeshSoldier, team_id) {
+let color = game.Players[team_id].Color.slice();
+let is_human_controlled = game.Players[team_id].Type === 0 /* Human */;
+let blueprint = [
+transform(translation),
+collide(true, 0 /* None */, 0 /* None */, [2, 6, 2]),
+nav_agent(territory_id),
+is_human_controlled ? move(10, 5) : move(100, 50),
+control_player(false, false, false, false),
+children([transform(), draw_selection$1("#ff0"), disable(32 /* Draw */)], [
+transform(),
+render_textured_mapped(game.MaterialTexturedMapped, mesh, game.Textures["Wood063_1K_Color.jpg"], game.Textures["Wood063_1K_Normal.jpg"], game.Textures["Wood063_1K_Roughness.jpg"], color),
+]),
+team(team_id),
+];
+if (is_human_controlled) {
+blueprint.push(pickable_unit(color, [1, 0.5, 0, 1], [1, 0, 0, 1]), selectable(), disable(16 /* ControlPlayer */));
+}
+return blueprint;
+}
+
+function shift(values) {
+let value = values.shift();
+if (typeof value === "boolean" || value == undefined) {
+return "";
+}
+else if (Array.isArray(value)) {
+return value.join("");
+}
+else {
+return value;
+}
+}
+function html(strings, ...values) {
+return strings.reduce((out, cur) => out + shift(values) + cur);
+}
+
+function Toolbar(game) {
+switch (game.TurnPhase) {
+case 0 /* Deploy */: {
+return html `<div>Deployed ${game.UnitsDeployed} out of ${game.UnitsToDeploy} units</div>
+<button onclick="$(${1 /* EndDeployment */})" ${(game.IsAiTurn || game.UnitsDeployed !== game.UnitsToDeploy) && "disabled=disabled"}">
+End Deployment
+</button>`;
+}
+case 1 /* Move */: {
+return html `<div>Current Player: ${game.CurrentPlayer} (${game.IsAiTurn ? "AI" : "Human"})</div>
+<button onclick="$(${3 /* SetupBattles */})" ${game.IsAiTurn && "disabled=disabled"}">
+End turn & Resolve Battles
+</button>`;
+}
+}
+}
+
+function Tooltip(game) {
+return html `<div
+style="position:absolute; bottom:0; color: black; font-size: 20px; background: white"
+>
+${game.TooltipText}
+</div>`;
+}
+
+function App(game) {
+return html ` ${Toolbar(game)} ${Tooltip(game)} `;
+}
+function Alert(text) {
+
+console.log(text);
+}
+
+function dispatch(game, action, payload) {
+switch (action) {
+case 0 /* StartDeployment */: {
+game.Battles = [];
+console.log("Deployment, player ", game.CurrentPlayer, `AI? ${game.IsAiTurn}`);
+game.CurrentPlayerTerritories = Object.keys(territories_controlled_by_team(game, game.CurrentPlayer)).map((e) => parseInt(e, 10));
+for (let i = 0; i < game.Players.length; i++) {
+console.log(`Player ${i} controlls ${Object.keys(territories_controlled_by_team(game, i)).length} territories`);
+}
+
+let units_to_deploy = Math.max(~~(game.CurrentPlayerTerritories.length / 3), 3);
+Alert(`Select territories to deploy ${units_to_deploy} units.`);
+game.TurnPhase = 0 /* Deploy */;
+game.UnitsDeployed = 0;
+game.UnitsToDeploy = units_to_deploy;
+break;
+}
+case 2 /* DeployUnit */: {
+if (game.UnitsDeployed === game.UnitsToDeploy) {
+return;
+}
+let { territory_id } = payload;
+let translation = get_coord_by_territory_id(game, territory_id);
+if (translation) {
+let territory_name = game.World.Territory[game.TerritoryEntities[territory_id]].Name;
+console.log(`Deploying one unit to ${territory_name} (Player ${game.CurrentPlayer})`);
+instantiate(game, blueprint_unit(game, translation, territory_id, game.MeshSoldier, game.CurrentPlayer));
+}
+game.UnitsDeployed++;
+break;
+}
+case 1 /* EndDeployment */: {
+game.TurnPhase = 1 /* Move */;
+game.UnitsDeployed = 0;
+break;
+}
+case 3 /* SetupBattles */: {
+game.TurnPhase = 2 /* Battle */;
+let current_player_territories = territories_controlled_by_team(game, game.CurrentPlayer);
+let current_player_territory_ids = Object.keys(current_player_territories).map((e) => parseInt(e, 10));
+for (let i = 0; i < game.Players.length; i++) {
+if (i === game.CurrentPlayer) {
+continue;
+}
+let enemy_territories = territories_controlled_by_team(game, i);
+let enemy_territory_ids = Object.keys(enemy_territories).map((e) => parseInt(e, 10));
+for (let j = 0; j < enemy_territory_ids.length; j++) {
+if (current_player_territory_ids.includes(enemy_territory_ids[j])) {
+game.Battles.push(() => {
+let territory_name = game.World.Territory[game.TerritoryEntities[enemy_territory_ids[j]]]
+.Name;
+console.log(`Player ${game.CurrentPlayer} (${current_player_territories[enemy_territory_ids[j]]} units) attacks Player ${i} (${enemy_territories[enemy_territory_ids[j]]} units) in ${territory_name}.`);
+let battle_result = fight(game, current_player_territories[enemy_territory_ids[j]], enemy_territories[enemy_territory_ids[j]]);
+let looser;
+if (battle_result === 0 /* AttackWon */) {
+console.log(`Player ${game.CurrentPlayer} won!`);
+looser = i;
+}
+else {
+console.log(`Player ${i} won!`);
+looser = game.CurrentPlayer;
+}
+if (typeof looser !== undefined) {
+remove_defeated_units(game, enemy_territory_ids[j], looser);
+}
+});
+}
+}
+}
+dispatch(game, 4 /* ResolveBattles */, {});
+break;
+}
+case 4 /* ResolveBattles */: {
+if (game.Battles.length === 0) {
+dispatch(game, 5 /* EndTurn */, {});
+return;
+}
+setTimeout(() => {
+let battle = game.Battles.pop();
+if (battle) {
+battle();
+}
+dispatch(game, 4 /* ResolveBattles */, {});
+}, integer(500, 2000));
+break;
+}
+case 5 /* EndTurn */: {
+game.World.Signature[game.SunEntity] |= 8 /* ControlAlways */;
+setTimeout(() => {
+let players_count = game.Players.length;
+let next_player = (players_count + game.CurrentPlayer + 1) % players_count;
+let next_player_units = units_entity_ids(game, next_player);
+for (let i = 0; i < next_player_units.length; i++) {
+game.World.NavAgent[next_player_units[i]].Actions = 1;
+}
+game.IsAiTurn = game.Players[next_player].Type === 1 /* AI */;
+if (game.IsAiTurn) {
+game.AiActiveUnits = next_player_units.slice();
+}
+game.World.Signature[game.SunEntity] &= ~8 /* ControlAlways */;
+game.CurrentPlayer = next_player;
+dispatch(game, 0 /* StartDeployment */, {});
+}, 2000);
+break;
+}
+case 6 /* ShowTooltipText */: {
+game.TooltipText = payload;
+
+break;
+}
+case 7 /* ClearTooltipText */: {
+game.TooltipText = null;
+break;
+}
+}
+}
+function fight(game, attacking_units, defending_units) {
+
+if (float(0, 1) < 0.5) {
+return 0 /* AttackWon */;
+}
+else {
+return 1 /* DefenceWon */;
+}
+}
+function remove_defeated_units(game, territory_id, team_id) {
+let QUERY = 32768 /* Team */ | 512 /* NavAgent */;
+for (let i = 0; i < game.World.Signature.length; i++) {
+if ((game.World.Signature[i] & QUERY) === QUERY &&
+game.World.NavAgent[i].TerritoryId === territory_id &&
+game.World.Team[i].Id === team_id) {
+destroy_entity(game.World, i);
+}
+}
+}
+
+function create_depth_target(gl, width, height) {
+let target = {
+Framebuffer: gl.createFramebuffer(),
+Width: width,
+Height: height,
+ColorTexture: resize_texture_rgba(gl, gl.createTexture(), width, height),
+DepthTexture: resize_texture_depth(gl, gl.createTexture(), width, height),
+};
+gl.bindFramebuffer(GL_FRAMEBUFFER, target.Framebuffer);
+gl.framebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, target.DepthTexture, 0);
+gl.framebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, target.ColorTexture, 0);
+let status = gl.checkFramebufferStatus(GL_FRAMEBUFFER);
+if (status != GL_FRAMEBUFFER_COMPLETE) {
+throw new Error(`Failed to set up the framebuffer (${status}).`);
+}
+return target;
 }
 
 let vertex$3 = `
@@ -62609,34 +63189,46 @@ Hit: negate([0, 0, 0], hit),
 
 const QUERY$e = 512 /* NavAgent */ | 32768 /* Team */;
 function sys_control_ai(game, delta) {
+if (!game.IsAiTurn) {
+return;
+}
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$e) == QUERY$e &&
 game.World.Team[i].Id === game.CurrentPlayer &&
-game.Players[game.World.Team[i].Id] === 1 /* AI */) {
+game.Players[game.World.Team[i].Id].Type === 1 /* AI */) {
 update$9(game, i);
 }
 }
 }
 function update$9(game, entity) {
+if (game.TurnPhase === 1 /* Move */) {
 if (!game.CurrentlyMovingAiUnit && game.AiActiveUnits.includes(entity)) {
 game.CurrentlyMovingAiUnit = entity;
 let agent = game.World.NavAgent[entity];
+let territories = territories_controlled_by_team(game, game.CurrentPlayer);
+let units_on_territory = territories[agent.TerritoryId];
+if (units_on_territory < 2) {
+game.AiActiveUnits = game.AiActiveUnits.filter((id) => id !== entity);
+game.CurrentlyMovingAiUnit = null;
+if (game.AiActiveUnits.length === 0) {
+dispatch(game, 3 /* SetupBattles */, {});
+}
+return;
+}
 if (agent.Actions > 0) {
 
 let current_territory_neighbors = game.TerritoryGraph[agent.TerritoryId];
 let destination_territory_id = element(current_territory_neighbors);
 let destination_territory_entity = game.TerritoryEntities[destination_territory_id];
 let territory = game.World.Territory[destination_territory_entity];
-console.log(territory);
 if (agent.TerritoryId !== territory.Id) {
 
 agent.Actions -= 1;
 }
-let territory_mesh = game.TerritoryMeshes[territory.Continent][territory.Index - 1];
-let territory_transform = game.World.Transform[destination_territory_entity];
-let destination_worldspace = random_point_up_worldspace(territory_mesh, territory_transform.World);
+let destination_worldspace = get_coord_by_territory_id(game, territory.Id);
 agent.TerritoryId = territory.Id;
 agent.Destination = destination_worldspace;
+}
 }
 }
 }
@@ -62730,7 +63322,7 @@ function sys_control_pick(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$a) == QUERY$a &&
 game.World.Team[i].Id === game.CurrentPlayer &&
-game.Players[game.World.Team[i].Id] === 0 /* Human */) {
+game.Players[game.World.Team[i].Id].Type === 0 /* Human */) {
 update$5(game, i);
 }
 }
@@ -62740,13 +63332,35 @@ let agent = game.World.NavAgent[entity];
 if (game.InputDelta["Mouse2"] === 1 && game.Picked && agent.Actions > 0) {
 let territory_entity = game.Picked.Entity;
 let territory = game.World.Territory[territory_entity];
-console.log(territory.Id);
 if (agent.TerritoryId !== territory.Id) {
 
 agent.Actions -= 1;
 }
 agent.TerritoryId = territory.Id;
 agent.Destination = game.Picked.Point;
+}
+}
+
+function sys_deploy(game, delta) {
+if (game.TurnPhase !== 0 /* Deploy */) {
+return;
+}
+if (game.IsAiTurn) {
+for (let i = 0; i < game.UnitsToDeploy; i++) {
+let deploy_to = element(game.CurrentPlayerTerritories);
+dispatch(game, 2 /* DeployUnit */, { territory_id: deploy_to });
+}
+setTimeout(() => {
+dispatch(game, 1 /* EndDeployment */, {});
+}, 1500);
+}
+else {
+if (game.InputDelta["Mouse0"] === 1 && game.Picked) {
+let territory = game.World.Territory[game.Picked.Entity];
+if (territory && game.CurrentPlayerTerritories.includes(territory.Id)) {
+dispatch(game, 2 /* DeployUnit */, { territory_id: territory.Id });
+}
+}
 }
 }
 
@@ -62789,7 +63403,7 @@ case 0 /* Text */:
 draw_text(game, draw);
 break;
 case 2 /* Selection */:
-draw_selection$1(game, draw);
+draw_selection(game, draw);
 break;
 }
 }
@@ -62801,7 +63415,7 @@ game.Context2D.font = draw.Font;
 game.Context2D.fillStyle = draw.FillStyle;
 game.Context2D.fillText(draw.Text, 0, 0);
 }
-function draw_selection$1(game, draw) {
+function draw_selection(game, draw) {
 let size = game.ViewportHeight * 0.1;
 game.Context2D.strokeStyle = draw.Color;
 game.Context2D.strokeRect(-size / 2, -size / 2, size, size);
@@ -62832,6 +63446,7 @@ return out;
 
 const QUERY$8 = 1024 /* Pickable */;
 function sys_highlight(game, delta) {
+dispatch(game, 7 /* ClearTooltipText */, {});
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$8) == QUERY$8) {
 let pickable = game.World.Pickable[i];
@@ -62850,10 +63465,10 @@ break;
 }
 function update_territory(game, entity) {
 let pickable = game.World.Pickable[entity];
+let territory = game.World.Territory[entity];
 let render = game.World.Render[entity];
 if (game.Selected) {
 let nav_agent = game.World.NavAgent[game.Selected];
-let territory = game.World.Territory[entity];
 if (nav_agent.TerritoryId === territory.Id) {
 
 copy(render.ColorDiffuse, pickable.ColorSelected);
@@ -62873,6 +63488,7 @@ copy(render.ColorDiffuse, pickable.ColorIdle);
 }
 else if (pickable.Hover) {
 copy(render.ColorDiffuse, pickable.ColorHover);
+dispatch(game, 6 /* ShowTooltipText */, territory.Name || `Territory Id: ${territory.Id}`);
 }
 else {
 copy(render.ColorDiffuse, pickable.ColorIdle);
@@ -63092,7 +63708,7 @@ if (game.IsAiTurn) {
 game.AiActiveUnits = game.AiActiveUnits.filter((id) => id !== entity);
 game.CurrentlyMovingAiUnit = null;
 if (game.AiActiveUnits.length === 0) {
-dispatch(game, 0 /* EndTurn */);
+dispatch(game, 3 /* SetupBattles */, {});
 }
 }
 }
@@ -63238,58 +63854,6 @@ return { TriIndex: tri, Point: intersection };
 return null;
 }
 
-function create_entity(world) {
-if (world.Graveyard.length > 0) {
-return world.Graveyard.pop();
-}
-if (DEBUG && world.Signature.length > 10000) {
-throw new Error("No more entities available.");
-}
-
-return world.Signature.push(0) - 1;
-}
-function instantiate(game, blueprint) {
-let entity = create_entity(game.World);
-for (let mixin of blueprint) {
-if (mixin) {
-mixin(game, entity);
-}
-}
-return entity;
-}
-
-function children(...blueprints) {
-return (game, entity) => {
-let child_entities = [];
-for (let blueprint of blueprints) {
-let child = instantiate(game, blueprint);
-child_entities.push(child);
-}
-game.World.Signature[entity] |= 2 /* Children */;
-game.World.Children[entity] = {
-Children: child_entities,
-};
-};
-}
-/**
-* Yield entities matching a component mask. The query is tested against the
-* parent and all its descendants.
-*
-* @param world World object which stores the component data.
-* @param parent Parent entity to traverse.
-* @param mask Component mask to look for.
-*/
-function* query_all(world, parent, mask) {
-if (world.Signature[parent] & mask) {
-yield parent;
-}
-if (world.Signature[parent] & 2 /* Children */) {
-for (let child of world.Children[parent].Children) {
-yield* query_all(world, child, mask);
-}
-}
-}
-
 const QUERY$4 = 1024 /* Pickable */;
 const TARGET = 16384 /* Transform */ | 4 /* Collide */;
 function sys_pick(game, delta) {
@@ -63331,8 +63895,18 @@ let hit_aabb = ray_intersect_aabb(pickables, origin, direction);
 if (hit_aabb) {
 let collider = hit_aabb.Collider;
 let entity = collider.Entity;
+
+let territories = territories_controlled_by_team(game, game.CurrentPlayer);
 for (let child of query_all(game.World, entity, 1024 /* Pickable */)) {
 let pickable = game.World.Pickable[child];
+if (pickable.Kind === 1 /* Unit */) {
+let current_territory_id = game.World.NavAgent[child].TerritoryId;
+let units_on_territory = territories[current_territory_id];
+if (units_on_territory < 2) {
+
+return;
+}
+}
 if (pickable.Mesh) {
 
 let origin_self = [0, 0, 0];
@@ -63686,31 +64260,6 @@ update_transform(world, child, child_transform);
 }
 }
 
-function shift(values) {
-let value = values.shift();
-if (typeof value === "boolean" || value == undefined) {
-return "";
-}
-else if (Array.isArray(value)) {
-return value.join("");
-}
-else {
-return value;
-}
-}
-function html(strings, ...values) {
-return strings.reduce((out, cur) => out + shift(values) + cur);
-}
-
-function App(game) {
-return html `
-<div>Current Player: ${game.CurrentPlayer} (${game.IsAiTurn ? "AI" : "Human"})</div>
-<button onclick="$(${0 /* EndTurn */})" ${game.IsAiTurn && "disabled=disabled"}">
-End Turn
-</button>
-`;
-}
-
 let prev;
 function sys_ui(game, delta) {
 let next = App(game);
@@ -63759,12 +64308,17 @@ MouseY: 0,
 };
 this.CurrentPlayer = 0;
 this.Players = [];
-this.PlayerUnits = {};
+this.CurrentPlayerTerritories = [];
 this.AiActiveUnits = [];
+this.CurrentlyMovingAiUnit = null;
 
 this.IsAiTurn = false;
+this.Battles = [];
+this.TurnPhase = 0 /* Deploy */;
+this.UnitsToDeploy = 0;
+this.UnitsDeployed = 0;
+this.TooltipText = null;
 this.SunEntity = 0;
-this.CurrentlyMovingAiUnit = null;
 this.Ui = document.querySelector("main");
 this.CanvasScene = document.querySelector("canvas#scene");
 this.Gl = this.CanvasScene.getContext("webgl");
@@ -63841,6 +64395,7 @@ sys_control_ai(this);
 sys_control_pick(this);
 sys_control_keyboard(this);
 sys_control_mouse(this);
+sys_deploy(this);
 
 sys_control_always(this);
 
@@ -63895,51 +64450,6 @@ ClearColor: clear_color,
 };
 }
 
-function control_player(move, yaw, pitch, zoom) {
-return (game, entity) => {
-game.World.Signature[entity] |= 16 /* ControlPlayer */;
-game.World.ControlPlayer[entity] = {
-Move: move,
-Yaw: yaw,
-Pitch: pitch,
-Zoom: zoom,
-};
-};
-}
-
-/**
-* The Move mixin.
-*
-* @param move_speed - Movement speed in units per second.
-* @param rotation_speed - Rotation speed, in radians per second.
-*/
-function move(move_speed, rotation_speed) {
-return (game, entity) => {
-game.World.Signature[entity] |= 256 /* Move */;
-game.World.Move[entity] = {
-MoveSpeed: move_speed,
-RotationSpeed: rotation_speed,
-Directions: [],
-LocalRotations: [],
-SelfRotations: [],
-};
-};
-}
-
-function transform(translation = [0, 0, 0], rotation = [0, 0, 0, 1], scale = [1, 1, 1]) {
-return (game, entity) => {
-game.World.Signature[entity] |= 16384 /* Transform */;
-game.World.Transform[entity] = {
-World: create(),
-Self: create(),
-Translation: translation,
-Rotation: rotation,
-Scale: scale,
-Dirty: true,
-};
-};
-}
-
 function blueprint_camera(game) {
 return [
 control_player(true, true, false, false),
@@ -63974,12 +64484,6 @@ Rotation: rotation,
 };
 }
 
-function disable(mask) {
-return (game, entity) => {
-game.World.Signature[entity] &= ~mask;
-};
-}
-
 function light_directional(color = [1, 1, 1], range = 1) {
 return (game, entity) => {
 game.World.Signature[entity] |= 128 /* Light */;
@@ -64011,281 +64515,6 @@ camera_framebuffer_ortho(game.Targets.Sun, 250, 1, 1000, [0, 0, 0, 1]),
 [transform([0, 0, -50]), light_directional([0.5, 0.5, 0.7], 0.8)]),
 ]),
 ];
-}
-
-function pickable_territory(mesh, color_idle, color_hover, color_ready, color_selected) {
-return (game, entity) => {
-game.World.Signature[entity] |= 1024 /* Pickable */;
-game.World.Pickable[entity] = {
-Kind: 0 /* Territory */,
-Mesh: mesh,
-Hover: false,
-ColorIdle: color_idle,
-ColorHover: color_hover,
-ColorReady: color_ready,
-ColorSelected: color_selected,
-};
-};
-}
-function pickable_unit(color_idle, color_hover, color_selected) {
-return (game, entity) => {
-game.World.Signature[entity] |= 1024 /* Pickable */;
-game.World.Pickable[entity] = {
-Kind: 1 /* Unit */,
-Hover: false,
-ColorIdle: color_idle,
-ColorHover: color_hover,
-ColorReady: color_selected,
-ColorSelected: color_selected,
-};
-};
-}
-
-let textured_specular_vaos = new WeakMap();
-function render_textured_specular(material, mesh, diffuse_map, shininess = 1, diffuse_color = [1, 1, 1, 1], specular_color = [1, 1, 1, 1]) {
-return (game, entity) => {
-if (!textured_specular_vaos.has(mesh)) {
-
-let vao = game.ExtVao.createVertexArrayOES();
-game.ExtVao.bindVertexArrayOES(vao);
-game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.VertexBuffer);
-game.Gl.enableVertexAttribArray(material.Locations.VertexPosition);
-game.Gl.vertexAttribPointer(material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
-game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.NormalBuffer);
-game.Gl.enableVertexAttribArray(material.Locations.VertexNormal);
-game.Gl.vertexAttribPointer(material.Locations.VertexNormal, 3, GL_FLOAT, false, 0, 0);
-game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.TexCoordBuffer);
-game.Gl.enableVertexAttribArray(material.Locations.VertexTexCoord);
-game.Gl.vertexAttribPointer(material.Locations.VertexTexCoord, 2, GL_FLOAT, false, 0, 0);
-game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
-game.ExtVao.bindVertexArrayOES(null);
-textured_specular_vaos.set(mesh, vao);
-}
-game.World.Signature[entity] |= 2048 /* Render */;
-game.World.Render[entity] = {
-Kind: 5 /* TexturedSpecular */,
-Material: material,
-Mesh: mesh,
-FrontFace: GL_CW,
-Vao: textured_specular_vaos.get(mesh),
-DiffuseMap: diffuse_map,
-ColorDiffuse: diffuse_color,
-ColorSpecular: specular_color,
-Shininess: shininess,
-};
-};
-}
-let textured_mapped_vaos = new WeakMap();
-function render_textured_mapped(material, mesh, diffuse_map, normal_map, roughness_map, diffuse_color = [1, 1, 1, 1]) {
-return (game, entity) => {
-if (!textured_mapped_vaos.has(mesh)) {
-
-let vao = game.ExtVao.createVertexArrayOES();
-game.ExtVao.bindVertexArrayOES(vao);
-game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.VertexBuffer);
-game.Gl.enableVertexAttribArray(material.Locations.VertexPosition);
-game.Gl.vertexAttribPointer(material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
-game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.NormalBuffer);
-game.Gl.enableVertexAttribArray(material.Locations.VertexNormal);
-game.Gl.vertexAttribPointer(material.Locations.VertexNormal, 3, GL_FLOAT, false, 0, 0);
-game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.TexCoordBuffer);
-game.Gl.enableVertexAttribArray(material.Locations.VertexTexCoord);
-game.Gl.vertexAttribPointer(material.Locations.VertexTexCoord, 2, GL_FLOAT, false, 0, 0);
-game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
-let tangent_arr = new Float32Array(mesh.NormalArray.length);
-let bitangent_arr = new Float32Array(mesh.NormalArray.length);
-for (let i = 0; i < mesh.IndexCount; i += 3) {
-let v0 = mesh.IndexArray[i + 0];
-let v1 = mesh.IndexArray[i + 1];
-let v2 = mesh.IndexArray[i + 2];
-let p0 = [
-mesh.VertexArray[v0 * 3 + 0],
-mesh.VertexArray[v0 * 3 + 1],
-mesh.VertexArray[v0 * 3 + 2],
-];
-let p1 = [
-mesh.VertexArray[v1 * 3 + 0],
-mesh.VertexArray[v1 * 3 + 1],
-mesh.VertexArray[v1 * 3 + 2],
-];
-let p2 = [
-mesh.VertexArray[v2 * 3 + 0],
-mesh.VertexArray[v2 * 3 + 1],
-mesh.VertexArray[v2 * 3 + 2],
-];
-let edge1 = subtract([0, 0, 0], p1, p0);
-let edge2 = subtract([0, 0, 0], p2, p0);
-let delta_u1 = mesh.TexCoordArray[v1 * 2 + 0] - mesh.TexCoordArray[v0 * 2 + 0];
-let delta_v1 = mesh.TexCoordArray[v1 * 2 + 1] - mesh.TexCoordArray[v0 * 2 + 1];
-let delta_u2 = mesh.TexCoordArray[v2 * 2 + 0] - mesh.TexCoordArray[v0 * 2 + 0];
-let delta_v2 = mesh.TexCoordArray[v2 * 2 + 1] - mesh.TexCoordArray[v0 * 2 + 1];
-let r = 1 / (delta_u1 * delta_v2 - delta_u2 * delta_v1);
-let tangent = [
-r * (delta_v2 * edge1[0] - delta_v1 * edge2[0]),
-r * (delta_v2 * edge1[1] - delta_v1 * edge2[1]),
-r * (delta_v2 * edge1[2] - delta_v1 * edge2[2]),
-];
-let bitangent = [
-r * (-delta_u2 * edge1[0] + delta_u1 * edge2[0]),
-r * (-delta_u2 * edge1[1] + delta_u1 * edge2[1]),
-r * (-delta_u2 * edge1[2] + delta_u1 * edge2[2]),
-];
-normalize(tangent, tangent);
-tangent_arr.set(tangent, v0 * 2);
-tangent_arr.set(tangent, v1 * 2);
-tangent_arr.set(tangent, v2 * 2);
-normalize(bitangent, bitangent);
-bitangent_arr.set(bitangent, v0 * 2);
-bitangent_arr.set(bitangent, v1 * 2);
-bitangent_arr.set(bitangent, v2 * 2);
-}
-let tangent_buf = game.Gl.createBuffer();
-game.Gl.bindBuffer(GL_ARRAY_BUFFER, tangent_buf);
-game.Gl.bufferData(GL_ARRAY_BUFFER, tangent_arr, GL_STATIC_DRAW);
-game.Gl.enableVertexAttribArray(material.Locations.VertexTangent);
-game.Gl.vertexAttribPointer(material.Locations.VertexTangent, 3, GL_FLOAT, false, 0, 0);
-let bitangent_buf = game.Gl.createBuffer();
-game.Gl.bindBuffer(GL_ARRAY_BUFFER, bitangent_buf);
-game.Gl.bufferData(GL_ARRAY_BUFFER, bitangent_arr, GL_STATIC_DRAW);
-game.Gl.enableVertexAttribArray(material.Locations.VertexBitangent);
-game.Gl.vertexAttribPointer(material.Locations.VertexBitangent, 3, GL_FLOAT, false, 0, 0);
-game.ExtVao.bindVertexArrayOES(null);
-textured_mapped_vaos.set(mesh, vao);
-}
-game.World.Signature[entity] |= 2048 /* Render */;
-game.World.Render[entity] = {
-Kind: 6 /* TexturedMapped */,
-Material: material,
-Mesh: mesh,
-FrontFace: GL_CW,
-Vao: textured_mapped_vaos.get(mesh),
-DiffuseMap: diffuse_map,
-NormalMap: normal_map,
-RoughnessMap: roughness_map,
-ColorDiffuse: diffuse_color,
-};
-};
-}
-
-function territory(continent, index) {
-return (game, entity) => {
-let id = continent * 10 + index;
-game.TerritoryEntities[id] = entity;
-game.World.Signature[entity] |= 8192 /* Territory */;
-game.World.Territory[entity] = {
-Continent: continent,
-Index: index,
-Id: id,
-};
-};
-}
-
-const textures_by_continent = {
-[0 /* Europe */]: "euau.webp",
-[1 /* Africa */]: "afsa.webp",
-[2 /* Australia */]: "euau.webp",
-[4 /* SouthAmerica */]: "afsa.webp",
-[3 /* NorthAmerica */]: "na.webp",
-[5 /* Asia */]: "as.webp",
-};
-function blueprint_territory(game, continent, index) {
-let mesh = game.TerritoryMeshes[continent][index - 1];
-return [
-transform(),
-pickable_territory(mesh, [1.2, 1.2, 1.2, 1], [2, 2, 2, 1], [1.2, 1.5, 1.2, 1], [2, 1.2, 1.2, 1]),
-render_textured_mapped(game.MaterialTexturedMapped, mesh, game.Textures[textures_by_continent[continent]], game.Textures["Cardboard004_1K_Normal.jpg"], game.Textures["Cardboard004_1K_Roughness.jpg"]),
-territory(continent, index),
-];
-}
-
-/**
-* Add the Collide component.
-*
-* @param dynamic Dynamic colliders collider with all colliders. Static
-* colliders collide only with dynamic colliders.
-* @param layers Bit field with layers this collider is on.
-* @param mask Bit mask with layers visible to this collider.
-* @param size Size of the collider relative to the entity's transform.
-*/
-function collide(dynamic, layers, mask, size = [1, 1, 1]) {
-return (game, entity) => {
-game.World.Signature[entity] |= 4 /* Collide */;
-game.World.Collide[entity] = {
-Entity: entity,
-New: true,
-Dynamic: dynamic,
-Layers: layers,
-Signature: mask,
-Size: size,
-Min: [0, 0, 0],
-Max: [0, 0, 0],
-Center: [0, 0, 0],
-Half: [0, 0, 0],
-Collisions: [],
-};
-};
-}
-
-function draw_selection(color) {
-return (game, entity) => {
-game.World.Signature[entity] |= 32 /* Draw */;
-game.World.Draw[entity] = {
-Kind: 2 /* Selection */,
-Color: color,
-};
-};
-}
-
-function nav_agent(territory_id) {
-return (game, entity) => {
-game.World.Signature[entity] |= 512 /* NavAgent */;
-game.World.NavAgent[entity] = {
-TerritoryId: territory_id,
-Destination: null,
-
-Actions: 1,
-};
-};
-}
-
-function selectable() {
-return (game, entity) => {
-game.World.Signature[entity] |= 4096 /* Selectable */;
-game.World.Selectable[entity] = {
-Selected: false,
-};
-};
-}
-
-function team(Id) {
-return (game, entity) => {
-game.World.Signature[entity] |= 32768 /* Team */;
-game.PlayerUnits[Id] = game.PlayerUnits[Id] || [];
-game.PlayerUnits[Id].push(entity);
-game.World.Team[entity] = {
-Id,
-};
-};
-}
-
-function blueprint_unit(game, translation, color, 
-territory_id, mesh = game.MeshSoldier, team_id) {
-let blueprint = [
-transform(translation),
-collide(true, 0 /* None */, 0 /* None */, [2, 6, 2]),
-nav_agent(territory_id),
-move(10, 5),
-control_player(false, false, false, false),
-children([transform(), draw_selection("#ff0"), disable(32 /* Draw */)], [
-transform(),
-render_textured_mapped(game.MaterialTexturedMapped, mesh, game.Textures["Wood063_1K_Color.jpg"], game.Textures["Wood063_1K_Normal.jpg"], game.Textures["Wood063_1K_Roughness.jpg"], color),
-]),
-team(team_id),
-];
-if (game.Players[team_id] === 0 /* Human */) {
-blueprint.push(pickable_unit(color, [1, 0.5, 0, 1], [1, 0, 0, 1]), selectable(), disable(16 /* ControlPlayer */));
-}
-return blueprint;
 }
 
 function scene_stage(game) {
@@ -64350,10 +64579,16 @@ instantiate(game, blueprint_sun(game));
 
 instantiate(game, [transform([-1, 1, -1]), light_directional([1, 1, 1], 0.2)]);
 
-instantiate(game, [
-transform([0, -222, 0], from_euler([0, 0, 0, 0], 0, 15, 0), [300, 300, 300]),
-render_textured_mapped(game.MaterialTexturedMapped, game.MeshTable, game.Textures["Wood054_1K_Color.jpg"], game.Textures["Wood054_1K_Normal.jpg"], game.Textures["Wood054_1K_Roughness.jpg"]),
-]);
+
+
+
+
+
+
+
+
+
+
 
 instantiate(game, [
 transform([0, 0, 0], undefined, [332, 1, 220]),
@@ -64365,30 +64600,36 @@ transform(),
 collide(false, 0 /* None */, 0 /* None */, [1000, 0.01, 1000]),
 children(
 
-blueprint_territory(game, 0 /* Europe */, 1), blueprint_territory(game, 0 /* Europe */, 2), blueprint_territory(game, 0 /* Europe */, 3), blueprint_territory(game, 0 /* Europe */, 4), blueprint_territory(game, 0 /* Europe */, 5), blueprint_territory(game, 0 /* Europe */, 6), blueprint_territory(game, 0 /* Europe */, 7), 
+blueprint_territory(game, 0 /* Europe */, 1, "Great Britain"), blueprint_territory(game, 0 /* Europe */, 2, "Iceland"), blueprint_territory(game, 0 /* Europe */, 3, "North Europe"), blueprint_territory(game, 0 /* Europe */, 4, "Scandinavia"), blueprint_territory(game, 0 /* Europe */, 5, "South Europe"), blueprint_territory(game, 0 /* Europe */, 6, "East Europe"), blueprint_territory(game, 0 /* Europe */, 7, "West Europe"), 
 
-blueprint_territory(game, 1 /* Africa */, 1), blueprint_territory(game, 1 /* Africa */, 2), blueprint_territory(game, 1 /* Africa */, 3), blueprint_territory(game, 1 /* Africa */, 4), blueprint_territory(game, 1 /* Africa */, 5), blueprint_territory(game, 1 /* Africa */, 6), 
+blueprint_territory(game, 1 /* Africa */, 1, "Congo"), blueprint_territory(game, 1 /* Africa */, 2, "East Africa"), blueprint_territory(game, 1 /* Africa */, 3, "Egypt"), blueprint_territory(game, 1 /* Africa */, 4, "Madagascar"), blueprint_territory(game, 1 /* Africa */, 5, "North Africa"), blueprint_territory(game, 1 /* Africa */, 6, "South Africa"), 
 
-blueprint_territory(game, 2 /* Australia */, 1), blueprint_territory(game, 2 /* Australia */, 2), blueprint_territory(game, 2 /* Australia */, 3), blueprint_territory(game, 2 /* Australia */, 4), 
+blueprint_territory(game, 2 /* Australia */, 1, "Eastern Australia"), blueprint_territory(game, 2 /* Australia */, 2, "Indonesia"), blueprint_territory(game, 2 /* Australia */, 3, "New Guinea"), blueprint_territory(game, 2 /* Australia */, 4, "Western Australia"), 
 
-blueprint_territory(game, 3 /* NorthAmerica */, 1), blueprint_territory(game, 3 /* NorthAmerica */, 2), blueprint_territory(game, 3 /* NorthAmerica */, 3), blueprint_territory(game, 3 /* NorthAmerica */, 4), blueprint_territory(game, 3 /* NorthAmerica */, 5), blueprint_territory(game, 3 /* NorthAmerica */, 6), blueprint_territory(game, 3 /* NorthAmerica */, 7), blueprint_territory(game, 3 /* NorthAmerica */, 8), blueprint_territory(game, 3 /* NorthAmerica */, 9), 
+blueprint_territory(game, 3 /* NorthAmerica */, 1, "Alaska"), blueprint_territory(game, 3 /* NorthAmerica */, 2, "Alberta"), blueprint_territory(game, 3 /* NorthAmerica */, 3, "Central America"), blueprint_territory(game, 3 /* NorthAmerica */, 4, "Eastern United States"), blueprint_territory(game, 3 /* NorthAmerica */, 5, "Greenland"), blueprint_territory(game, 3 /* NorthAmerica */, 6, "Northwest Territory"), blueprint_territory(game, 3 /* NorthAmerica */, 7, "Ontario"), blueprint_territory(game, 3 /* NorthAmerica */, 8, "Quebec"), blueprint_territory(game, 3 /* NorthAmerica */, 9, "Western United States"), 
 
-blueprint_territory(game, 4 /* SouthAmerica */, 1), blueprint_territory(game, 4 /* SouthAmerica */, 2), blueprint_territory(game, 4 /* SouthAmerica */, 3), blueprint_territory(game, 4 /* SouthAmerica */, 4), 
+blueprint_territory(game, 4 /* SouthAmerica */, 1, "Argentina"), blueprint_territory(game, 4 /* SouthAmerica */, 2, "Brazil"), blueprint_territory(game, 4 /* SouthAmerica */, 3, "Peru"), blueprint_territory(game, 4 /* SouthAmerica */, 4, "Venezuela"), 
 
-blueprint_territory(game, 5 /* Asia */, 1), blueprint_territory(game, 5 /* Asia */, 2), blueprint_territory(game, 5 /* Asia */, 3), blueprint_territory(game, 5 /* Asia */, 4), blueprint_territory(game, 5 /* Asia */, 5), blueprint_territory(game, 5 /* Asia */, 6), blueprint_territory(game, 5 /* Asia */, 7), blueprint_territory(game, 5 /* Asia */, 8), blueprint_territory(game, 5 /* Asia */, 9), blueprint_territory(game, 5 /* Asia */, 10), blueprint_territory(game, 5 /* Asia */, 11), blueprint_territory(game, 5 /* Asia */, 12)),
+blueprint_territory(game, 5 /* Asia */, 1, "Afghanistan"), blueprint_territory(game, 5 /* Asia */, 2, "China"), blueprint_territory(game, 5 /* Asia */, 3, "India"), blueprint_territory(game, 5 /* Asia */, 4, "Irkuck"), blueprint_territory(game, 5 /* Asia */, 5, "Japan"), blueprint_territory(game, 5 /* Asia */, 6, "Kamtchatka"), blueprint_territory(game, 5 /* Asia */, 7, "Middle East"), blueprint_territory(game, 5 /* Asia */, 8, "Mongolia"), blueprint_territory(game, 5 /* Asia */, 9, "Siam"), blueprint_territory(game, 5 /* Asia */, 10, "Siberia"), blueprint_territory(game, 5 /* Asia */, 11, "Ural"), blueprint_territory(game, 5 /* Asia */, 12, "Yakutsk")),
 ]);
 
-for (let i = 0; i < 3; i++) {
-instantiate(game, blueprint_unit(game, [-15 + float(-4, 4), 1, -48 + float(-4, 4)], [1, 1, 0, 1], 3, i < 1 ? game.MeshSoldier : game.MeshDragoon, 0));
+let number_of_players = game.Players.length;
+let territory_entities = Object.keys(game.TerritoryEntities)
+.sort(() => 0.5 - Math.random())
+.map((e) => parseInt(e, 10));
+for (let i = 0; i < territory_entities.length; i++) {
+let team = (number_of_players + i) % number_of_players;
+let territory_entity_id = game.TerritoryEntities[territory_entities[i]];
+let territory = game.World.Territory[territory_entity_id];
+let translation = get_coord_by_territory_id(game, territory.Id);
+if (translation) {
+instantiate(game, blueprint_unit(game, translation, territory.Id, game.MeshSoldier, team));
 }
-
-for (let i = 0; i < 2; i++) {
-instantiate(game, blueprint_unit(game, [15 + float(-3, 3), 1, -63 + float(-3, 3)], [1, 0, 0, 1], 2, i < 1 ? game.MeshSoldier : game.MeshCannon, 1));
+else {
+console.error(`Cannot find random point on territory ${JSON.stringify(territory, null, 2)}!`);
 }
-
-for (let i = 0; i < 3; i++) {
-instantiate(game, blueprint_unit(game, [-42 + float(-3, 3), 1, -60 + float(-3, 3)], [1, 0, 1, 1], 6, i < 1 ? game.MeshSoldier : game.MeshCannon, 2));
 }
+dispatch(game, 0 /* StartDeployment */, {});
 }
 
 let game = new Game();
@@ -64462,7 +64703,14 @@ mesh_as11(game.Gl),
 mesh_as12(game.Gl),
 ],
 ];
-game.Players = [0 /* Human */, 1 /* AI */, 1 /* AI */];
+game.Players = [
+{
+Color: [1, 1, 0, 1],
+Type: 0 /* Human */,
+},
+{ Color: [1, 0, 0, 1], Type: 1 /* AI */ },
+{ Color: [1, 0, 1, 1], Type: 1 /* AI */ },
+];
 Promise.all([
 
 load_texture(game, "background.jpg"),
