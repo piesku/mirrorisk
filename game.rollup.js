@@ -40853,7 +40853,7 @@
             transform(translation),
             collide(true, 0 /* None */, 0 /* None */, [2, 6, 2]),
             nav_agent(territory_id),
-            is_human_controlled ? move(10, 5) : move(20, 50),
+            is_human_controlled ? move(10, 5) : move(20, 5),
             children([transform([0, 1, 0]), draw_selection$1("#ff0"), disable(128 /* Draw */)], [
                 transform(),
                 render_textured_mapped(game.MaterialTexturedMapped, mesh, game.Textures["Wood063_1K_Color.jpg"], game.Textures["Wood063_1K_Normal.jpg"], game.Textures["Wood063_1K_Roughness.jpg"], is_human_controlled ? undefined : color),
