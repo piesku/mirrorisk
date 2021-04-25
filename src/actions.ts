@@ -18,10 +18,9 @@ export const enum Action {
 export function dispatch(game: Game, action: Action, payload: unknown) {
     switch (action) {
         case Action.StartDeployment: {
-            game.CurrentPlayerTerritories = territories_controlled_by_team(
-                game,
-                game.CurrentPlayer
-            );
+            game.CurrentPlayerTerritories = Object.keys(
+                territories_controlled_by_team(game, game.CurrentPlayer)
+            ).map((e) => parseInt(e, 10));
             // XXX: Add continent bonus here
             let units_to_deploy = Math.max(~~(game.CurrentPlayerTerritories.length / 3), 3);
             Alert(`Select territories to deploy ${units_to_deploy} units.`);
@@ -40,6 +39,10 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             let translation = get_coord_by_territory_id(game, territory_id);
 
             if (translation) {
+                let territory_name =
+                    game.World.Territory[game.TerritoryEntities[territory_id]].Name;
+                console.log(`Deploying one unit to ${territory_name}`);
+
                 instantiate(
                     game,
                     blueprint_unit(

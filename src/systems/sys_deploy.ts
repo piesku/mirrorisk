@@ -1,3 +1,4 @@
+import {element} from "../../common/random.js";
 import {Action, dispatch} from "../actions.js";
 import {Game, TurnPhase} from "../game.js";
 import {Has} from "../world.js";
@@ -9,10 +10,16 @@ export function sys_deploy(game: Game, delta: number) {
         return;
     }
     if (game.IsAiTurn) {
+        for (let i = 0; i < game.UnitsToDeploy; i++) {
+            // setTimeout(() => {
+            let deploy_to = element(game.CurrentPlayerTerritories);
+            dispatch(game, Action.DeployUnit, {territory_id: deploy_to});
+            // }, )
+        }
     } else {
         if (game.InputDelta["Mouse0"] === 1 && game.Picked) {
             let territory = game.World.Territory[game.Picked.Entity];
-            if (game.CurrentPlayerTerritories.includes(territory.Id)) {
+            if (territory && game.CurrentPlayerTerritories.includes(territory.Id)) {
                 dispatch(game, Action.DeployUnit, {territory_id: territory.Id});
             }
         }

@@ -32,7 +32,6 @@ function update(game: Game, entity: Entity) {
                 let destination_territory_id = element(current_territory_neighbors);
                 let destination_territory_entity = game.TerritoryEntities[destination_territory_id];
                 let territory = game.World.Territory[destination_territory_entity];
-                console.log(current_territory_neighbors, destination_territory_id, territory);
 
                 if (agent.TerritoryId !== territory.Id) {
                     // Use the action up only when moving to another territory.

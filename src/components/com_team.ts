@@ -18,15 +18,17 @@ export function team(Id: number) {
     };
 }
 
-export function territories_controlled_by_team(game: Game, team_id: number): Entity[] {
+export function territories_controlled_by_team(game: Game, team_id: number) {
     let QUERY = Has.Team | Has.NavAgent;
-    let territories = new Set();
+    let territories: Record<number, number> = {};
 
     for (let i = 0; i < game.World.Signature.length; i++) {
         if ((game.World.Signature[i] & QUERY) === QUERY && game.World.Team[i].Id === team_id) {
-            territories.add(game.World.NavAgent[i].TerritoryId);
+            let territory_id = game.World.NavAgent[i].TerritoryId;
+            territories[territory_id] = territories[territory_id] || 0;
+            territories[territory_id]++;
         }
     }
 
-    return <Entity[]>Array.from(territories);
+    return territories;
 }

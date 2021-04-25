@@ -58,16 +58,3 @@ export function blueprint_unit(
 
     return blueprint;
 }
-
-export function get_all_teritorries_by_team_id(game: Game, team_id: number) {
-    let territories: Record<number, number> = {};
-    for (let i = 0; i < game.World.Signature.length; i++) {
-        if ((game.World.Signature[i] & Has.Team) == Has.Team && game.World.Team[i].Id === team_id) {
-            let territory_id = game.World.NavAgent[i].TerritoryId;
-            territories[territory_id] = territories[territory_id] || 0;
-            territories[territory_id]++;
-        }
-    }
-
-    return territories;
-}
