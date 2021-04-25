@@ -1,5 +1,6 @@
 import {create_depth_target, DepthTarget} from "../common/framebuffer.js";
 import {Mesh} from "../common/material.js";
+import {Vec4} from "../common/math.js";
 import {GL_CULL_FACE, GL_DEPTH_TEST} from "../common/webgl.js";
 import {mat1_colored_specular_phong} from "../materials/mat1_colored_specular_phong.js";
 import {mat1_depth} from "../materials/mat1_depth.js";
@@ -19,6 +20,7 @@ import {sys_control_always} from "./systems/sys_control_always.js";
 import {sys_control_keyboard} from "./systems/sys_control_keyboard.js";
 import {sys_control_mouse} from "./systems/sys_control_mouse.js";
 import {sys_control_pick} from "./systems/sys_control_pick.js";
+import {sys_deploy} from "./systems/sys_deploy.js";
 import {sys_draw} from "./systems/sys_draw.js";
 import {sys_framerate} from "./systems/sys_framerate.js";
 import {sys_highlight} from "./systems/sys_highlight.js";
@@ -35,11 +37,22 @@ import {World} from "./world.js";
 
 export type Entity = number;
 
-export const enum Player {
+export const enum PlayerType {
     Human,
     AI,
 }
 
+export interface Player {
+    Type: PlayerType;
+    Color: Vec4;
+}
+
+export const enum TurnPhase {
+    Deploy,
+    Move,
+    Battle,
+    Regroup,
+}
 export class Game {
     World = new World();
 
@@ -58,12 +71,21 @@ export class Game {
 
     CurrentPlayer = 0;
     Players: Player[] = [];
-    PlayerUnits: Record<Entity, Entity[]> = {};
+    CurrentPlayerTerritories: Entity[] = [];
+
     AiActiveUnits: Entity[] = [];
+    CurrentlyMovingAiUnit: Entity | null = null;
     // TODO: EndTurn Actions sets this, so it will break if AI moves first
     IsAiTurn: boolean = false;
+
+    Battles: Function[] = [];
+
+    TurnPhase: TurnPhase = TurnPhase.Deploy;
+    UnitsToDeploy: number = 0;
+    UnitsDeployed: number = 0;
+
+    TooltipText: string | null = null;
     SunEntity: Entity = 0;
-    CurrentlyMovingAiUnit: Entity | null = null;
 
     Ui = document.querySelector("main")!;
 
@@ -165,6 +187,7 @@ export class Game {
         sys_control_pick(this, delta);
         sys_control_keyboard(this, delta);
         sys_control_mouse(this, delta);
+        sys_deploy(this, delta);
 
         // AI.
         sys_control_always(this, delta);

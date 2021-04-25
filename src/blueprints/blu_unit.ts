@@ -12,22 +12,24 @@ import {render_textured_mapped} from "../components/com_render1.js";
 import {selectable} from "../components/com_selectable.js";
 import {team} from "../components/com_team.js";
 import {transform} from "../components/com_transform.js";
-import {Game, Layer, Player} from "../game.js";
+import {Game, Layer, PlayerType} from "../game.js";
 import {Has} from "../world.js";
 
 export function blueprint_unit(
     game: Game,
     translation: Vec3,
-    color: Vec4, // TODO: add diffuse & specular?
     territory_id: number,
     mesh: Mesh = game.MeshSoldier,
     team_id: number
 ) {
+    let color = <Vec4>game.Players[team_id].Color.slice();
+    let is_human_controlled = game.Players[team_id].Type === PlayerType.Human;
+
     let blueprint = [
         transform(translation),
         collide(true, Layer.None, Layer.None, [2, 6, 2]),
         nav_agent(territory_id),
-        move(10, 5),
+        is_human_controlled ? move(10, 5) : move(100, 50),
         control_player(false, false, false, false),
         children(
             [transform(), draw_selection("#ff0"), disable(Has.Draw)],
@@ -46,7 +48,7 @@ export function blueprint_unit(
         team(team_id),
     ];
 
-    if (game.Players[team_id] === Player.Human) {
+    if (is_human_controlled) {
         blueprint.push(
             pickable_unit(color, [1, 0.5, 0, 1], [1, 0, 0, 1]),
             selectable(),

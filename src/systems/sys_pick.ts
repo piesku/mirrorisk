@@ -4,6 +4,8 @@ import {ray_intersect_aabb, ray_intersect_mesh} from "../../common/raycast.js";
 import {normalize, subtract, transform_direction, transform_point} from "../../common/vec3.js";
 import {query_all} from "../components/com_children.js";
 import {Collide} from "../components/com_collide.js";
+import {PickableKind} from "../components/com_pickable.js";
+import {territories_controlled_by_team} from "../components/com_team.js";
 import {Entity, Game} from "../game.js";
 import {Has} from "../world.js";
 
@@ -58,8 +60,19 @@ function update(game: Game, entity: Entity, pickables: Array<Collide>) {
         let collider = hit_aabb.Collider as Collide;
         let entity = collider.Entity;
 
+        // Player can only move if there's at least one unit left on the territory
+        let territories = territories_controlled_by_team(game, game.CurrentPlayer);
+
         for (let child of query_all(game.World, entity, Has.Pickable)) {
             let pickable = game.World.Pickable[child];
+            if (pickable.Kind === PickableKind.Unit) {
+                let current_territory_id = game.World.NavAgent[child].TerritoryId;
+                let units_on_territory = territories[current_territory_id];
+                if (units_on_territory < 2) {
+                    // Alert("You cannot leave a territory without at least one unit");
+                    return;
+                }
+            }
 
             if (pickable.Mesh) {
                 // The ray in the pickable's self space.

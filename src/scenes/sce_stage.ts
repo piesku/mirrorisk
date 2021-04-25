@@ -1,13 +1,13 @@
-import {from_euler} from "../../common/quat.js";
-import {float, set_seed} from "../../common/random.js";
+import {set_seed} from "../../common/random.js";
+import {Action, dispatch} from "../actions.js";
 import {blueprint_camera} from "../blueprints/blu_camera.js";
 import {blueprint_sun} from "../blueprints/blu_sun.js";
-import {blueprint_territory} from "../blueprints/blu_territory.js";
+import {blueprint_territory, get_coord_by_territory_id} from "../blueprints/blu_territory.js";
 import {blueprint_unit} from "../blueprints/blu_unit.js";
 import {children} from "../components/com_children.js";
 import {collide} from "../components/com_collide.js";
 import {light_directional, light_point} from "../components/com_light.js";
-import {render_textured_mapped, render_textured_specular} from "../components/com_render1.js";
+import {render_textured_specular} from "../components/com_render1.js";
 import {Continent} from "../components/com_territory.js";
 import {transform} from "../components/com_transform.js";
 import {instantiate} from "../entity.js";
@@ -84,16 +84,16 @@ export function scene_stage(game: Game) {
     false && instantiate(game, [transform([-100, 100, -100]), light_point([1, 1, 0.9], 60)]);
 
     // Table
-    instantiate(game, [
-        transform([0, -222, 0], from_euler([0, 0, 0, 0], 0, 15, 0), [300, 300, 300]),
-        render_textured_mapped(
-            game.MaterialTexturedMapped,
-            game.MeshTable,
-            game.Textures["Wood054_1K_Color.jpg"],
-            game.Textures["Wood054_1K_Normal.jpg"],
-            game.Textures["Wood054_1K_Roughness.jpg"]
-        ),
-    ]);
+    // instantiate(game, [
+    //     transform([0, -222, 0], from_euler([0, 0, 0, 0], 0, 15, 0), [300, 300, 300]),
+    //     render_textured_mapped(
+    //         game.MaterialTexturedMapped,
+    //         game.MeshTable,
+    //         game.Textures["Wood054_1K_Color.jpg"],
+    //         game.Textures["Wood054_1K_Normal.jpg"],
+    //         game.Textures["Wood054_1K_Roughness.jpg"]
+    //     ),
+    // ]);
 
     // Board background.
     instantiate(game, [
@@ -113,98 +113,79 @@ export function scene_stage(game: Game) {
         collide(false, Layer.None, Layer.None, [1000, 0.01, 1000]),
         children(
             // Europe
-            blueprint_territory(game, Continent.Europe, 1),
-            blueprint_territory(game, Continent.Europe, 2),
-            blueprint_territory(game, Continent.Europe, 3),
-            blueprint_territory(game, Continent.Europe, 4),
-            blueprint_territory(game, Continent.Europe, 5),
-            blueprint_territory(game, Continent.Europe, 6),
-            blueprint_territory(game, Continent.Europe, 7),
+            blueprint_territory(game, Continent.Europe, 1, "Great Britain"),
+            blueprint_territory(game, Continent.Europe, 2, "Iceland"),
+            blueprint_territory(game, Continent.Europe, 3, "North Europe"),
+            blueprint_territory(game, Continent.Europe, 4, "Scandinavia"),
+            blueprint_territory(game, Continent.Europe, 5, "South Europe"),
+            blueprint_territory(game, Continent.Europe, 6, "East Europe"),
+            blueprint_territory(game, Continent.Europe, 7, "West Europe"),
             // Africa
-            blueprint_territory(game, Continent.Africa, 1),
-            blueprint_territory(game, Continent.Africa, 2),
-            blueprint_territory(game, Continent.Africa, 3),
-            blueprint_territory(game, Continent.Africa, 4),
-            blueprint_territory(game, Continent.Africa, 5),
-            blueprint_territory(game, Continent.Africa, 6),
+            blueprint_territory(game, Continent.Africa, 1, "Congo"),
+            blueprint_territory(game, Continent.Africa, 2, "East Africa"),
+            blueprint_territory(game, Continent.Africa, 3, "Egypt"),
+            blueprint_territory(game, Continent.Africa, 4, "Madagascar"),
+            blueprint_territory(game, Continent.Africa, 5, "North Africa"),
+            blueprint_territory(game, Continent.Africa, 6, "South Africa"),
             // Australia
-            blueprint_territory(game, Continent.Australia, 1),
-            blueprint_territory(game, Continent.Australia, 2),
-            blueprint_territory(game, Continent.Australia, 3),
-            blueprint_territory(game, Continent.Australia, 4),
+            blueprint_territory(game, Continent.Australia, 1, "Eastern Australia"),
+            blueprint_territory(game, Continent.Australia, 2, "Indonesia"),
+            blueprint_territory(game, Continent.Australia, 3, "New Guinea"),
+            blueprint_territory(game, Continent.Australia, 4, "Western Australia"),
             // North America
-            blueprint_territory(game, Continent.NorthAmerica, 1),
-            blueprint_territory(game, Continent.NorthAmerica, 2),
-            blueprint_territory(game, Continent.NorthAmerica, 3),
-            blueprint_territory(game, Continent.NorthAmerica, 4),
-            blueprint_territory(game, Continent.NorthAmerica, 5),
-            blueprint_territory(game, Continent.NorthAmerica, 6),
-            blueprint_territory(game, Continent.NorthAmerica, 7),
-            blueprint_territory(game, Continent.NorthAmerica, 8),
-            blueprint_territory(game, Continent.NorthAmerica, 9),
+            blueprint_territory(game, Continent.NorthAmerica, 1, "Alaska"),
+            blueprint_territory(game, Continent.NorthAmerica, 2, "Alberta"),
+            blueprint_territory(game, Continent.NorthAmerica, 3, "Central America"),
+            blueprint_territory(game, Continent.NorthAmerica, 4, "Eastern United States"),
+            blueprint_territory(game, Continent.NorthAmerica, 5, "Greenland"),
+            blueprint_territory(game, Continent.NorthAmerica, 6, "Northwest Territory"),
+            blueprint_territory(game, Continent.NorthAmerica, 7, "Ontario"),
+            blueprint_territory(game, Continent.NorthAmerica, 8, "Quebec"),
+            blueprint_territory(game, Continent.NorthAmerica, 9, "Western United States"),
             // South America
-            blueprint_territory(game, Continent.SouthAmerica, 1),
-            blueprint_territory(game, Continent.SouthAmerica, 2),
-            blueprint_territory(game, Continent.SouthAmerica, 3),
-            blueprint_territory(game, Continent.SouthAmerica, 4),
+            blueprint_territory(game, Continent.SouthAmerica, 1, "Argentina"),
+            blueprint_territory(game, Continent.SouthAmerica, 2, "Brazil"),
+            blueprint_territory(game, Continent.SouthAmerica, 3, "Peru"),
+            blueprint_territory(game, Continent.SouthAmerica, 4, "Venezuela"),
             // Asia
-            blueprint_territory(game, Continent.Asia, 1),
-            blueprint_territory(game, Continent.Asia, 2),
-            blueprint_territory(game, Continent.Asia, 3),
-            blueprint_territory(game, Continent.Asia, 4),
-            blueprint_territory(game, Continent.Asia, 5),
-            blueprint_territory(game, Continent.Asia, 6),
-            blueprint_territory(game, Continent.Asia, 7),
-            blueprint_territory(game, Continent.Asia, 8),
-            blueprint_territory(game, Continent.Asia, 9),
-            blueprint_territory(game, Continent.Asia, 10),
-            blueprint_territory(game, Continent.Asia, 11),
-            blueprint_territory(game, Continent.Asia, 12)
+            blueprint_territory(game, Continent.Asia, 1, "Afghanistan"),
+            blueprint_territory(game, Continent.Asia, 2, "China"),
+            blueprint_territory(game, Continent.Asia, 3, "India"),
+            blueprint_territory(game, Continent.Asia, 4, "Irkuck"),
+            blueprint_territory(game, Continent.Asia, 5, "Japan"),
+            blueprint_territory(game, Continent.Asia, 6, "Kamtchatka"),
+            blueprint_territory(game, Continent.Asia, 7, "Middle East"),
+            blueprint_territory(game, Continent.Asia, 8, "Mongolia"),
+            blueprint_territory(game, Continent.Asia, 9, "Siam"),
+            blueprint_territory(game, Continent.Asia, 10, "Siberia"),
+            blueprint_territory(game, Continent.Asia, 11, "Ural"),
+            blueprint_territory(game, Continent.Asia, 12, "Yakutsk")
         ),
     ]);
 
-    // Units in Central Europe.
-    for (let i = 0; i < 3; i++) {
-        instantiate(
-            game,
-            blueprint_unit(
+    // Evenly distribute player units around the map
+    let number_of_players = game.Players.length;
+    let territory_entities = Object.keys(game.TerritoryEntities)
+        .sort(() => 0.5 - Math.random())
+        .map((e) => parseInt(e, 10));
+
+    for (let i = 0; i < territory_entities.length; i++) {
+        let team = (number_of_players + i) % number_of_players;
+        let territory_entity_id = game.TerritoryEntities[territory_entities[i]];
+        let territory = game.World.Territory[territory_entity_id];
+        let translation = get_coord_by_territory_id(game, territory.Id);
+
+        if (translation) {
+            instantiate(
                 game,
-                [-15 + float(-4, 4), 1, -48 + float(-4, 4)],
-                [1, 1, 0, 1],
-                3,
-                i < 1 ? game.MeshSoldier : game.MeshDragoon,
-                0
-            )
-        );
+                blueprint_unit(game, translation, territory.Id, game.MeshSoldier, team)
+            );
+        } else {
+            console.error(
+                `Cannot find random point on territory ${JSON.stringify(territory, null, 2)}!`
+            );
+        }
     }
 
-    // Units in Iceland.
-    for (let i = 0; i < 2; i++) {
-        instantiate(
-            game,
-            blueprint_unit(
-                game,
-                [15 + float(-3, 3), 1, -63 + float(-3, 3)],
-                [1, 0, 0, 1],
-                2,
-                i < 1 ? game.MeshSoldier : game.MeshCannon,
-                1
-            )
-        );
-    }
-
-    // Units in Russia.
-    for (let i = 0; i < 3; i++) {
-        instantiate(
-            game,
-            blueprint_unit(
-                game,
-                [-42 + float(-3, 3), 1, -60 + float(-3, 3)],
-                [1, 0, 1, 1],
-                6,
-                i < 1 ? game.MeshSoldier : game.MeshCannon,
-                2
-            )
-        );
-    }
+    dispatch(game, Action.StartDeployment, {});
 }
