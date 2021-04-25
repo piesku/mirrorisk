@@ -40945,9 +40945,12 @@ let enemy_territories = territories_controlled_by_team(game, i);
 let enemy_territory_ids = Object.keys(enemy_territories).map((e) => parseInt(e, 10));
 for (let j = 0; j < enemy_territory_ids.length; j++) {
 if (current_player_territory_ids.includes(enemy_territory_ids[j])) {
-game.Battles.push(() => {
-let territory_name = game.World.Territory[game.TerritoryEntities[enemy_territory_ids[j]]]
-.Name;
+let territory_id = enemy_territory_ids[j];
+let territory_entity = game.TerritoryEntities[territory_id];
+game.Battles.push({
+TerritoryEntity: territory_entity,
+Run: () => {
+let territory_name = game.World.Territory[territory_entity].Name;
 console.log(`Player ${game.CurrentPlayer} (${current_player_territories[enemy_territory_ids[j]]} units) attacks Player ${i} (${enemy_territories[enemy_territory_ids[j]]} units) in ${territory_name}.`);
 let battle_result = fight(game, current_player_territories[enemy_territory_ids[j]], enemy_territories[enemy_territory_ids[j]]);
 let looser;
@@ -40962,6 +40965,7 @@ looser = game.CurrentPlayer;
 if (typeof looser !== undefined) {
 remove_defeated_units(game, enemy_territory_ids[j], looser);
 }
+},
 });
 }
 }
@@ -40977,7 +40981,15 @@ return;
 setTimeout(() => {
 let battle = game.Battles.pop();
 if (battle) {
-battle();
+
+
+
+game.CurrentlyFoughtOverTerritory = battle.TerritoryEntity;
+let scheduled_battle = battle;
+
+setTimeout(() => {
+scheduled_battle.Run();
+}, 1000);
 }
 dispatch(game, 4 /* ResolveBattles */, {});
 }, integer(500, 2000));
@@ -63228,11 +63240,18 @@ const textures_by_continent = {
 };
 function blueprint_territory(game, continent, index, name = "") {
 let mesh = game.TerritoryMeshes[continent][index - 1];
+
+
+let anchor_position = random_point_up(mesh);
+if (!anchor_position) {
+throw new Error("Territory without anchor is illegal.");
+}
 return [
 transform(),
 pickable_territory(mesh, [1.2, 1.2, 1.2, 1], [2, 2, 2, 1], [1.2, 1.5, 1.2, 1], [2, 1.2, 1.2, 1]),
 render_textured_mapped(game.MaterialTexturedMapped, mesh, game.Textures[textures_by_continent[continent]], game.Textures["Cardboard004_1K_Normal.jpg"], game.Textures["Cardboard004_1K_Roughness.jpg"]),
 territory(continent, index, name),
+children([transform(anchor_position)]),
 ];
 }
 function get_coord_by_territory_id(game, territory_id) {
@@ -63323,8 +63342,26 @@ let transform = game.World.Transform[entity];
 if (game.World.Signature[entity] & 256 /* Mimic */) {
 let mimic = game.World.Mimic[entity];
 let current_team_type = game.Players[game.CurrentPlayer].Type;
+switch (game.TurnPhase) {
+case 0 /* Deploy */:
+mimic.Target = null;
+case 1 /* Move */:
 if (current_team_type === 1 /* AI */) {
 mimic.Target = game.CurrentlyMovingAiUnit;
+}
+else {
+mimic.Target = null;
+}
+break;
+case 2 /* Battle */:
+let territory_entity = game.CurrentlyFoughtOverTerritory;
+if (territory_entity) {
+let territory_children = game.World.Children[territory_entity];
+mimic.Target = territory_children.Children[0];
+}
+else {
+mimic.Target = null;
+}
 }
 }
 if (control.Zoom) {
@@ -64426,6 +64463,7 @@ this.Players = [];
 this.CurrentPlayerTerritories = [];
 this.AiActiveUnits = [];
 this.CurrentlyMovingAiUnit = null;
+this.CurrentlyFoughtOverTerritory = null;
 
 this.IsAiTurn = false;
 this.Battles = [];
