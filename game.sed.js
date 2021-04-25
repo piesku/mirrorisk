@@ -84223,9 +84223,10 @@ game.Selected = i;
 function update(game, entity) {
 var _a, _b;
 let selectable = game.World.Selectable[entity];
-if (game.TurnPhase === 1 /* Move */ &&
-game.InputDelta["Mouse0"] === -1 &&
-game.InputState["MousePressedTraveled"] < 10) {
+if (game.TurnPhase !== 1 /* Move */) {
+selectable.Selected = false;
+}
+else if (game.InputDelta["Mouse0"] === -1 && game.InputState["MousePressedTraveled"] < 10) {
 
 
 if (!selectable.Selected && ((_a = game.Picked) === null || _a === void 0 ? void 0 : _a.Entity) === entity) {
