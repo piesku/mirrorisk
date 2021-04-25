@@ -153,13 +153,13 @@ export class Game {
             this.InputDelta[`Mouse${evt.button}`] = -1;
         });
         this.Ui.addEventListener("mousemove", (evt) => {
-            this.InputState.MouseX = evt.offsetX;
-            this.InputState.MouseY = evt.offsetY;
-            this.InputDelta.MouseX = evt.movementX;
-            this.InputDelta.MouseY = evt.movementY;
+            this.InputState["MouseX"] = evt.offsetX;
+            this.InputState["MouseY"] = evt.offsetY;
+            this.InputDelta["MouseX"] = evt.movementX;
+            this.InputDelta["MouseY"] = evt.movementY;
         });
         this.Ui.addEventListener("wheel", (evt) => {
-            this.InputDelta.WheelY = evt.deltaY;
+            this.InputDelta["WheelY"] = evt.deltaY;
         });
         window.addEventListener("keydown", (evt) => {
             if (!evt.repeat) {
