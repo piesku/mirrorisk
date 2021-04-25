@@ -40646,6 +40646,31 @@ out[2] = az + t * (b[2] - az);
 return out;
 }
 
+let colored_unlit_vaos = new WeakMap();
+function render_colored_unlit(material, mesh, color) {
+return (game, entity) => {
+if (!colored_unlit_vaos.has(mesh)) {
+
+let vao = game.ExtVao.createVertexArrayOES();
+game.ExtVao.bindVertexArrayOES(vao);
+game.Gl.bindBuffer(GL_ARRAY_BUFFER, mesh.VertexBuffer);
+game.Gl.enableVertexAttribArray(material.Locations.VertexPosition);
+game.Gl.vertexAttribPointer(material.Locations.VertexPosition, 3, GL_FLOAT, false, 0, 0);
+game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
+game.ExtVao.bindVertexArrayOES(null);
+colored_unlit_vaos.set(mesh, vao);
+}
+game.World.Signature[entity] |= 4096 /* Render */;
+game.World.Render[entity] = {
+Kind: 0 /* ColoredUnlit */,
+Material: material,
+Mesh: mesh,
+FrontFace: GL_CW,
+Vao: colored_unlit_vaos.get(mesh),
+Color: color,
+};
+};
+}
 let textured_specular_vaos = new WeakMap();
 function render_textured_specular(material, mesh, diffuse_map, shininess = 1, diffuse_color = [1, 1, 1, 1], specular_color = [1, 1, 1, 1]) {
 return (game, entity) => {
@@ -41153,111 +41178,22 @@ return cross([0, 0, 0], edge2, edge1);
 let vertex$3 = `
 uniform mat4 pv;
 uniform mat4 world;
-uniform mat4 self;
 
 attribute vec3 position;
-attribute vec3 normal;
-varying vec4 vert_pos;
-varying vec3 vert_normal;
 
 void main() {
-vert_pos = world * vec4(position, 1.0);
-vert_normal = (vec4(normal, 1.0) * self).xyz;
-gl_Position = pv * vert_pos;
+gl_Position = pv * world * vec4(position, 1.0);
 }
 `;
 let fragment$3 = `
 precision mediump float;
-
-
-const int MAX_LIGHTS = 8;
-
-uniform vec3 eye;
-uniform vec4 color_diffuse;
-uniform vec4 color_specular;
-uniform float shininess;
-uniform vec4 light_positions[MAX_LIGHTS];
-uniform vec4 light_details[MAX_LIGHTS];
-uniform mat4 shadow_space;
-uniform sampler2D shadow_map;
-
-varying vec4 vert_pos;
-varying vec3 vert_normal;
-
-float shadow_factor(vec4 world_pos) {
-vec4 shadow_space_pos = shadow_space * world_pos;
-vec3 shadow_space_ndc = shadow_space_pos.xyz / shadow_space_pos.w;
-
-shadow_space_ndc = shadow_space_ndc * 0.5 + 0.5;
-
-float shadow_bias = 0.001;
-float shadow_acc = 0.0;
-float texel_size = 1.0 / 2048.0;
-
-
-for (int u = -1; u <= 1; u++) {
-for (int v = -1; v <= 1; v++) {
-float shadow_map_depth = texture2D(shadow_map, shadow_space_ndc.xy + vec2(u, v) * texel_size).x;
-shadow_acc += shadow_space_ndc.z - shadow_bias > shadow_map_depth ? 0.5 : 0.0;
-}
-}
-return shadow_acc / 9.0;
-}
+uniform vec4 color;
 
 void main() {
-vec3 frag_normal = normalize(vert_normal);
-
-vec3 view_dir = eye - vert_pos.xyz;
-vec3 view_normal = normalize(view_dir);
-
-
-vec3 light_acc = color_diffuse.rgb * 0.1;
-
-for (int i = 0; i < MAX_LIGHTS; i++) {
-if (light_positions[i].w == 0.0) {
-break;
-}
-
-vec3 light_color = light_details[i].rgb;
-float light_intensity = light_details[i].a;
-
-vec3 light_normal;
-if (light_positions[i].w == 1.0) {
-
-light_normal = light_positions[i].xyz;
-} else {
-vec3 light_dir = light_positions[i].xyz - vert_pos.xyz;
-float light_dist = length(light_dir);
-light_normal = light_dir / light_dist;
-
-light_intensity /= (light_dist * light_dist);
-}
-
-float diffuse_factor = dot(frag_normal, light_normal);
-if (diffuse_factor > 0.0) {
-
-light_acc += color_diffuse.rgb * diffuse_factor * light_color * light_intensity;
-
-
-
-
-
-
-
-vec3 h = normalize(light_normal + view_normal);
-float specular_angle = max(dot(h, frag_normal), 0.0);
-float specular_factor = pow(specular_angle, shininess);
-
-
-light_acc += color_specular.rgb * specular_factor * light_color * light_intensity;
-}
-}
-
-vec3 shaded_rgb = light_acc * (1.0 - shadow_factor(vert_pos));
-gl_FragColor = vec4(shaded_rgb, 1.0);
+gl_FragColor = color;
 }
 `;
-function mat1_colored_specular_phong(gl) {
+function mat1_colored_unlit_triangles(gl) {
 let program = link(gl, vertex$3, fragment$3);
 return {
 Mode: GL_TRIANGLES,
@@ -41265,17 +41201,8 @@ Program: program,
 Locations: {
 Pv: gl.getUniformLocation(program, "pv"),
 World: gl.getUniformLocation(program, "world"),
-Self: gl.getUniformLocation(program, "self"),
-Eye: gl.getUniformLocation(program, "eye"),
-ColorDiffuse: gl.getUniformLocation(program, "color_diffuse"),
-ColorSpecular: gl.getUniformLocation(program, "color_specular"),
-Shininess: gl.getUniformLocation(program, "shininess"),
-LightPositions: gl.getUniformLocation(program, "light_positions"),
-LightDetails: gl.getUniformLocation(program, "light_details"),
-ShadowMap: gl.getUniformLocation(program, "shadow_map"),
-ShadowSpace: gl.getUniformLocation(program, "shadow_space"),
+Color: gl.getUniformLocation(program, "color"),
 VertexPosition: gl.getAttribLocation(program, "position"),
-VertexNormal: gl.getAttribLocation(program, "normal"),
 },
 };
 }
@@ -64486,7 +64413,7 @@ this.ExtVao = this.Gl.getExtension("OES_vertex_array_object");
 this.CanvasBillboard = document.querySelector("canvas#billboard");
 this.Context2D = this.CanvasBillboard.getContext("2d");
 this.MaterialDepth = mat1_depth(this.Gl);
-this.MaterialColoredSpecular = mat1_colored_specular_phong(this.Gl);
+this.MaterialBasic = mat1_colored_unlit_triangles(this.Gl);
 this.MaterialTexturedSpecular = mat1_textured_specular_phong(this.Gl);
 this.MaterialTexturedMapped = mat1_textured_mapped(this.Gl);
 this.MeshCube = mesh_cube(this.Gl);
@@ -64682,6 +64609,16 @@ Intensity: range ** 2,
 };
 };
 }
+function light_point(color = [1, 1, 1], range = 1) {
+return (game, entity) => {
+game.World.Signature[entity] |= 128 /* Light */;
+game.World.Light[entity] = {
+Kind: 2 /* Point */,
+Color: color,
+Intensity: range ** 2,
+};
+};
+}
 
 function blueprint_sun(game) {
 return [
@@ -64767,20 +64704,15 @@ instantiate(game, blueprint_sun(game));
 
 instantiate(game, [transform([-1, 1, -1]), light_directional([1, 1, 1], 0.2)]);
 
-
-
-
-
-
-
-
-
-
-
+instantiate(game, [transform([-100, 100, -100]), light_point([1, 1, 0.9], 40)]);
 
 instantiate(game, [
 transform([0, 0, 0], undefined, [332, 1, 220]),
 render_textured_specular(game.MaterialTexturedSpecular, game.MeshPlane, game.Textures["background.jpg"], 1, [1, 1, 1, 1]),
+children([
+transform(undefined, [1, 0, 0, 0]),
+render_colored_unlit(game.MaterialBasic, game.MeshPlane, [0, 0, 0, 1]),
+]),
 ]);
 
 instantiate(game, [
@@ -64913,10 +64845,6 @@ load_texture(game, "Cardboard004_1K_Roughness.jpg"),
 load_texture(game, "Wood063_1K_Color.jpg"),
 load_texture(game, "Wood063_1K_Normal.jpg"),
 load_texture(game, "Wood063_1K_Roughness.jpg"),
-
-load_texture(game, "Wood054_1K_Color.jpg"),
-load_texture(game, "Wood054_1K_Normal.jpg"),
-load_texture(game, "Wood054_1K_Roughness.jpg"),
 ]).then(() => {
 scene_stage(game);
 loop_start(game);
