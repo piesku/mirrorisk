@@ -124,6 +124,7 @@ export class Game {
     };
 
     Cameras: Array<Entity> = [];
+    CameraZoom: number = 1;
     Picked?: Picked;
     Selected?: Entity;
 
