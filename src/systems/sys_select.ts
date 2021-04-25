@@ -1,4 +1,4 @@
-import {Entity, Game} from "../game.js";
+import {Entity, Game, TurnPhase} from "../game.js";
 import {Has} from "../world.js";
 
 const QUERY = Has.Transform | Has.Pickable | Has.Selectable | Has.Children;
@@ -24,7 +24,7 @@ export function sys_select(game: Game, delta: number) {
 function update(game: Game, entity: Entity) {
     let selectable = game.World.Selectable[entity];
 
-    if (game.InputDelta["Mouse0"] === -1) {
+    if (game.TurnPhase === TurnPhase.Move && game.InputDelta["Mouse0"] === -1) {
         // When the user clicks…
 
         // …select.

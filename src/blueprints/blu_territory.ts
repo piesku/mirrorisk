@@ -34,13 +34,7 @@ export function blueprint_territory(
 
     return [
         transform(),
-        pickable_territory(
-            mesh,
-            [1.2, 1.2, 1.2, 1],
-            [2, 2, 2, 1],
-            [1.2, 1.5, 1.2, 1],
-            [2, 1.2, 1.2, 1]
-        ),
+        pickable_territory(mesh, [1.2, 1.2, 1.2, 1]),
         render_textured_mapped(
             game.MaterialTexturedMapped,
             mesh,

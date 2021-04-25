@@ -47,7 +47,7 @@ export function blueprint_unit(
     ];
 
     if (is_human_controlled) {
-        blueprint.push(pickable_unit(color, [1, 0.5, 0, 1], [1, 0, 0, 1]), selectable());
+        blueprint.push(pickable_unit(color), selectable());
     }
 
     return blueprint;

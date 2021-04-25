@@ -32,30 +32,30 @@ function update_territory(game: Game, entity: Entity) {
     let territory = game.World.Territory[entity];
     let render = game.World.Render[entity] as RenderTexturedMapped;
 
+    if (pickable.Hover) {
+        copy(render.ColorDiffuse, pickable.Color);
+        scale(render.ColorDiffuse, render.ColorDiffuse, 1.8);
+    } else {
+        copy(render.ColorDiffuse, pickable.Color);
+    }
+
     if (game.Selected) {
         let nav_agent = game.World.NavAgent[game.Selected];
 
         if (nav_agent.TerritoryId === territory.Id) {
             // The selected unit is on this terrain tile.
-            copy(render.ColorDiffuse, pickable.ColorSelected);
+            copy(render.ColorDiffuse, pickable.Color);
+            scale(render.ColorDiffuse, render.ColorDiffuse, 1.8);
         } else if (
             nav_agent.Actions > 0 &&
             game.TerritoryGraph[territory.Id].includes(nav_agent.TerritoryId)
         ) {
             // The selected unit is on a neighboring tile. The current tile is a
             // possible movement and attach target.
-            copy(render.ColorDiffuse, pickable.ColorReady);
-            if (pickable.Hover) {
-                render.ColorDiffuse[1] += 0.2;
-            }
         } else {
-            copy(render.ColorDiffuse, pickable.ColorIdle);
+            copy(render.ColorDiffuse, pickable.Color);
+            scale(render.ColorDiffuse, render.ColorDiffuse, 0.5);
         }
-    } else if (pickable.Hover) {
-        copy(render.ColorDiffuse, pickable.ColorHover);
-        dispatch(game, Action.ShowTooltipText, territory.Name || `Territory Id: ${territory.Id}`);
-    } else {
-        copy(render.ColorDiffuse, pickable.ColorIdle);
     }
 }
 
@@ -71,10 +71,10 @@ function update_unit(game: Game, entity: Entity) {
     let mesh_render = game.World.Render[mesh_entity] as RenderTexturedMapped;
 
     if (pickable.Hover) {
-        copy(mesh_render.ColorDiffuse, pickable.ColorIdle);
+        copy(mesh_render.ColorDiffuse, pickable.Color);
         scale(mesh_render.ColorDiffuse, mesh_render.ColorDiffuse, 1.5);
     } else {
-        copy(mesh_render.ColorDiffuse, pickable.ColorIdle);
+        copy(mesh_render.ColorDiffuse, pickable.Color);
     }
 
     if (selectable.Selected) {
