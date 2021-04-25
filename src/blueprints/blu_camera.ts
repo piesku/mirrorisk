@@ -21,7 +21,7 @@ export function blueprint_camera(game: Game): Blueprint {
                 transform([0, 40, 0], from_euler([0, 0, 0, 0], -90, 180, 0)),
                 control_camera(0, 200, false, false),
                 move(200, 0),
-                camera_display_perspective(1, 0.1, 1000),
+                camera_display_perspective(1, 1, 10000),
             ]),
         ]),
     ];

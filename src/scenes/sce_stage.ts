@@ -7,7 +7,11 @@ import {blueprint_unit} from "../blueprints/blu_unit.js";
 import {children} from "../components/com_children.js";
 import {collide} from "../components/com_collide.js";
 import {light_directional, light_point} from "../components/com_light.js";
-import {render_colored_unlit, render_textured_specular} from "../components/com_render1.js";
+import {
+    render_colored_unlit,
+    render_textured_mapped,
+    render_textured_specular,
+} from "../components/com_render1.js";
 import {Continent} from "../components/com_territory.js";
 import {transform} from "../components/com_transform.js";
 import {instantiate} from "../entity.js";
@@ -93,10 +97,25 @@ export function scene_stage(game: Game) {
             1,
             [1, 1, 1, 1]
         ),
+        false &&
+            render_textured_mapped(
+                game.MaterialTexturedMapped,
+                game.MeshPlane,
+                game.Textures["Wood063_1K_Color.jpg"],
+                game.Textures["Wood063_1K_Normal.jpg"],
+                game.Textures["Wood063_1K_Roughness.jpg"]
+            ),
         children([
             transform(undefined, [1, 0, 0, 0]),
-            render_colored_unlit(game.MaterialBasic, game.MeshPlane, [0, 0, 0, 1]),
+            render_colored_unlit(game.MaterialColoredUnlit, game.MeshPlane, [0, 0, 0, 1]),
         ]),
+    ]);
+
+    // The room.
+    let room_scale = 500;
+    instantiate(game, [
+        transform([0, 0, 0], [0, 1, 0, 0], [room_scale, room_scale, room_scale]),
+        render_colored_unlit(game.MaterialColoredUnlit, game.MeshRoom, [1, 1, 1, 1]),
     ]);
 
     // World map.
