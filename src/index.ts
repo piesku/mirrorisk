@@ -132,8 +132,10 @@ game.Players = [
 ];
 
 Promise.all([
-    // Portolan chart
-    load_texture(game, "background.jpg"),
+    // Table cloth.
+    load_texture(game, "Fabric023_1K_Color.jpg"),
+    load_texture(game, "Fabric023_1K_Normal.jpg"),
+    load_texture(game, "Fabric023_1K_Roughness.jpg"),
 
     // Continents
     load_texture(game, "euau.webp"),
