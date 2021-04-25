@@ -1,5 +1,5 @@
 import {Vec3} from "../common/math.js";
-import {float, integer} from "../common/random.js";
+import {float} from "../common/random.js";
 import {blueprint_unit} from "./blueprints/blu_unit.js";
 import {territories_controlled_by_team, units_entity_ids} from "./components/com_team.js";
 import {destroy_entity, instantiate} from "./entity.js";
@@ -22,7 +22,8 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
     switch (action) {
         case Action.StartDeployment: {
             game.Battles = [];
-            Logger(game, `Player ${game.CurrentPlayer} turn`);
+            Logger(game, `C:&#92;> Player ${game.CurrentPlayer} turn`);
+            // console.log
             game.CurrentPlayerTerritories = Object.keys(
                 territories_controlled_by_team(game, game.CurrentPlayer)
             ).map((e) => parseInt(e, 10));
@@ -116,7 +117,6 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                             TerritoryEntity: territory_entity,
                             Run: () => {
                                 let territory_name = game.World.Territory[territory_entity].Name;
-
                                 Logger(
                                     game,
                                     `Player ${game.CurrentPlayer} (${
@@ -160,21 +160,25 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                 return;
             }
 
+            let battle = game.Battles.pop()!;
+
             setTimeout(() => {
-                let battle = game.Battles.pop();
-                if (battle) {
-                    // XXX This isn't currently reset anywhere. Instead,
-                    // sys_control_camera resets mimic.Target in the deploy
-                    // phase.
-                    game.CurrentlyFoughtOverTerritory = battle.TerritoryEntity;
-                    let scheduled_battle = battle;
-                    // Wait for the camera to move over the territory.
+                // XXX This isn't currently reset anywhere. Instead,
+                // sys_control_camera resets mimic.Target in the deploy
+                // phase.
+                game.CurrentlyFoughtOverTerritory = battle.TerritoryEntity;
+                let scheduled_battle = battle;
+                // Wait for the camera to move over the territory.
+                setTimeout(() => {
+                    scheduled_battle.Run();
                     setTimeout(() => {
-                        scheduled_battle.Run();
+                        dispatch(game, Action.ResolveBattles, {});
                     }, 1000);
-                }
-                dispatch(game, Action.ResolveBattles, {});
-            }, integer(500, 2000));
+                }, 1000);
+
+                // setTimeout(() => {
+            }, 1000);
+            // }, 3000);
             break;
         }
         case Action.EndTurn: {
@@ -243,7 +247,18 @@ export function remove_defeated_units(game: Game, territory_id: number, team_id:
             game.World.NavAgent[i].TerritoryId === territory_id &&
             game.World.Team[i].Id === team_id
         ) {
-            destroy_entity(game.World, i);
+            let translation = game.World.Transform[i].Translation;
+            game.World.Signature[i] &= ~Has.Team;
+            delete game.World.Team[i];
+            game.World.NavAgent[i].TerritoryId = 0;
+            game.World.NavAgent[i].Destination = [
+                translation[0],
+                translation[1] - float(5, 6),
+                translation[2],
+            ];
+            setTimeout(() => {
+                destroy_entity(game.World, i);
+            }, 1000);
         }
     }
 }

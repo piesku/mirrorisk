@@ -95,6 +95,8 @@ export class Game {
 
     Battles: Array<BattleCallback> = [];
 
+    ForceHover: Entity | undefined;
+
     TurnPhase: TurnPhase = TurnPhase.Deploy;
     UnitsToDeploy: number = 0;
     UnitsDeployed: number = 0;

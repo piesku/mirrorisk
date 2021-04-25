@@ -32,7 +32,7 @@ function update_territory(game: Game, entity: Entity) {
     let territory = game.World.Territory[entity];
     let render = game.World.Render[entity] as RenderTexturedMapped;
 
-    if (pickable.Hover) {
+    if (pickable.Hover || game.CurrentlyFoughtOverTerritory === entity) {
         copy(render.ColorDiffuse, pickable.Color);
         scale(render.ColorDiffuse, render.ColorDiffuse, 1.8);
     } else {
