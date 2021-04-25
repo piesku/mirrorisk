@@ -1,5 +1,6 @@
 import {Mesh} from "../../common/material.js";
 import {Vec3, Vec4} from "../../common/math.js";
+import {audio_source} from "../components/com_audio_source.js";
 import {children} from "../components/com_children.js";
 import {collide} from "../components/com_collide.js";
 import {disable} from "../components/com_disable.js";
@@ -47,7 +48,7 @@ export function blueprint_unit(
     ];
 
     if (is_human_controlled) {
-        blueprint.push(pickable_unit(color), selectable());
+        blueprint.push(pickable_unit(color), selectable(), audio_source(false));
     }
 
     return blueprint;

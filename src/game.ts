@@ -14,6 +14,8 @@ import {mesh_room07} from "../meshes/room07.js";
 import {mesh_soldier} from "../meshes/soldier.js";
 import {mesh_table_round} from "../meshes/table_round.js";
 import {loop_start, loop_stop} from "./loop.js";
+import {sys_audio_listener} from "./systems/sys_audio_listener.js";
+import {sys_audio_source} from "./systems/sys_audio_source.js";
 import {sys_camera} from "./systems/sys_camera.js";
 import {sys_collide} from "./systems/sys_collide.js";
 import {sys_control_ai} from "./systems/sys_control_ai.js";
@@ -108,6 +110,8 @@ export class Game {
     Gl = this.CanvasScene.getContext("webgl")!;
     ExtVao = this.Gl.getExtension("OES_vertex_array_object")!;
 
+    Audio = new (window["AudioContext"] || window.webkitAudioContext)();
+
     CanvasBillboard = document.querySelector("canvas#billboard")! as HTMLCanvasElement;
     Context2D = this.CanvasBillboard.getContext("2d")!;
 
@@ -124,6 +128,7 @@ export class Game {
     MeshCannon = mesh_cannon(this.Gl);
 
     Textures: Record<string, WebGLTexture> = {};
+    Sounds: Record<string, AudioBuffer> = {};
 
     TerritoryMeshes: Array<Array<Mesh>> = [];
     TerritoryGraph: Record<number, Array<number>> = {};
@@ -244,6 +249,8 @@ export class Game {
         sys_collide(this, delta);
 
         // Rendering.
+        sys_audio_listener(this, delta);
+        sys_audio_source(this, delta);
         sys_camera(this, delta);
         sys_light(this, delta);
         sys_render_depth(this, delta);

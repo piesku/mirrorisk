@@ -23,6 +23,7 @@ export function sys_select(game: Game, delta: number) {
 
 function update(game: Game, entity: Entity) {
     let selectable = game.World.Selectable[entity];
+    let audio_source = game.World.AudioSource[entity];
 
     if (game.TurnPhase !== TurnPhase.Move) {
         selectable.Selected = false;
@@ -32,6 +33,7 @@ function update(game: Game, entity: Entity) {
         // …select.
         if (!selectable.Selected && game.Picked?.Entity === entity) {
             selectable.Selected = true;
+            audio_source.Trigger = game.Sounds["huh1.mp3"];
         }
 
         // …deselect.
