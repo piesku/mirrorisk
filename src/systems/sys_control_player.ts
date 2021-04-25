@@ -21,7 +21,12 @@ export function sys_control_player(game: Game, delta: number) {
 function update(game: Game, entity: Entity) {
     let agent = game.World.NavAgent[entity];
 
-    if (game.InputDelta["Mouse2"] === 1 && game.Picked && agent.Actions > 0) {
+    if (
+        game.InputDelta["Mouse2"] === -1 &&
+        game.InputState["Mouse2DownTraveled"] < 10 &&
+        game.Picked &&
+        agent.Actions > 0
+    ) {
         let territory_entity = game.Picked.Entity;
         let territory = game.World.Territory[territory_entity];
 

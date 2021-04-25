@@ -5,11 +5,11 @@ import {Has} from "../world.js";
 export interface ControlCamera {
     Move: number;
     Zoom: number;
-    Yaw: boolean;
-    Pitch: boolean;
+    Yaw: number;
+    Pitch: number;
 }
 
-export function control_camera(move: number, zoom: number, yaw: boolean, pitch: boolean) {
+export function control_camera(move: number, zoom: number, yaw: number, pitch: number) {
     return (game: Game, entity: Entity) => {
         game.World.Signature[entity] |= Has.ControlCamera;
         game.World.ControlCamera[entity] = {
