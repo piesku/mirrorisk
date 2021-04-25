@@ -40282,30 +40282,24 @@ Actions: 1,
 };
 }
 
-function pickable_territory(mesh, color_idle, color_hover, color_ready, color_selected) {
+function pickable_territory(mesh, color) {
 return (game, entity) => {
 game.World.Signature[entity] |= 2048 /* Pickable */;
 game.World.Pickable[entity] = {
 Kind: 0 /* Territory */,
 Mesh: mesh,
 Hover: false,
-ColorIdle: color_idle,
-ColorHover: color_hover,
-ColorReady: color_ready,
-ColorSelected: color_selected,
+Color: color,
 };
 };
 }
-function pickable_unit(color_idle, color_hover, color_selected) {
+function pickable_unit(color) {
 return (game, entity) => {
 game.World.Signature[entity] |= 2048 /* Pickable */;
 game.World.Pickable[entity] = {
 Kind: 1 /* Unit */,
 Hover: false,
-ColorIdle: color_idle,
-ColorHover: color_hover,
-ColorReady: color_selected,
-ColorSelected: color_selected,
+Color: color,
 };
 };
 }
@@ -40846,7 +40840,7 @@ render_textured_mapped(game.MaterialTexturedMapped, mesh, game.Textures["Wood063
 team(team_id),
 ];
 if (is_human_controlled) {
-blueprint.push(pickable_unit(color, [1, 0.5, 0, 1], [1, 0, 0, 1]), selectable());
+blueprint.push(pickable_unit(color), selectable());
 }
 return blueprint;
 }
@@ -63255,7 +63249,7 @@ throw new Error("Territory without anchor is illegal.");
 }
 return [
 transform(),
-pickable_territory(mesh, [1.2, 1.2, 1.2, 1], [2, 2, 2, 1], [1.2, 1.5, 1.2, 1], [2, 1.2, 1.2, 1]),
+pickable_territory(mesh, [1.2, 1.2, 1.2, 1]),
 render_textured_mapped(game.MaterialTexturedMapped, mesh, game.Textures[textures_by_continent[continent]], game.Textures["Cardboard004_1K_Normal.jpg"], game.Textures["Cardboard004_1K_Roughness.jpg"]),
 territory(continent, index, name),
 children([transform(anchor_position)]),
@@ -63607,31 +63601,26 @@ function update_territory(game, entity) {
 let pickable = game.World.Pickable[entity];
 let territory = game.World.Territory[entity];
 let render = game.World.Render[entity];
+if (pickable.Hover) {
+copy(render.ColorDiffuse, pickable.Color);
+scale(render.ColorDiffuse, render.ColorDiffuse, 1.8);
+}
+else {
+copy(render.ColorDiffuse, pickable.Color);
+}
 if (game.Selected) {
 let nav_agent = game.World.NavAgent[game.Selected];
 if (nav_agent.TerritoryId === territory.Id) {
 
-copy(render.ColorDiffuse, pickable.ColorSelected);
+copy(render.ColorDiffuse, pickable.Color);
+scale(render.ColorDiffuse, render.ColorDiffuse, 1.8);
 }
 else if (nav_agent.Actions > 0 &&
-game.TerritoryGraph[territory.Id].includes(nav_agent.TerritoryId)) {
-
-
-copy(render.ColorDiffuse, pickable.ColorReady);
-if (pickable.Hover) {
-render.ColorDiffuse[1] += 0.2;
-}
-}
+game.TerritoryGraph[territory.Id].includes(nav_agent.TerritoryId)) ;
 else {
-copy(render.ColorDiffuse, pickable.ColorIdle);
+copy(render.ColorDiffuse, pickable.Color);
+scale(render.ColorDiffuse, render.ColorDiffuse, 0.5);
 }
-}
-else if (pickable.Hover) {
-copy(render.ColorDiffuse, pickable.ColorHover);
-dispatch(game, 6 /* ShowTooltipText */, territory.Name || `Territory Id: ${territory.Id}`);
-}
-else {
-copy(render.ColorDiffuse, pickable.ColorIdle);
 }
 }
 function update_unit(game, entity) {
@@ -63643,11 +63632,11 @@ let box_draw = game.World.Draw[box_entity];
 let mesh_entity = children.Children[1];
 let mesh_render = game.World.Render[mesh_entity];
 if (pickable.Hover) {
-copy(mesh_render.ColorDiffuse, pickable.ColorIdle);
+copy(mesh_render.ColorDiffuse, pickable.Color);
 scale(mesh_render.ColorDiffuse, mesh_render.ColorDiffuse, 1.5);
 }
 else {
-copy(mesh_render.ColorDiffuse, pickable.ColorIdle);
+copy(mesh_render.ColorDiffuse, pickable.Color);
 }
 if (selectable.Selected) {
 game.World.Signature[box_entity] |= 32 /* Draw */;
@@ -64385,7 +64374,7 @@ game.Selected = i;
 function update(game, entity) {
 var _a, _b;
 let selectable = game.World.Selectable[entity];
-if (game.InputDelta["Mouse0"] === -1) {
+if (game.TurnPhase === 1 /* Move */ && game.InputDelta["Mouse0"] === -1) {
 
 
 if (!selectable.Selected && ((_a = game.Picked) === null || _a === void 0 ? void 0 : _a.Entity) === entity) {
