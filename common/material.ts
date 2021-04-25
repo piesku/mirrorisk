@@ -1,6 +1,6 @@
 import {Mat4, Vec3} from "./math.js";
 import {element, float} from "./random.js";
-import {cross, dot, normalize, subtract, transform_point} from "./vec3.js";
+import {cross, length, normalize, subtract, transform_point} from "./vec3.js";
 import {GL_COMPILE_STATUS, GL_FRAGMENT_SHADER, GL_LINK_STATUS, GL_VERTEX_SHADER} from "./webgl.js";
 
 export interface Mesh {
@@ -46,8 +46,6 @@ function compile(gl: WebGLRenderingContext, type: GLenum, source: string) {
     return shader;
 }
 
-const up: Vec3 = [0, 1, 0];
-
 export function random_point_up_worldspace(mesh: Mesh, world_space: Mat4): Vec3 | null {
     let point_localspace = random_point_up(mesh);
     if (point_localspace === null) {
@@ -57,7 +55,7 @@ export function random_point_up_worldspace(mesh: Mesh, world_space: Mat4): Vec3 
     return transform_point(point_localspace, point_localspace, world_space);
 }
 
-export function random_point_up(mesh: Mesh): Vec3 | null {
+export function random_point_up(mesh: Mesh, min_area = 3): Vec3 | null {
     let up_face_indices: Array<number> = [];
 
     let face_count = mesh.IndexCount / 3;
@@ -66,9 +64,17 @@ export function random_point_up(mesh: Mesh): Vec3 | null {
         let v1 = mesh.IndexArray[f * 3 + 1];
         let v2 = mesh.IndexArray[f * 3 + 2];
 
-        let n = normal(mesh.VertexArray, v0, v1, v2);
-        if (dot(n, up) === 1) {
-            up_face_indices.push(f);
+        let n = cross_product(mesh.VertexArray, v0, v1, v2);
+        let face_area = length(n) * 0.5;
+
+        if (face_area > min_area) {
+            normalize(n, n);
+            if (n[1] === 1) {
+                let times = face_area - min_area + 1;
+                for (let i = 0; i < times; i++) {
+                    up_face_indices.push(f);
+                }
+            }
         }
     }
 
@@ -99,8 +105,8 @@ export function random_point_up(mesh: Mesh): Vec3 | null {
     ];
 
     // Random barycentric coords.
-    let t0 = float(0, 1);
-    let t1 = float(0, 1);
+    let t0 = float(0.1, 0.8);
+    let t1 = float(0.1, 0.8);
     if (t0 + t1 > 1) {
         t0 = 1 - t0;
         t1 = 1 - t1;
@@ -115,7 +121,7 @@ export function random_point_up(mesh: Mesh): Vec3 | null {
     ];
 }
 
-function normal(vertices: Float32Array, a: number, b: number, c: number): Vec3 {
+function cross_product(vertices: Float32Array, a: number, b: number, c: number): Vec3 {
     let edge1: Vec3 = [0, 0, 0];
     let edge2: Vec3 = [0, 0, 0];
 
@@ -131,6 +137,18 @@ function normal(vertices: Float32Array, a: number, b: number, c: number): Vec3 {
         [vertices[b * 3 + 0], vertices[b * 3 + 1], vertices[b * 3 + 2]]
     );
 
-    let product = cross([0, 0, 0], edge2, edge1);
+    return cross([0, 0, 0], edge2, edge1);
+}
+
+function normal(vertices: Float32Array, a: number, b: number, c: number): Vec3 {
+    let product = cross_product(vertices, a, b, c);
     return normalize(product, product);
+}
+
+function centroid(vertices: Float32Array, a: number, b: number, c: number): Vec3 {
+    return [
+        (vertices[a * 3 + 0] + vertices[b * 3 + 0] + vertices[c * 3 + 0]) / 3,
+        (vertices[a * 3 + 1] + vertices[b * 3 + 1] + vertices[c * 3 + 1]) / 3,
+        (vertices[a * 3 + 2] + vertices[b * 3 + 2] + vertices[c * 3 + 2]) / 3,
+    ];
 }
