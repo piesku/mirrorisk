@@ -40245,6 +40245,8 @@
             game.World.Draw[entity] = {
                 Kind: 2 /* Selection */,
                 Color: color,
+                // Set by sys_highlight.
+                Size: 0,
             };
         };
     }
@@ -40577,7 +40579,7 @@
         out[2] = a[2] - b[2];
         return out;
     }
-    function scale(out, a, b) {
+    function scale$1(out, a, b) {
         out[0] = a[0] * b;
         out[1] = a[1] * b;
         out[2] = a[2] * b;
@@ -40837,9 +40839,9 @@
             collide(true, 0 /* None */, 0 /* None */, [2, 6, 2]),
             nav_agent(territory_id),
             is_human_controlled ? move(10, 5) : move(20, 50),
-            children([transform(), draw_selection$1("#ff0"), disable(32 /* Draw */)], [
+            children([transform([0, 1, 0]), draw_selection$1("#ff0"), disable(32 /* Draw */)], [
                 transform(),
-                render_textured_mapped(game.MaterialTexturedMapped, mesh, game.Textures["Wood063_1K_Color.jpg"], game.Textures["Wood063_1K_Normal.jpg"], game.Textures["Wood063_1K_Roughness.jpg"], color),
+                render_textured_mapped(game.MaterialTexturedMapped, mesh, game.Textures["Wood063_1K_Color.jpg"], game.Textures["Wood063_1K_Normal.jpg"], game.Textures["Wood063_1K_Roughness.jpg"], is_human_controlled ? undefined : color),
             ]),
             team(team_id),
         ];
@@ -63548,9 +63550,8 @@
         game.Context2D.fillText(draw.Text, 0, 0);
     }
     function draw_selection(game, draw) {
-        let size = game.ViewportHeight * 0.1;
         game.Context2D.strokeStyle = draw.Color;
-        game.Context2D.strokeRect(-size / 2, -size / 2, size, size);
+        game.Context2D.strokeRect(-draw.Size / 2, -draw.Size / 2, draw.Size, draw.Size);
     }
 
     let update_span = document.getElementById("update");
@@ -63573,6 +63574,13 @@
         out[1] = a[1];
         out[2] = a[2];
         out[3] = a[3];
+        return out;
+    }
+    function scale(out, a, b) {
+        out[0] = a[0] * b;
+        out[1] = a[1] * b;
+        out[2] = a[2] * b;
+        out[3] = a[3] * b;
         return out;
     }
 
@@ -63629,19 +63637,24 @@
     function update_unit(game, entity) {
         let pickable = game.World.Pickable[entity];
         let selectable = game.World.Selectable[entity];
-        let mesh_entity = game.World.Children[entity].Children[1];
-        let render = game.World.Render[mesh_entity];
-        if (selectable.Selected) {
-            copy(render.ColorDiffuse, pickable.ColorSelected);
-            if (pickable.Hover) {
-                render.ColorDiffuse[1] += 0.3;
-            }
-        }
-        else if (pickable.Hover) {
-            copy(render.ColorDiffuse, pickable.ColorHover);
+        let children = game.World.Children[entity];
+        let box_entity = children.Children[0];
+        let box_draw = game.World.Draw[box_entity];
+        let mesh_entity = children.Children[1];
+        let mesh_render = game.World.Render[mesh_entity];
+        if (pickable.Hover) {
+            copy(mesh_render.ColorDiffuse, pickable.ColorIdle);
+            scale(mesh_render.ColorDiffuse, mesh_render.ColorDiffuse, 1.5);
         }
         else {
-            copy(render.ColorDiffuse, pickable.ColorIdle);
+            copy(mesh_render.ColorDiffuse, pickable.ColorIdle);
+        }
+        if (selectable.Selected) {
+            game.World.Signature[box_entity] |= 32 /* Draw */;
+            box_draw.Size = 80 / game.CameraZoom;
+        }
+        else {
+            game.World.Signature[box_entity] &= ~32 /* Draw */;
         }
     }
 
@@ -63810,7 +63823,7 @@
             // of the orignal direction is now lost.
             normalize(direction, direction);
             // Scale by the amount and distance traveled in this tick.
-            scale(direction, direction, amount * move.MoveSpeed * delta);
+            scale$1(direction, direction, amount * move.MoveSpeed * delta);
             add(transform.Translation, transform.Translation, direction);
             transform.Dirty = true;
             move.Directions = [];
@@ -63900,7 +63913,7 @@
         }
         if (nearest_i !== null) {
             let intersection = [0, 0, 0];
-            scale(intersection, direction, nearest_t);
+            scale$1(intersection, direction, nearest_t);
             add(intersection, intersection, origin);
             return { Collider: colliders[nearest_i], Point: intersection };
         }
@@ -64006,7 +64019,7 @@
             let t = -dot(G, N) / denominator;
             // Intersection is O + tD.
             let intersection = [0, 0, 0];
-            scale(intersection, direction, t);
+            scale$1(intersection, direction, t);
             add(intersection, intersection, origin);
             return { TriIndex: tri, Point: intersection };
         }
