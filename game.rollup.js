@@ -40852,19 +40852,72 @@
         return strings.reduce((out, cur) => out + shift(values) + cur);
     }
 
+    function LogWindow(game) {
+        return html `<div
+        class="window"
+        style="width: 500px; max-height: 400px; margin: 10px; position: absolute; bottom:0; right: 0;"
+    >
+        <div class="title-bar">
+            <div class="title-bar-text">Game log</div>
+            <div class="title-bar-controls">
+                <button aria-label="Minimize"></button>
+                <button aria-label="Maximize"></button>
+                <button aria-label="Close"></button>
+            </div>
+        </div>
+        <div class="window-body">
+            <pre
+                class="pre-log"
+                style="white-space: pre-wrap;word-wrap: break-word; overflow-y: scroll;max-height:300px;"
+            >
+Piesku&#10094;R&#10095; Mirrorisk
+&#10094;C&#10095; Copyright Piesku Corp 2001-2021.
+      <br/>${game.Logs}
+    </pre>
+        </div>
+    </div>`;
+    }
+
     function Toolbar(game) {
         switch (game.TurnPhase) {
             case 0 /* Deploy */: {
-                return html `<div>Deployed ${game.UnitsDeployed} out of ${game.UnitsToDeploy} units</div>
-            <button onclick="$(${1 /* EndDeployment */})" ${(game.IsAiTurn || game.UnitsDeployed !== game.UnitsToDeploy) && "disabled=disabled"}">
-                End Deployment
-            </button>`;
+                return html `<div class="window" style="width: 300px;margin: 10px;">
+                <div class="title-bar">
+                    <div class="title-bar-text">Deployment Phase</div>
+                    <div class="title-bar-controls">
+                        <button aria-label="Close"></button>
+                    </div>
+                </div>
+                <div class="window-body">
+                    <p>Click on a territory you control to deploy additional units</p>
+                    <p><div class="field-row">
+                    <label for="range25">Units left:</label>
+                    <label for="range26">0</label>
+                    <input id="range26" type="range" min="0" max="${game.UnitsToDeploy}" value="${game.UnitsDeployed}" style="pointer-events: none"/>
+                    <label for="range27">${game.UnitsToDeploy}</label>
+                    </div></p>
+                    <button onclick="$(${1 /* EndDeployment */})" ${(game.IsAiTurn || game.UnitsDeployed !== game.UnitsToDeploy) && "disabled=disabled"}">
+                        End Deployment
+                    </button>
+                </div>
+            </div>`;
             }
             case 1 /* Move */: {
-                return html `<div>Current Player: ${game.CurrentPlayer} (${game.IsAiTurn ? "AI" : "Human"})</div>
-            <button onclick="$(${3 /* SetupBattles */})" ${game.IsAiTurn && "disabled=disabled"}">
+                return html `<div class="window" style="width: 300px;margin: 10px;">
+                <div class="title-bar">
+                    <div class="title-bar-text">Movement Phase</div>
+                    <div class="title-bar-controls">
+                        <button aria-label="Close"></button>
+                    </div>
+                </div>
+                <div class="window-body">
+                    <p>Current Player Id: ${game.CurrentPlayer}</p>
+                    <p>Controlled by: ${game.IsAiTurn ? "AI" : "Human"}</p>
+                    <button onclick="$(${3 /* SetupBattles */})" ${game.IsAiTurn && "disabled=disabled"}">
                 End turn & Resolve Battles
-            </button>`;
+            </button>
+                </div>
+            </div>`;
             }
         }
     }
@@ -40878,25 +40931,25 @@
     }
 
     function App(game) {
-        return html ` ${Toolbar(game)} ${Tooltip(game)} `;
+        return html ` ${Toolbar(game)} ${Tooltip(game)} ${LogWindow(game)}`;
     }
-    function Alert(text) {
+    function Alert(game, text) {
         // alert(text);
-        console.log(text);
+        game.Logs += `${text}<br/>`;
     }
 
     function dispatch(game, action, payload) {
         switch (action) {
             case 0 /* StartDeployment */: {
                 game.Battles = [];
-                console.log("Deployment, player ", game.CurrentPlayer, `AI? ${game.IsAiTurn}`);
+                Alert(game, `Player ${game.CurrentPlayer} turn`);
                 game.CurrentPlayerTerritories = Object.keys(territories_controlled_by_team(game, game.CurrentPlayer)).map((e) => parseInt(e, 10));
                 for (let i = 0; i < game.Players.length; i++) {
-                    console.log(`Player ${i} controlls ${Object.keys(territories_controlled_by_team(game, i)).length} territories`);
+                    Alert(game, `Player ${i} controlls ${Object.keys(territories_controlled_by_team(game, i)).length} territories`);
                 }
                 // XXX: Add continent bonus here
                 let units_to_deploy = Math.max(~~(game.CurrentPlayerTerritories.length / 3), 3);
-                Alert(`Select territories to deploy ${units_to_deploy} units.`);
+                Alert(game, `Select territories to deploy ${units_to_deploy} units.`);
                 game.TurnPhase = 0 /* Deploy */;
                 game.UnitsDeployed = 0;
                 game.UnitsToDeploy = units_to_deploy;
@@ -40909,7 +40962,7 @@
                 let { territory_id, position } = payload;
                 if (position) {
                     let territory_name = game.World.Territory[game.TerritoryEntities[territory_id]].Name;
-                    console.log(`Deploying one unit to ${territory_name} (Player ${game.CurrentPlayer})`);
+                    Alert(game, `Deploying one unit to ${territory_name} (Player ${game.CurrentPlayer})`);
                     instantiate(game, blueprint_unit(game, position, territory_id, game.MeshSoldier, game.CurrentPlayer));
                 }
                 game.UnitsDeployed++;
@@ -40938,15 +40991,15 @@
                                 TerritoryEntity: territory_entity,
                                 Run: () => {
                                     let territory_name = game.World.Territory[territory_entity].Name;
-                                    console.log(`Player ${game.CurrentPlayer} (${current_player_territories[enemy_territory_ids[j]]} units) attacks Player ${i} (${enemy_territories[enemy_territory_ids[j]]} units) in ${territory_name}.`);
+                                    Alert(game, `Player ${game.CurrentPlayer} (${current_player_territories[enemy_territory_ids[j]]} units) attacks Player ${i} (${enemy_territories[enemy_territory_ids[j]]} units) in ${territory_name}.`);
                                     let battle_result = fight(game, current_player_territories[enemy_territory_ids[j]], enemy_territories[enemy_territory_ids[j]]);
                                     let looser;
                                     if (battle_result === 0 /* AttackWon */) {
-                                        console.log(`Player ${game.CurrentPlayer} won!`);
+                                        Alert(game, `Player ${game.CurrentPlayer} won!`);
                                         looser = i;
                                     }
                                     else {
-                                        console.log(`Player ${i} won!`);
+                                        Alert(game, `Player ${i} won!`);
                                         looser = game.CurrentPlayer;
                                     }
                                     if (typeof looser !== undefined) {
@@ -84221,6 +84274,12 @@
         let next = App(game);
         if (next !== prev) {
             game.Ui.innerHTML = prev = next;
+            setTimeout(() => {
+                let log = game.Ui.querySelector(".pre-log");
+                if (log) {
+                    log.scroll(0, Number.MAX_SAFE_INTEGER);
+                }
+            }, 100);
         }
     }
 
@@ -84264,6 +84323,7 @@
                 MouseX: 0,
                 MouseY: 0,
             };
+            this.Logs = "";
             this.CurrentPlayer = 0;
             this.Players = [];
             this.CurrentPlayerTerritories = [];
