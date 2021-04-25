@@ -2,7 +2,7 @@ import {random_point_up, random_point_up_worldspace} from "../../common/material
 import {Vec3} from "../../common/math.js";
 import {children} from "../components/com_children.js";
 import {pickable_territory} from "../components/com_pickable.js";
-import {render_colored_unlit, render_textured_mapped} from "../components/com_render1.js";
+import {render_textured_mapped} from "../components/com_render1.js";
 import {Continent, territory} from "../components/com_territory.js";
 import {transform} from "../components/com_transform.js";
 import {Blueprint} from "../entity.js";

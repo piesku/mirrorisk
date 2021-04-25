@@ -1,7 +1,8 @@
-import {copy} from "../../common/vec4.js";
+import {copy, scale} from "../../common/vec4.js";
 import {Action, dispatch} from "../actions.js";
+import {DrawSelection} from "../components/com_draw.js";
 import {PickableKind} from "../components/com_pickable.js";
-import {RenderColoredSpecular} from "../components/com_render1.js";
+import {RenderTexturedMapped} from "../components/com_render1.js";
 import {Entity, Game} from "../game.js";
 import {Has} from "../world.js";
 
@@ -29,8 +30,7 @@ export function sys_highlight(game: Game, delta: number) {
 function update_territory(game: Game, entity: Entity) {
     let pickable = game.World.Pickable[entity];
     let territory = game.World.Territory[entity];
-
-    let render = game.World.Render[entity] as RenderColoredSpecular;
+    let render = game.World.Render[entity] as RenderTexturedMapped;
 
     if (game.Selected) {
         let nav_agent = game.World.NavAgent[game.Selected];
@@ -62,17 +62,25 @@ function update_territory(game: Game, entity: Entity) {
 function update_unit(game: Game, entity: Entity) {
     let pickable = game.World.Pickable[entity];
     let selectable = game.World.Selectable[entity];
-    let mesh_entity = game.World.Children[entity].Children[1];
-    let render = game.World.Render[mesh_entity] as RenderColoredSpecular;
+    let children = game.World.Children[entity];
+
+    let box_entity = children.Children[0];
+    let box_draw = game.World.Draw[box_entity] as DrawSelection;
+
+    let mesh_entity = children.Children[1];
+    let mesh_render = game.World.Render[mesh_entity] as RenderTexturedMapped;
+
+    if (pickable.Hover) {
+        copy(mesh_render.ColorDiffuse, pickable.ColorIdle);
+        scale(mesh_render.ColorDiffuse, mesh_render.ColorDiffuse, 1.5);
+    } else {
+        copy(mesh_render.ColorDiffuse, pickable.ColorIdle);
+    }
 
     if (selectable.Selected) {
-        copy(render.ColorDiffuse, pickable.ColorSelected);
-        if (pickable.Hover) {
-            render.ColorDiffuse[1] += 0.3;
-        }
-    } else if (pickable.Hover) {
-        copy(render.ColorDiffuse, pickable.ColorHover);
+        game.World.Signature[box_entity] |= Has.Draw;
+        box_draw.Size = 80 / game.CameraZoom;
     } else {
-        copy(render.ColorDiffuse, pickable.ColorIdle);
+        game.World.Signature[box_entity] &= ~Has.Draw;
     }
 }

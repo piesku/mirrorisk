@@ -30,7 +30,7 @@ export function blueprint_unit(
         nav_agent(territory_id),
         is_human_controlled ? move(10, 5) : move(20, 50),
         children(
-            [transform(), draw_selection("#ff0"), disable(Has.Draw)],
+            [transform([0, 1, 0]), draw_selection("#ff0"), disable(Has.Draw)],
             [
                 transform(),
                 render_textured_mapped(
@@ -39,7 +39,7 @@ export function blueprint_unit(
                     game.Textures["Wood063_1K_Color.jpg"],
                     game.Textures["Wood063_1K_Normal.jpg"],
                     game.Textures["Wood063_1K_Roughness.jpg"],
-                    color
+                    is_human_controlled ? undefined : color
                 ),
             ]
         ),
