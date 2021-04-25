@@ -7,6 +7,7 @@ export function loop_start(game: Game) {
 
     let tick = (now: number) => {
         let delta = (now - last) / 1000;
+        game.FrameSetup();
         game.FrameUpdate(delta);
         game.FrameReset();
         last = now;

@@ -17,21 +17,21 @@ function update(game: Game, entity: Entity) {
     let control = game.World.ControlCamera[entity];
     let move = game.World.Move[entity];
 
-    if (control.Move && game.InputState.Mouse0) {
+    if (control.Move && game.InputState["MousePressedTraveled"] > 10) {
         move.MoveSpeed = control.Move * game.CameraZoom ** ZOOM_FACTOR;
-        if (game.InputDelta.MouseX) {
-            let amount = game.InputDelta.MouseX * MOUSE_SENSITIVITY;
+        if (game.InputDelta["MouseX"]) {
+            let amount = game.InputDelta["MouseX"] * MOUSE_SENSITIVITY;
             move.Directions.push([amount, 0, 0]);
         }
 
-        if (game.InputDelta.MouseY) {
-            let amount = game.InputDelta.MouseY * MOUSE_SENSITIVITY;
+        if (game.InputDelta["MouseY"]) {
+            let amount = game.InputDelta["MouseY"] * MOUSE_SENSITIVITY;
             move.Directions.push([0, 0, amount]);
         }
     }
 
-    if (control.Zoom && game.InputDelta.WheelY) {
+    if (control.Zoom && game.InputDelta["WheelY"]) {
         move.MoveSpeed = control.Zoom * game.CameraZoom ** ZOOM_FACTOR;
-        move.Directions.push([0, 0, game.InputDelta.WheelY]);
+        move.Directions.push([0, 0, game.InputDelta["WheelY"]]);
     }
 }

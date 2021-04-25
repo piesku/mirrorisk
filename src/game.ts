@@ -72,6 +72,7 @@ export class Game {
     InputState: Record<string, number> = {
         MouseX: 0,
         MouseY: 0,
+        MousePressedTraveled: 0,
     };
     InputDelta: Record<string, number> = {
         MouseX: 0,
@@ -153,13 +154,13 @@ export class Game {
             this.InputDelta[`Mouse${evt.button}`] = -1;
         });
         this.Ui.addEventListener("mousemove", (evt) => {
-            this.InputState.MouseX = evt.offsetX;
-            this.InputState.MouseY = evt.offsetY;
-            this.InputDelta.MouseX = evt.movementX;
-            this.InputDelta.MouseY = evt.movementY;
+            this.InputState["MouseX"] = evt.offsetX;
+            this.InputState["MouseY"] = evt.offsetY;
+            this.InputDelta["MouseX"] = evt.movementX;
+            this.InputDelta["MouseY"] = evt.movementY;
         });
         this.Ui.addEventListener("wheel", (evt) => {
-            this.InputDelta.WheelY = evt.deltaY;
+            this.InputDelta["WheelY"] = evt.deltaY;
         });
         window.addEventListener("keydown", (evt) => {
             if (!evt.repeat) {
@@ -182,8 +183,19 @@ export class Game {
         this.Gl.enable(GL_CULL_FACE);
     }
 
+    FrameSetup() {
+        if (this.InputState["Mouse0"] === 1) {
+            this.InputState["MousePressedTraveled"] += Math.abs(
+                this.InputDelta["MouseX"] + this.InputDelta["MouseY"]
+            );
+        }
+    }
+
     FrameReset() {
         this.ViewportResized = false;
+        if (this.InputDelta["Mouse0"] === -1) {
+            this.InputState["MousePressedTraveled"] = 0;
+        }
         for (let name in this.InputDelta) {
             this.InputDelta[name] = 0;
         }
@@ -192,16 +204,19 @@ export class Game {
     FrameUpdate(delta: number) {
         let now = performance.now();
 
-        // User input.
+        // Camera controls.
+        sys_control_camera(this, delta);
+        sys_control_keyboard(this, delta);
+        sys_control_mouse(this, delta);
+
+        // Picking and selection.
         sys_pick(this, delta);
         sys_select(this, delta);
         sys_highlight(this, delta);
 
+        // Orders.
         sys_control_ai(this, delta);
-        sys_control_camera(this, delta);
         sys_control_player(this, delta);
-        sys_control_keyboard(this, delta);
-        sys_control_mouse(this, delta);
         sys_deploy(this, delta);
 
         // AI.
