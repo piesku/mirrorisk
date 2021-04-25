@@ -1,7 +1,8 @@
+import {float, integer} from "../common/random.js";
 import {get_coord_by_territory_id} from "./blueprints/blu_territory.js";
 import {blueprint_unit} from "./blueprints/blu_unit.js";
 import {territories_controlled_by_team, units_entity_ids} from "./components/com_team.js";
-import {instantiate} from "./entity.js";
+import {destroy_entity, instantiate} from "./entity.js";
 import {Game, PlayerType, TurnPhase} from "./game.js";
 import {Alert} from "./ui/App.js";
 import {Has} from "./world.js";
@@ -10,6 +11,7 @@ export const enum Action {
     StartDeployment,
     EndDeployment,
     DeployUnit,
+    SetupBattles,
     ResolveBattles,
     EndTurn,
     ShowTooltipText,
@@ -19,11 +21,19 @@ export const enum Action {
 export function dispatch(game: Game, action: Action, payload: unknown) {
     switch (action) {
         case Action.StartDeployment: {
-            console.log("Deployment, player ", game.CurrentPlayer);
+            game.Battles = [];
+            console.log("Deployment, player ", game.CurrentPlayer, `AI? ${game.IsAiTurn}`);
             game.CurrentPlayerTerritories = Object.keys(
                 territories_controlled_by_team(game, game.CurrentPlayer)
             ).map((e) => parseInt(e, 10));
 
+            for (let i = 0; i < game.Players.length; i++) {
+                console.log(
+                    `Player ${i} controlls ${
+                        Object.keys(territories_controlled_by_team(game, i)).length
+                    } territories`
+                );
+            }
             // XXX: Add continent bonus here
             let units_to_deploy = Math.max(~~(game.CurrentPlayerTerritories.length / 3), 3);
             Alert(`Select territories to deploy ${units_to_deploy} units.`);
@@ -72,9 +82,8 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             break;
         }
 
-        case Action.ResolveBattles: {
+        case Action.SetupBattles: {
             game.TurnPhase = TurnPhase.Battle;
-            let battles = [];
             let current_player_territories = territories_controlled_by_team(
                 game,
                 game.CurrentPlayer
@@ -93,21 +102,59 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
 
                 for (let j = 0; j < enemy_territory_ids.length; j++) {
                     if (current_player_territory_ids.includes(enemy_territory_ids[j])) {
-                        // bitwa!
-                        let territory_name =
-                            game.World.Territory[game.TerritoryEntities[enemy_territory_ids[j]]]
-                                .Name;
+                        game.Battles.push(() => {
+                            let territory_name =
+                                game.World.Territory[game.TerritoryEntities[enemy_territory_ids[j]]]
+                                    .Name;
 
-                        console.log(
-                            `Player ${game.CurrentPlayer} (${
-                                current_player_territories[enemy_territory_ids[j]]
-                            } units) attacks Player ${i} (${
+                            console.log(
+                                `Player ${game.CurrentPlayer} (${
+                                    current_player_territories[enemy_territory_ids[j]]
+                                } units) attacks Player ${i} (${
+                                    enemy_territories[enemy_territory_ids[j]]
+                                } units) in ${territory_name}.`
+                            );
+
+                            let battle_result = fight(
+                                game,
+                                current_player_territories[enemy_territory_ids[j]],
                                 enemy_territories[enemy_territory_ids[j]]
-                            } units) on ${territory_name}.`
-                        );
+                            );
+
+                            let looser;
+                            if (battle_result === BattleResult.AttackWon) {
+                                console.log(`Player ${game.CurrentPlayer} won!`);
+                                looser = i;
+                            } else {
+                                console.log(`Player ${i} won!`);
+                                looser = game.CurrentPlayer;
+                            }
+
+                            if (typeof looser !== undefined) {
+                                remove_defeated_units(game, enemy_territory_ids[j], looser);
+                            }
+                        });
                     }
                 }
             }
+
+            dispatch(game, Action.ResolveBattles, {});
+            break;
+        }
+
+        case Action.ResolveBattles: {
+            if (game.Battles.length === 0) {
+                dispatch(game, Action.EndTurn, {});
+                return;
+            }
+
+            setTimeout(() => {
+                let battle = game.Battles.pop();
+                if (battle) {
+                    battle();
+                }
+                dispatch(game, Action.ResolveBattles, {});
+            }, integer(500, 2000));
             break;
         }
         case Action.EndTurn: {
@@ -145,6 +192,33 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
         case Action.ClearTooltipText: {
             game.TooltipText = null;
             break;
+        }
+    }
+}
+
+export const enum BattleResult {
+    AttackWon,
+    DefenceWon,
+}
+
+export function fight(game: Game, attacking_units: number, defending_units: number) {
+    // XXX Add battle logic here
+    if (float(0, 1) < 0.5) {
+        return BattleResult.AttackWon;
+    } else {
+        return BattleResult.DefenceWon;
+    }
+}
+
+export function remove_defeated_units(game: Game, territory_id: number, team_id: number) {
+    let QUERY = Has.Team | Has.NavAgent;
+    for (let i = 0; i < game.World.Signature.length; i++) {
+        if (
+            (game.World.Signature[i] & QUERY) === QUERY &&
+            game.World.NavAgent[i].TerritoryId === territory_id &&
+            game.World.Team[i].Id === team_id
+        ) {
+            destroy_entity(game.World, i);
         }
     }
 }

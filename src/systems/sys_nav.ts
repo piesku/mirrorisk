@@ -36,7 +36,7 @@ function update(game: Game, entity: Entity) {
                 game.AiActiveUnits = game.AiActiveUnits.filter((id) => id !== entity);
                 game.CurrentlyMovingAiUnit = null;
                 if (game.AiActiveUnits.length === 0) {
-                    dispatch(game, Action.ResolveBattles, {});
+                    dispatch(game, Action.SetupBattles, {});
                 }
             }
         }

@@ -78,6 +78,8 @@ export class Game {
     // TODO: EndTurn Actions sets this, so it will break if AI moves first
     IsAiTurn: boolean = false;
 
+    Battles: Function[] = [];
+
     TurnPhase: TurnPhase = TurnPhase.Deploy;
     UnitsToDeploy: number = 0;
     UnitsDeployed: number = 0;

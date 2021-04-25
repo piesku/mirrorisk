@@ -17,7 +17,7 @@ export function Toolbar(game: Game) {
             return html`<div>Current Player: ${game.CurrentPlayer} (${
                 game.IsAiTurn ? "AI" : "Human"
             })</div>
-            <button onclick="$(${Action.ResolveBattles})" ${game.IsAiTurn && "disabled=disabled"}">
+            <button onclick="$(${Action.SetupBattles})" ${game.IsAiTurn && "disabled=disabled"}">
                 End turn & Resolve Battles
             </button>`;
         }
