@@ -1,7 +1,7 @@
 import {Entity, Game} from "../game.js";
 import {Has} from "../world.js";
 
-const QUERY = Has.Move | Has.ControlPlayer;
+const QUERY = Has.Move | Has.ControlCamera;
 const SENSITIVITY = 0.1;
 
 export function sys_control_mouse(game: Game, delta: number) {
@@ -13,7 +13,7 @@ export function sys_control_mouse(game: Game, delta: number) {
 }
 
 function update(game: Game, entity: Entity) {
-    let control = game.World.ControlPlayer[entity];
+    let control = game.World.ControlCamera[entity];
     let move = game.World.Move[entity];
 
     if (control.Move && game.InputState.Mouse0) {

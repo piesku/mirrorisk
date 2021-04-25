@@ -1,7 +1,7 @@
 import {Entity, Game} from "../game.js";
 import {Has} from "../world.js";
 
-const QUERY = Has.Move | Has.ControlPlayer;
+const QUERY = Has.Move | Has.ControlCamera;
 
 export function sys_control_keyboard(game: Game, delta: number) {
     for (let i = 0; i < game.World.Signature.length; i++) {
@@ -12,7 +12,7 @@ export function sys_control_keyboard(game: Game, delta: number) {
 }
 
 function update(game: Game, entity: Entity) {
-    let control = game.World.ControlPlayer[entity];
+    let control = game.World.ControlCamera[entity];
 
     if (control.Yaw) {
         // Yaw is applied relative to the entity's local space; the Y axis is
