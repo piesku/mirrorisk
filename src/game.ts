@@ -50,7 +50,7 @@ export interface Player {
 export const enum TurnPhase {
     Deploy,
     Move,
-    Fight,
+    Battle,
     Regroup,
 }
 export class Game {

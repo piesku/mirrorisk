@@ -10,6 +10,7 @@ export const enum Action {
     StartDeployment,
     EndDeployment,
     DeployUnit,
+    ResolveBattles,
     EndTurn,
     ShowTooltipText,
     ClearTooltipText,
@@ -71,6 +72,44 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             break;
         }
 
+        case Action.ResolveBattles: {
+            game.TurnPhase = TurnPhase.Battle;
+            let battles = [];
+            let current_player_territories = territories_controlled_by_team(
+                game,
+                game.CurrentPlayer
+            );
+            let current_player_territory_ids = Object.keys(current_player_territories).map((e) =>
+                parseInt(e, 10)
+            );
+            for (let i = 0; i < game.Players.length; i++) {
+                if (i === game.CurrentPlayer) {
+                    continue;
+                }
+                let enemy_territories = territories_controlled_by_team(game, i);
+                let enemy_territory_ids = Object.keys(enemy_territories).map((e) =>
+                    parseInt(e, 10)
+                );
+
+                for (let j = 0; j < enemy_territory_ids.length; j++) {
+                    if (current_player_territory_ids.includes(enemy_territory_ids[j])) {
+                        // bitwa!
+                        let territory_name =
+                            game.World.Territory[game.TerritoryEntities[enemy_territory_ids[j]]]
+                                .Name;
+
+                        console.log(
+                            `Player ${game.CurrentPlayer} (${
+                                current_player_territories[enemy_territory_ids[j]]
+                            } units) attacks Player ${i} (${
+                                enemy_territories[enemy_territory_ids[j]]
+                            } units) on ${territory_name}.`
+                        );
+                    }
+                }
+            }
+            break;
+        }
         case Action.EndTurn: {
             game.World.Signature[game.SunEntity] |= Has.ControlAlways;
 
