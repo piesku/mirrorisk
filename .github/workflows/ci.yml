@@ -21,6 +21,7 @@ jobs:
       run: |
         make -C play
         mv textures play/
+        mv sounds play/
     - name: Deploy 🚀
       uses: JamesIves/github-pages-deploy-action@4.1.1
       with:
