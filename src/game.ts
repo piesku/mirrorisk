@@ -71,7 +71,6 @@ export class Game {
 
     CurrentPlayer = 0;
     Players: Player[] = [];
-    PlayerUnits: Record<Entity, Entity[]> = {};
     CurrentPlayerTerritories: Entity[] = [];
 
     AiActiveUnits: Entity[] = [];

@@ -1,6 +1,6 @@
 import {get_coord_by_territory_id} from "./blueprints/blu_territory.js";
 import {blueprint_unit} from "./blueprints/blu_unit.js";
-import {territories_controlled_by_team} from "./components/com_team.js";
+import {territories_controlled_by_team, units_entity_ids} from "./components/com_team.js";
 import {instantiate} from "./entity.js";
 import {Game, PlayerType, TurnPhase} from "./game.js";
 import {Alert} from "./ui/App.js";
@@ -73,7 +73,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                 let players_count = game.Players.length;
                 let next_player = (players_count + game.CurrentPlayer + 1) % players_count;
 
-                let next_player_units = game.PlayerUnits[next_player];
+                let next_player_units = units_entity_ids(game, next_player);
 
                 for (let i = 0; i < next_player_units.length; i++) {
                     game.World.NavAgent[next_player_units[i]].Actions = 1;
