@@ -83457,6 +83457,10 @@ Piesku&#10094;R&#10095; Mirrorisk
             agent.Actions > 0) {
             let territory_entity = game.Picked.Entity;
             let territory = game.World.Territory[territory_entity];
+            if (!game.TerritoryGraph[agent.TerritoryId].includes(territory.Id)) {
+                // This aint adjacent territory
+                return;
+            }
             if (agent.TerritoryId !== territory.Id) {
                 // Use the action up only when moving to another territory.
                 agent.Actions -= 1;
@@ -83989,7 +83993,9 @@ Piesku&#10094;R&#10095; Mirrorisk
                     let current_territory_id = game.World.NavAgent[child].TerritoryId;
                     let units_on_territory = territories[current_territory_id];
                     if (units_on_territory < 2) {
-                        // Alert("You cannot leave a territory without at least one unit");
+                        if (game.InputDelta["Mouse0"] === 1 && game.TurnPhase === 1 /* Move */) {
+                            Alert(game, "You cannot leave a territory without at least one unit");
+                        }
                         return;
                     }
                 }

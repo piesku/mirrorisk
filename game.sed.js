@@ -83457,6 +83457,10 @@ game.Picked &&
 agent.Actions > 0) {
 let territory_entity = game.Picked.Entity;
 let territory = game.World.Territory[territory_entity];
+if (!game.TerritoryGraph[agent.TerritoryId].includes(territory.Id)) {
+
+return;
+}
 if (agent.TerritoryId !== territory.Id) {
 
 agent.Actions -= 1;
@@ -83989,7 +83993,9 @@ if (pickable.Kind === 1 /* Unit */) {
 let current_territory_id = game.World.NavAgent[child].TerritoryId;
 let units_on_territory = territories[current_territory_id];
 if (units_on_territory < 2) {
-
+if (game.InputDelta["Mouse0"] === 1 && game.TurnPhase === 1 /* Move */) {
+Alert(game, "You cannot leave a territory without at least one unit");
+}
 return;
 }
 }
