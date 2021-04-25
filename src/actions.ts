@@ -22,13 +22,14 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
     switch (action) {
         case Action.StartDeployment: {
             game.Battles = [];
-            console.log("Deployment, player ", game.CurrentPlayer, `AI? ${game.IsAiTurn}`);
+            Alert(game, `Player ${game.CurrentPlayer} turn`);
             game.CurrentPlayerTerritories = Object.keys(
                 territories_controlled_by_team(game, game.CurrentPlayer)
             ).map((e) => parseInt(e, 10));
 
             for (let i = 0; i < game.Players.length; i++) {
-                console.log(
+                Alert(
+                    game,
                     `Player ${i} controlls ${
                         Object.keys(territories_controlled_by_team(game, i)).length
                     } territories`
@@ -36,7 +37,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             }
             // XXX: Add continent bonus here
             let units_to_deploy = Math.max(~~(game.CurrentPlayerTerritories.length / 3), 3);
-            Alert(`Select territories to deploy ${units_to_deploy} units.`);
+            Alert(game, `Select territories to deploy ${units_to_deploy} units.`);
 
             game.TurnPhase = TurnPhase.Deploy;
             game.UnitsDeployed = 0;
@@ -53,7 +54,8 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             if (position) {
                 let territory_name =
                     game.World.Territory[game.TerritoryEntities[territory_id]].Name;
-                console.log(
+                Alert(
+                    game,
                     `Deploying one unit to ${territory_name} (Player ${game.CurrentPlayer})`
                 );
 
@@ -107,7 +109,8 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                             Run: () => {
                                 let territory_name = game.World.Territory[territory_entity].Name;
 
-                                console.log(
+                                Alert(
+                                    game,
                                     `Player ${game.CurrentPlayer} (${
                                         current_player_territories[enemy_territory_ids[j]]
                                     } units) attacks Player ${i} (${
@@ -123,10 +126,10 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
 
                                 let looser;
                                 if (battle_result === BattleResult.AttackWon) {
-                                    console.log(`Player ${game.CurrentPlayer} won!`);
+                                    Alert(game, `Player ${game.CurrentPlayer} won!`);
                                     looser = i;
                                 } else {
-                                    console.log(`Player ${i} won!`);
+                                    Alert(game, `Player ${i} won!`);
                                     looser = game.CurrentPlayer;
                                 }
 

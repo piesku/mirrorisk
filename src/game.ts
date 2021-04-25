@@ -78,6 +78,7 @@ export class Game {
         MouseY: 0,
     };
 
+    Logs: string = "";
     CurrentPlayer = 0;
     Players: Player[] = [];
     CurrentPlayerTerritories: Entity[] = [];

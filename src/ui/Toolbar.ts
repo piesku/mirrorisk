@@ -5,21 +5,50 @@ import {Game, TurnPhase} from "../game.js";
 export function Toolbar(game: Game) {
     switch (game.TurnPhase) {
         case TurnPhase.Deploy: {
-            return html`<div>Deployed ${game.UnitsDeployed} out of ${game.UnitsToDeploy} units</div>
-            <button onclick="$(${Action.EndDeployment})" ${
+            return html`<div class="window" style="width: 300px;margin: 10px;">
+                <div class="title-bar">
+                    <div class="title-bar-text">Deployment Phase</div>
+                    <div class="title-bar-controls">
+                        <button aria-label="Close"></button>
+                    </div>
+                </div>
+                <div class="window-body">
+                    <p>Click on a territory you control to deploy additional units</p>
+                    <p><div class="field-row">
+                    <label for="range25">Units left:</label>
+                    <label for="range26">0</label>
+                    <input id="range26" type="range" min="0" max="${game.UnitsToDeploy}" value="${
+                game.UnitsDeployed
+            }" style="pointer-events: none"/>
+                    <label for="range27">${game.UnitsToDeploy}</label>
+                    </div></p>
+                    <button onclick="$(${Action.EndDeployment})" ${
                 (game.IsAiTurn || game.UnitsDeployed !== game.UnitsToDeploy) && "disabled=disabled"
             }">
-                End Deployment
-            </button>`;
+                        End Deployment
+                    </button>
+                </div>
+            </div>`;
         }
 
         case TurnPhase.Move: {
-            return html`<div>Current Player: ${game.CurrentPlayer} (${
-                game.IsAiTurn ? "AI" : "Human"
-            })</div>
-            <button onclick="$(${Action.SetupBattles})" ${game.IsAiTurn && "disabled=disabled"}">
+            return html`<div class="window" style="width: 300px;margin: 10px;">
+                <div class="title-bar">
+                    <div class="title-bar-text">Movement Phase</div>
+                    <div class="title-bar-controls">
+                        <button aria-label="Close"></button>
+                    </div>
+                </div>
+                <div class="window-body">
+                    <p>Current Player Id: ${game.CurrentPlayer}</p>
+                    <p>Controlled by: ${game.IsAiTurn ? "AI" : "Human"}</p>
+                    <button onclick="$(${Action.SetupBattles})" ${
+                game.IsAiTurn && "disabled=disabled"
+            }">
                 End turn & Resolve Battles
-            </button>`;
+            </button>
+                </div>
+            </div>`;
         }
     }
 }
