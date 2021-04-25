@@ -1,5 +1,5 @@
+import {Vec3} from "../common/math.js";
 import {float, integer} from "../common/random.js";
-import {get_coord_by_territory_id} from "./blueprints/blu_territory.js";
 import {blueprint_unit} from "./blueprints/blu_unit.js";
 import {territories_controlled_by_team, units_entity_ids} from "./components/com_team.js";
 import {destroy_entity, instantiate} from "./entity.js";
@@ -49,10 +49,8 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                 return;
             }
 
-            let {territory_id} = payload as {territory_id: number};
-            let translation = get_coord_by_territory_id(game, territory_id);
-
-            if (translation) {
+            let {territory_id, position} = payload as {territory_id: number; position: Vec3};
+            if (position) {
                 let territory_name =
                     game.World.Territory[game.TerritoryEntities[territory_id]].Name;
                 console.log(
@@ -63,7 +61,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                     game,
                     blueprint_unit(
                         game,
-                        translation,
+                        position,
                         territory_id,
                         game.MeshSoldier,
                         game.CurrentPlayer
