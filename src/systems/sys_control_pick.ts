@@ -1,14 +1,17 @@
 import {Entity, Game, PlayerType} from "../game.js";
 import {Has} from "../world.js";
 
-const QUERY = Has.ControlPlayer | Has.NavAgent | Has.Team;
+const QUERY = Has.Selectable | Has.NavAgent | Has.Team;
 
 export function sys_control_pick(game: Game, delta: number) {
     for (let i = 0; i < game.World.Signature.length; i++) {
+        let team = game.World.Team[i];
+        let selectable = game.World.Selectable[i];
         if (
             (game.World.Signature[i] & QUERY) == QUERY &&
-            game.World.Team[i].Id === game.CurrentPlayer &&
-            game.Players[game.World.Team[i].Id].Type === PlayerType.Human
+            game.Players[team.Id].Type === PlayerType.Human &&
+            team.Id === game.CurrentPlayer &&
+            selectable.Selected
         ) {
             update(game, i);
         }
