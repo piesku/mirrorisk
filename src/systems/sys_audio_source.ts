@@ -25,12 +25,18 @@ function update(game: Game, entity: Entity, delta: number) {
         get_translation(position, transform.World);
         get_forward(forward, transform.World);
 
-        audio_source.Panner.positionX.value = position[0];
-        audio_source.Panner.positionY.value = position[1];
-        audio_source.Panner.positionZ.value = position[2];
-        audio_source.Panner.orientationX.value = forward[0];
-        audio_source.Panner.orientationY.value = forward[1];
-        audio_source.Panner.orientationZ.value = forward[2];
+        if (audio_source.Panner.positionX) {
+            audio_source.Panner.positionX.value = position[0];
+            audio_source.Panner.positionY.value = position[1];
+            audio_source.Panner.positionZ.value = position[2];
+            audio_source.Panner.orientationX.value = forward[0];
+            audio_source.Panner.orientationY.value = forward[1];
+            audio_source.Panner.orientationZ.value = forward[2];
+        } else {
+            // Firefox & Safari.
+            audio_source.Panner.setPosition(...position);
+            audio_source.Panner.setOrientation(...forward);
+        }
     }
 
     let can_exit = !audio_source.Current || audio_source.Time > audio_source.Current.duration;
