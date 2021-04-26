@@ -5,6 +5,10 @@ import {Game, TurnPhase} from "../game.js";
 export function Toolbar(game: Game) {
     switch (game.TurnPhase) {
         case TurnPhase.Deploy: {
+            if (game.IsAiTurn) {
+                return "";
+            }
+
             return html`<div class="window" style="width: 300px;margin: 10px;">
                 <div class="title-bar">
                     <div class="title-bar-text">Deployment Phase</div>
@@ -40,7 +44,7 @@ export function Toolbar(game: Game) {
                     </div>
                 </div>
                 <div class="window-body">
-                    <p>Current Player Id: ${game.CurrentPlayer}</p>
+                    <p>Current Player: ${game.Players[game.CurrentPlayer].Name}</p>
                     <p>Controlled by: ${game.IsAiTurn ? "AI" : "Human"}</p>
                     <button onclick="$(${Action.SetupBattles})" ${
                 game.IsAiTurn && "disabled=disabled"

@@ -8,7 +8,7 @@ import {Has} from "../world.js";
 const QUERY = Has.NavAgent | Has.Team;
 
 export function sys_control_ai(game: Game, delta: number) {
-    if (!game.IsAiTurn) {
+    if (!game.IsAiTurn || game.TurnPhase === TurnPhase.Endgame) {
         return;
     }
 

@@ -13,8 +13,10 @@ export function sys_deploy(game: Game, delta: number) {
     if (game.IsAiTurn) {
         for (let i = 0; i < game.UnitsToDeploy; i++) {
             let deploy_to = element(game.CurrentPlayerTerritories);
-            let position = get_coord_by_territory_id(game, deploy_to);
-            dispatch(game, Action.DeployUnit, {territory_id: deploy_to, position});
+            if (deploy_to) {
+                let position = get_coord_by_territory_id(game, deploy_to);
+                dispatch(game, Action.DeployUnit, {territory_id: deploy_to, position});
+            }
         }
 
         setTimeout(() => {

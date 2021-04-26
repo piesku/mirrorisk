@@ -1,5 +1,5 @@
 import {Quat, Vec3} from "../common/math.js";
-import {float} from "../common/random.js";
+import {float, integer} from "../common/random.js";
 import {blueprint_unit} from "./blueprints/blu_unit.js";
 import {territories_controlled_by_team, units_entity_ids} from "./components/com_team.js";
 import {destroy_entity, instantiate} from "./entity.js";
@@ -29,21 +29,23 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
 
             game.Battles = [];
             for (let i = 0; i < game.Players.length; i++) {
-                let ters = Object.keys(territories_controlled_by_team(game, i)).length;
-                Logger(game, `${game.Players[i].Name} controlls ${ters} territories`);
+                let territories = territories_controlled_by_team(game, i);
+                let territories_qty = Object.keys(territories).length;
 
-                if (most_territories < ters) {
-                    most_territories = ters;
+                Logger(game, `${game.Players[i].Name} controlls ${territories_qty} territories`);
+
+                if (most_territories < territories_qty) {
+                    most_territories = territories_qty;
                     best_player = i;
                 }
 
-                if (ters === 0) {
+                if (territories_qty === 0) {
                     game_over = true;
                 }
             }
 
             if (game_over) {
-                Popup(game, `Game over! ${game.Players[best_player]} won!`, `Game over!`);
+                Popup(game, `Game over! ${game.Players[best_player].Name} won!`, `Game over!`);
                 game.TurnPhase = TurnPhase.Endgame;
             }
 
@@ -63,7 +65,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                     (ter_id) => !game.CurrentPlayerTerritories.includes(ter_id)
                 );
 
-                if (territories.length === 0) {
+                if (territories.length === 0 && continent.Territories.length > 0) {
                     bonus += continent.Bonus;
                     units_to_deploy += continent.Bonus;
                     continents_controlled.push(continent.Name);
@@ -270,11 +272,36 @@ export const enum BattleResult {
 
 export function fight(game: Game, attacking_units: number, defending_units: number) {
     // XXX Add battle logic here
-    // if (float(0, 1) < 0.5) {
-    return BattleResult.AttackWon;
-    // } else {
-    //     return BattleResult.DefenceWon;
-    // }
+
+    let attackers = [];
+    let defenders = [];
+    for (let i = 0; i < attacking_units; i++) {
+        attackers.push(integer(1, 6));
+    }
+
+    for (let i = 0; i < defending_units; i++) {
+        defenders.push(integer(1, 6));
+    }
+
+    attackers = attackers.sort((a, b) => b - a).slice(0, Math.min(attacking_units, 3));
+    defenders = defenders.sort((a, b) => b - a).slice(0, Math.min(attacking_units, 2));
+
+    let attacking_points = 0;
+    let defending_points = 0;
+
+    for (let i = 0; i < Math.min(defenders.length, attackers.length); i++) {
+        if (attackers[i] > defenders[i]) {
+            attacking_points++;
+        } else {
+            defending_points++;
+        }
+    }
+
+    if (attacking_points > defending_points) {
+        return BattleResult.AttackWon;
+    } else {
+        return BattleResult.DefenceWon;
+    }
 }
 
 export function remove_defeated_units(game: Game, territory_id: number, team_id: number) {
