@@ -40889,14 +40889,14 @@
         return strings.reduce((out, cur) => out + shift(values) + cur);
     }
 
-    let alertWidth = 300;
+    let alertWidth$1 = 300;
     function AlertWindow(game) {
         if (!game.AlertText) {
             return "";
         }
         return html `<div
         class="window"
-        style="width: ${alertWidth}px;position: absolute; left: ${(window.innerWidth - alertWidth) /
+        style="width: ${alertWidth$1}px;position: absolute; left: ${(window.innerWidth - alertWidth$1) /
         2}px"
     >
         <div class="title-bar">
@@ -40938,9 +40938,36 @@ Piesku&#10094;R&#10095; Mirrorisk
     </div>`;
     }
 
+    let alertWidth = 600;
+    function PopupWindow(game) {
+        if (!game.PopupText) {
+            return "";
+        }
+        return html `<div
+        class="window"
+        style="z-index:100; width: ${alertWidth}px;position: absolute; left: ${(window.innerWidth -
+        alertWidth) /
+        2}px"
+    >
+        <div class="title-bar">
+            <div class="title-bar-text">${game.PopupTitle || "Mirrorisk"}</div>
+            <div class="title-bar-controls">
+                <button aria-label="Close"></button>
+            </div>
+        </div>
+        <div class="window-body">
+            <p>${game.PopupText}</p>
+            <button style="cursor:pointer" onclick="$(${9 /* ClearPopup */})">Close</button>
+        </div>
+    </div>`;
+    }
+
     function Toolbar(game) {
         switch (game.TurnPhase) {
             case 0 /* Deploy */: {
+                if (game.IsAiTurn) {
+                    return "";
+                }
                 return html `<div class="window" style="width: 300px;margin: 10px;">
                 <div class="title-bar">
                     <div class="title-bar-text">Deployment Phase</div>
@@ -40971,7 +40998,7 @@ Piesku&#10094;R&#10095; Mirrorisk
                     </div>
                 </div>
                 <div class="window-body">
-                    <p>Current Player Id: ${game.CurrentPlayer}</p>
+                    <p>Current Player: ${game.Players[game.CurrentPlayer].Name}</p>
                     <p>Controlled by: ${game.IsAiTurn ? "AI" : "Human"}</p>
                     <button onclick="$(${3 /* SetupBattles */})" ${game.IsAiTurn && "disabled=disabled"}">
                 End turn & Resolve Battles
@@ -40991,7 +41018,8 @@ Piesku&#10094;R&#10095; Mirrorisk
     }
 
     function App(game) {
-        return html ` ${Toolbar(game)} ${Tooltip(game)} ${LogWindow(game)} ${AlertWindow(game)}`;
+        return html ` ${Toolbar(game)} ${Tooltip(game)} ${LogWindow(game)} ${AlertWindow(game)}
+    ${PopupWindow(game)}`;
     }
     function Logger(game, text) {
         // alert(text);
@@ -41000,14 +41028,34 @@ Piesku&#10094;R&#10095; Mirrorisk
     function Alert(game, text) {
         game.AlertText = text;
     }
+    function Popup(game, text, title) {
+        game.PopupText = text;
+        game.PopupTitle = title;
+    }
 
     function dispatch(game, action, payload) {
         let current_player_name = game.Players[game.CurrentPlayer].Name;
         switch (action) {
             case 0 /* StartDeployment */: {
+                let game_over = false;
+                let most_territories = 0;
+                let best_player = 0;
                 game.Battles = [];
                 for (let i = 0; i < game.Players.length; i++) {
-                    Logger(game, `${game.Players[i].Name} controlls ${Object.keys(territories_controlled_by_team(game, i)).length} territories`);
+                    let territories = territories_controlled_by_team(game, i);
+                    let territories_qty = Object.keys(territories).length;
+                    Logger(game, `${game.Players[i].Name} controlls ${territories_qty} territories`);
+                    if (most_territories < territories_qty) {
+                        most_territories = territories_qty;
+                        best_player = i;
+                    }
+                    if (territories_qty === 0) {
+                        game_over = true;
+                    }
+                }
+                if (game_over) {
+                    Popup(game, `Game over! ${game.Players[best_player].Name} won!`, `Game over!`);
+                    game.TurnPhase = 4 /* Endgame */;
                 }
                 Logger(game, `C:&#92;> ${current_player_name}'s turn`);
                 game.CurrentPlayerTerritories = Object.keys(territories_controlled_by_team(game, game.CurrentPlayer)).map((e) => parseInt(e, 10));
@@ -41018,7 +41066,7 @@ Piesku&#10094;R&#10095; Mirrorisk
                 for (let j = 0; j < game.ContinentBonus.length; j++) {
                     let continent = game.ContinentBonus[j];
                     let territories = continent.Territories.slice().filter((ter_id) => !game.CurrentPlayerTerritories.includes(ter_id));
-                    if (territories.length === 0) {
+                    if (territories.length === 0 && continent.Territories.length > 0) {
                         bonus += continent.Bonus;
                         units_to_deploy += continent.Bonus;
                         continents_controlled.push(continent.Name);
@@ -41078,10 +41126,15 @@ Piesku&#10094;R&#10095; Mirrorisk
                                     let territory_name = game.World.Territory[territory_entity].Name;
                                     let enemy_territory_id = enemy_territory_ids[j];
                                     Logger(game, `${current_player_name} attacks ${game.Players[i].Name} in ${territory_name} woth ${current_player_territories[enemy_territory_id]} unit(s) agains ${enemy_territories[enemy_territory_id]} unit(s).`);
+                                    let battle_result = fight(game, current_player_territories[enemy_territory_id], enemy_territories[enemy_territory_id]);
                                     let looser;
-                                    {
+                                    if (battle_result === 0 /* AttackWon */) {
                                         Logger(game, `${current_player_name} won!`);
                                         looser = i;
+                                    }
+                                    else {
+                                        Logger(game, `${game.Players[i].Name} won!`);
+                                        looser = game.CurrentPlayer;
                                     }
                                     if (typeof looser !== undefined) {
                                         remove_defeated_units(game, enemy_territory_id, looser);
@@ -41128,9 +41181,11 @@ Piesku&#10094;R&#10095; Mirrorisk
                         game.AiActiveUnits = next_player_units.slice();
                     }
                     game.World.Signature[game.SunEntity] &= ~32 /* ControlAlways */;
+                    game.World.Transform[game.SunEntity].Rotation = game.InitialSunPosition.slice();
+                    game.World.Transform[game.SunEntity].Dirty = true;
                     game.CurrentPlayer = next_player;
                     dispatch(game, 0 /* StartDeployment */, {});
-                }, 2000);
+                }, 1000);
                 break;
             }
             case 6 /* ShowTooltipText */: {
@@ -41146,6 +41201,40 @@ Piesku&#10094;R&#10095; Mirrorisk
                 game.AlertText = null;
                 break;
             }
+            case 9 /* ClearPopup */: {
+                game.PopupText = undefined;
+                game.PopupTitle = undefined;
+                break;
+            }
+        }
+    }
+    function fight(game, attacking_units, defending_units) {
+        // XXX Add battle logic here
+        let attackers = [];
+        let defenders = [];
+        for (let i = 0; i < attacking_units; i++) {
+            attackers.push(integer(1, 6));
+        }
+        for (let i = 0; i < defending_units; i++) {
+            defenders.push(integer(1, 6));
+        }
+        attackers = attackers.sort((a, b) => b - a).slice(0, Math.min(attacking_units, 3));
+        defenders = defenders.sort((a, b) => b - a).slice(0, Math.min(attacking_units, 2));
+        let attacking_points = 0;
+        let defending_points = 0;
+        for (let i = 0; i < Math.min(defenders.length, attackers.length); i++) {
+            if (attackers[i] > defenders[i]) {
+                attacking_points++;
+            }
+            else {
+                defending_points++;
+            }
+        }
+        if (attacking_points > defending_points) {
+            return 0 /* AttackWon */;
+        }
+        else {
+            return 1 /* DefenceWon */;
         }
     }
     function remove_defeated_units(game, territory_id, team_id) {
@@ -41187,6 +41276,98 @@ Piesku&#10094;R&#10095; Mirrorisk
             throw new Error(`Failed to set up the framebuffer (${status}).`);
         }
         return target;
+    }
+
+    const EPSILON = 0.000001;
+    const DEG_TO_RAD = Math.PI / 180;
+
+    function multiply(out, a, b) {
+        let ax = a[0], ay = a[1], az = a[2], aw = a[3];
+        let bx = b[0], by = b[1], bz = b[2], bw = b[3];
+        out[0] = ax * bw + aw * bx + ay * bz - az * by;
+        out[1] = ay * bw + aw * by + az * bx - ax * bz;
+        out[2] = az * bw + aw * bz + ax * by - ay * bx;
+        out[3] = aw * bw - ax * bx - ay * by - az * bz;
+        return out;
+    }
+    /**
+     * Compute a quaternion out of three Euler angles given in degrees. The order of rotation is YXZ.
+     * @param out Quaternion to write to.
+     * @param x Rotation about the X axis, in degrees.
+     * @param y Rotation around the Y axis, in degress.
+     * @param z Rotation around the Z axis, in degress.
+     */
+    function from_euler(out, x, y, z) {
+        let sx = Math.sin((x / 2) * DEG_TO_RAD);
+        let cx = Math.cos((x / 2) * DEG_TO_RAD);
+        let sy = Math.sin((y / 2) * DEG_TO_RAD);
+        let cy = Math.cos((y / 2) * DEG_TO_RAD);
+        let sz = Math.sin((z / 2) * DEG_TO_RAD);
+        let cz = Math.cos((z / 2) * DEG_TO_RAD);
+        out[0] = sx * cy * cz + cx * sy * sz;
+        out[1] = cx * sy * cz - sx * cy * sz;
+        out[2] = cx * cy * sz - sx * sy * cz;
+        out[3] = cx * cy * cz + sx * sy * sz;
+        return out;
+    }
+    /**
+     * Compute a quaternion from an axis and an angle of rotation around the axis.
+     * @param out Quaternion to write to.
+     * @param axis Axis of rotation.
+     * @param angle Rotation in radians.
+     */
+    function from_axis(out, axis, angle) {
+        let half = angle / 2;
+        out[0] = Math.sin(half) * axis[0];
+        out[1] = Math.sin(half) * axis[1];
+        out[2] = Math.sin(half) * axis[2];
+        out[3] = Math.cos(half);
+        return out;
+    }
+    /**
+     * Performs a spherical linear interpolation between two quat
+     *
+     * @param out - the receiving quaternion
+     * @param a - the first operand
+     * @param b - the second operand
+     * @param t - interpolation amount, in the range [0-1], between the two inputs
+     */
+    function slerp(out, a, b, t) {
+        // benchmarks:
+        //    http://jsperf.com/quaternion-slerp-implementations
+        let ax = a[0], ay = a[1], az = a[2], aw = a[3];
+        let bx = b[0], by = b[1], bz = b[2], bw = b[3];
+        let omega, cosom, sinom, scale0, scale1;
+        // calc cosine
+        cosom = ax * bx + ay * by + az * bz + aw * bw;
+        // adjust signs (if necessary)
+        if (cosom < 0.0) {
+            cosom = -cosom;
+            bx = -bx;
+            by = -by;
+            bz = -bz;
+            bw = -bw;
+        }
+        // calculate coefficients
+        if (1.0 - cosom > EPSILON) {
+            // standard case (slerp)
+            omega = Math.acos(cosom);
+            sinom = Math.sin(omega);
+            scale0 = Math.sin((1.0 - t) * omega) / sinom;
+            scale1 = Math.sin(t * omega) / sinom;
+        }
+        else {
+            // "from" and "to" quaternions are very close
+            //  ... so we can do a linear interpolation
+            scale0 = 1.0 - t;
+            scale1 = t;
+        }
+        // calculate final values
+        out[0] = scale0 * ax + scale1 * bx;
+        out[1] = scale0 * ay + scale1 * by;
+        out[2] = scale0 * az + scale1 * bz;
+        out[3] = scale0 * aw + scale1 * bw;
+        return out;
     }
 
     function link(gl, vertex, fragment) {
@@ -83288,7 +83469,7 @@ Piesku&#10094;R&#10095; Mirrorisk
 
     const QUERY$g = 4096 /* NavAgent */ | 262144 /* Team */;
     function sys_control_ai(game, delta) {
-        if (!game.IsAiTurn) {
+        if (!game.IsAiTurn || game.TurnPhase === 4 /* Endgame */) {
             return;
         }
         for (let i = 0; i < game.World.Signature.length; i++) {
@@ -83445,98 +83626,6 @@ Piesku&#10094;R&#10095; Mirrorisk
         }
     }
 
-    const EPSILON = 0.000001;
-    const DEG_TO_RAD = Math.PI / 180;
-
-    function multiply(out, a, b) {
-        let ax = a[0], ay = a[1], az = a[2], aw = a[3];
-        let bx = b[0], by = b[1], bz = b[2], bw = b[3];
-        out[0] = ax * bw + aw * bx + ay * bz - az * by;
-        out[1] = ay * bw + aw * by + az * bx - ax * bz;
-        out[2] = az * bw + aw * bz + ax * by - ay * bx;
-        out[3] = aw * bw - ax * bx - ay * by - az * bz;
-        return out;
-    }
-    /**
-     * Compute a quaternion out of three Euler angles given in degrees. The order of rotation is YXZ.
-     * @param out Quaternion to write to.
-     * @param x Rotation about the X axis, in degrees.
-     * @param y Rotation around the Y axis, in degress.
-     * @param z Rotation around the Z axis, in degress.
-     */
-    function from_euler(out, x, y, z) {
-        let sx = Math.sin((x / 2) * DEG_TO_RAD);
-        let cx = Math.cos((x / 2) * DEG_TO_RAD);
-        let sy = Math.sin((y / 2) * DEG_TO_RAD);
-        let cy = Math.cos((y / 2) * DEG_TO_RAD);
-        let sz = Math.sin((z / 2) * DEG_TO_RAD);
-        let cz = Math.cos((z / 2) * DEG_TO_RAD);
-        out[0] = sx * cy * cz + cx * sy * sz;
-        out[1] = cx * sy * cz - sx * cy * sz;
-        out[2] = cx * cy * sz - sx * sy * cz;
-        out[3] = cx * cy * cz + sx * sy * sz;
-        return out;
-    }
-    /**
-     * Compute a quaternion from an axis and an angle of rotation around the axis.
-     * @param out Quaternion to write to.
-     * @param axis Axis of rotation.
-     * @param angle Rotation in radians.
-     */
-    function from_axis(out, axis, angle) {
-        let half = angle / 2;
-        out[0] = Math.sin(half) * axis[0];
-        out[1] = Math.sin(half) * axis[1];
-        out[2] = Math.sin(half) * axis[2];
-        out[3] = Math.cos(half);
-        return out;
-    }
-    /**
-     * Performs a spherical linear interpolation between two quat
-     *
-     * @param out - the receiving quaternion
-     * @param a - the first operand
-     * @param b - the second operand
-     * @param t - interpolation amount, in the range [0-1], between the two inputs
-     */
-    function slerp(out, a, b, t) {
-        // benchmarks:
-        //    http://jsperf.com/quaternion-slerp-implementations
-        let ax = a[0], ay = a[1], az = a[2], aw = a[3];
-        let bx = b[0], by = b[1], bz = b[2], bw = b[3];
-        let omega, cosom, sinom, scale0, scale1;
-        // calc cosine
-        cosom = ax * bx + ay * by + az * bz + aw * bw;
-        // adjust signs (if necessary)
-        if (cosom < 0.0) {
-            cosom = -cosom;
-            bx = -bx;
-            by = -by;
-            bz = -bz;
-            bw = -bw;
-        }
-        // calculate coefficients
-        if (1.0 - cosom > EPSILON) {
-            // standard case (slerp)
-            omega = Math.acos(cosom);
-            sinom = Math.sin(omega);
-            scale0 = Math.sin((1.0 - t) * omega) / sinom;
-            scale1 = Math.sin(t * omega) / sinom;
-        }
-        else {
-            // "from" and "to" quaternions are very close
-            //  ... so we can do a linear interpolation
-            scale0 = 1.0 - t;
-            scale1 = t;
-        }
-        // calculate final values
-        out[0] = scale0 * ax + scale1 * bx;
-        out[1] = scale0 * ay + scale1 * by;
-        out[2] = scale0 * az + scale1 * bz;
-        out[3] = scale0 * aw + scale1 * bw;
-        return out;
-    }
-
     const QUERY$c = 2048 /* Move */ | 64 /* ControlCamera */ | 131072 /* Transform */;
     const MOUSE_SENSITIVITY = 0.1;
     const ZOOM_FACTOR = 1.1;
@@ -83649,8 +83738,10 @@ Piesku&#10094;R&#10095; Mirrorisk
         if (game.IsAiTurn) {
             for (let i = 0; i < game.UnitsToDeploy; i++) {
                 let deploy_to = element(game.CurrentPlayerTerritories);
-                let position = get_coord_by_territory_id(game, deploy_to);
-                dispatch(game, 2 /* DeployUnit */, { territory_id: deploy_to, position });
+                if (deploy_to) {
+                    let position = get_coord_by_territory_id(game, deploy_to);
+                    dispatch(game, 2 /* DeployUnit */, { territory_id: deploy_to, position });
+                }
             }
             setTimeout(() => {
                 dispatch(game, 1 /* EndDeployment */, {});
@@ -84594,6 +84685,7 @@ Piesku&#10094;R&#10095; Mirrorisk
             this.CurrentPlayer = 0;
             this.Players = [];
             this.CurrentPlayerTerritories = [];
+            this.InitialSunPosition = from_euler([0, 0, 0, 0], 0, 35, 0);
             this.ContinentBonus = [];
             this.AiActiveUnits = [];
             this.CurrentlyMovingAiUnit = null;
@@ -84860,10 +84952,10 @@ Piesku&#10094;R&#10095; Mirrorisk
             transform(undefined, from_euler([0, 0, 0, 0], -30, 0, 0)),
             children([
                 callback((game, entity) => (game.SunEntity = entity)),
-                transform(undefined, from_euler([0, 0, 0, 0], 0, 35, 0)),
+                transform(undefined, game.InitialSunPosition.slice()),
                 control_always(null, [0, -1, 0, 0]),
                 disable(32 /* ControlAlways */),
-                move(0, 3.1),
+                move(0, 6.2),
                 children(
                 // The Sun.
                 [
@@ -84994,6 +85086,7 @@ Piesku&#10094;R&#10095; Mirrorisk
                 console.error(`Cannot find random point on territory ${JSON.stringify(territory, null, 2)}!`);
             }
         }
+        Popup(game, `This is very long hello text <br/> with HTML`, "Hello!");
         dispatch(game, 0 /* StartDeployment */, {});
     }
 
