@@ -21,7 +21,12 @@ export function AlertWindow(game: Game) {
         </div>
         <div class="window-body">
             <p>${game.AlertText}</p>
-            <button style="cursor:pointer" onclick="$(${Action.ClearAlert})">OK</button>
+            <button
+                style="cursor:pointer"
+                onmouseup="event.stopPropagation(); $(${Action.ClearAlert});"
+            >
+                OK
+            </button>
         </div>
     </div>`;
 }
