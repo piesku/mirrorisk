@@ -41013,8 +41013,21 @@ Piesku&#10094;R&#10095; Mirrorisk
                 game.CurrentPlayerTerritories = Object.keys(territories_controlled_by_team(game, game.CurrentPlayer)).map((e) => parseInt(e, 10));
                 // XXX: Add continent bonus here
                 let units_to_deploy = Math.max(~~(game.CurrentPlayerTerritories.length / 3), 3);
+                let bonus = 0;
+                let continents_controlled = [];
+                for (let j = 0; j < game.ContinentBonus.length; j++) {
+                    let continent = game.ContinentBonus[j];
+                    let territories = continent.Territories.slice().filter((ter_id) => !game.CurrentPlayerTerritories.includes(ter_id));
+                    if (territories.length === 0) {
+                        bonus += continent.Bonus;
+                        units_to_deploy += continent.Bonus;
+                        continents_controlled.push(continent.Name);
+                    }
+                }
                 if (!game.IsAiTurn) {
-                    Alert(game, `Select territories to deploy ${units_to_deploy} units.`);
+                    Alert(game, `Select territories to deploy ${units_to_deploy} units${bonus > 0
+                    ? `, including ${bonus} for controlling continents: ${continents_controlled.join(", ")}.`
+                    : "."}`);
                 }
                 game.TurnPhase = 0 /* Deploy */;
                 game.UnitsDeployed = 0;
@@ -41065,15 +41078,10 @@ Piesku&#10094;R&#10095; Mirrorisk
                                     let territory_name = game.World.Territory[territory_entity].Name;
                                     let enemy_territory_id = enemy_territory_ids[j];
                                     Logger(game, `${current_player_name} attacks ${game.Players[i].Name} in ${territory_name} woth ${current_player_territories[enemy_territory_id]} unit(s) agains ${enemy_territories[enemy_territory_id]} unit(s).`);
-                                    let battle_result = fight();
                                     let looser;
-                                    if (battle_result === 0 /* AttackWon */) {
+                                    {
                                         Logger(game, `${current_player_name} won!`);
                                         looser = i;
-                                    }
-                                    else {
-                                        Logger(game, `${game.Players[i].Name} won!`);
-                                        looser = game.CurrentPlayer;
                                     }
                                     if (typeof looser !== undefined) {
                                         remove_defeated_units(game, enemy_territory_id, looser);
@@ -41092,7 +41100,6 @@ Piesku&#10094;R&#10095; Mirrorisk
                     return;
                 }
                 let battle = game.Battles.pop();
-                // setTimeout(() => {
                 // XXX This isn't currently reset anywhere. Instead,
                 // sys_control_camera resets mimic.Target in the deploy
                 // phase.
@@ -41105,9 +41112,6 @@ Piesku&#10094;R&#10095; Mirrorisk
                         dispatch(game, 4 /* ResolveBattles */, {});
                     }, 1000);
                 }, 1000);
-                // setTimeout(() => {
-                // }, 1000);
-                // }, 3000);
                 break;
             }
             case 5 /* EndTurn */: {
@@ -41131,7 +41135,6 @@ Piesku&#10094;R&#10095; Mirrorisk
             }
             case 6 /* ShowTooltipText */: {
                 game.TooltipText = payload;
-                // console.log(payload);
                 break;
             }
             case 7 /* ClearTooltipText */: {
@@ -41143,15 +41146,6 @@ Piesku&#10094;R&#10095; Mirrorisk
                 game.AlertText = null;
                 break;
             }
-        }
-    }
-    function fight(game, attacking_units, defending_units) {
-        // XXX Add battle logic here
-        if (float(0, 1) < 0.5) {
-            return 0 /* AttackWon */;
-        }
-        else {
-            return 1 /* DefenceWon */;
         }
     }
     function remove_defeated_units(game, territory_id, team_id) {
@@ -41167,7 +41161,7 @@ Piesku&#10094;R&#10095; Mirrorisk
                 game.World.NavAgent[i].TerritoryId = 0;
                 game.World.NavAgent[i].Destination = [
                     translation[0],
-                    translation[1] - 5,
+                    translation[1] - 7,
                     translation[2],
                 ];
                 setTimeout(() => {
@@ -83249,6 +83243,7 @@ Piesku&#10094;R&#10095; Mirrorisk
         return (game, entity) => {
             let id = continent * 10 + index;
             game.TerritoryEntities[id] = entity;
+            game.ContinentBonus[continent].Territories.push(id);
             game.World.Signature[entity] |= 65536 /* Territory */;
             game.World.Territory[entity] = {
                 Continent: continent,
@@ -83273,7 +83268,7 @@ Piesku&#10094;R&#10095; Mirrorisk
         // XXX This relies on the fact that territories have an identity matrix as World.
         let anchor_position = random_point_up(mesh);
         if (!anchor_position) {
-            throw new Error("Territory without anchor is illegal.");
+            throw new Error("Territory without anchor is illegal. Calling the Goodluck City Police Department");
         }
         return [
             transform(),
@@ -83328,6 +83323,20 @@ Piesku&#10094;R&#10095; Mirrorisk
                     if (agent.TerritoryId !== territory.Id) {
                         // Use the action up only when moving to another territory.
                         agent.Actions -= 1;
+                    }
+                    let Alaska = 31;
+                    let Kamchatka = 56;
+                    let transform = game.World.Transform[entity];
+                    // Kamchatka -> Alaska & Alaska -> Kamchatka
+                    if (agent.TerritoryId === Kamchatka && territory.Id === Alaska) {
+                        transform.Translation[0] = 140;
+                        transform.Translation[2] = -64.29;
+                        transform.Dirty = true;
+                    }
+                    else if (agent.TerritoryId === Alaska && territory.Id === Kamchatka) {
+                        transform.Translation[0] = -160;
+                        transform.Translation[2] = -64.58;
+                        transform.Dirty = true;
                     }
                     let destination_worldspace = get_coord_by_territory_id(game, territory.Id);
                     agent.TerritoryId = territory.Id;
@@ -83601,9 +83610,6 @@ Piesku&#10094;R&#10095; Mirrorisk
     function update$6(game, entity) {
         let agent = game.World.NavAgent[entity];
         let transform = game.World.Transform[entity];
-        // if (game.InputDelta["Mouse0"] === 1) {
-        //     console.log(game.Picked?.Point);
-        // }
         if (game.InputDelta["Mouse2"] === -1 &&
             game.InputState["Mouse2DownTraveled"] < 10 &&
             game.Picked &&
@@ -84588,6 +84594,7 @@ Piesku&#10094;R&#10095; Mirrorisk
             this.CurrentPlayer = 0;
             this.Players = [];
             this.CurrentPlayerTerritories = [];
+            this.ContinentBonus = [];
             this.AiActiveUnits = [];
             this.CurrentlyMovingAiUnit = null;
             this.CurrentlyFoughtOverTerritory = null;
@@ -84975,8 +84982,6 @@ Piesku&#10094;R&#10095; Mirrorisk
         let territory_entities = Object.keys(game.TerritoryEntities)
             .sort(() => 0.5 - Math.random())
             .map((e) => parseInt(e, 10));
-        territory_entities.unshift(31);
-        // territory_entities.unshift(56);
         for (let i = 0; i < territory_entities.length; i++) {
             let team = (number_of_players + i) % number_of_players;
             let territory_entity_id = game.TerritoryEntities[territory_entities[i]];
@@ -85097,6 +85102,36 @@ Piesku&#10094;R&#10095; Mirrorisk
         scene_stage(game);
         loop_start(game);
     });
+    game.ContinentBonus[2 /* Australia */] = {
+        Territories: [],
+        Bonus: 2,
+        Name: "Australia",
+    };
+    game.ContinentBonus[4 /* SouthAmerica */] = {
+        Territories: [],
+        Bonus: 2,
+        Name: "South America",
+    };
+    game.ContinentBonus[1 /* Africa */] = {
+        Territories: [],
+        Bonus: 3,
+        Name: "Africa",
+    };
+    game.ContinentBonus[0 /* Europe */] = {
+        Territories: [],
+        Bonus: 5,
+        Name: "Europe",
+    };
+    game.ContinentBonus[3 /* NorthAmerica */] = {
+        Territories: [],
+        Bonus: 5,
+        Name: "North America",
+    };
+    game.ContinentBonus[5 /* Asia */] = {
+        Territories: [],
+        Bonus: 7,
+        Name: "Asia",
+    };
     async function load_texture(game, name) {
         let image = await fetch_image("./textures/" + name);
         game.Textures[name] = create_texture_from(game.Gl, image);
