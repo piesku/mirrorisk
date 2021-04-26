@@ -32,7 +32,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                 let territories = territories_controlled_by_team(game, i);
                 let territories_qty = Object.keys(territories).length;
 
-                Logger(game, `${game.Players[i].Name} controlls ${territories_qty} territories`);
+                Logger(game, `${game.Players[i].Name} controls ${territories_qty} territories`);
 
                 if (most_territories < territories_qty) {
                     most_territories = territories_qty;
@@ -74,13 +74,13 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             if (!game.IsAiTurn) {
                 Alert(
                     game,
-                    `Select territories to deploy ${units_to_deploy} units${
+                    `It's your turn now!${
                         bonus > 0
-                            ? `, including ${bonus} for controlling continents: ${continents_controlled.join(
+                            ? ` You receive ${bonus} extra armies for controling ${continents_controlled.join(
                                   ", "
-                              )}.`
-                            : "."
-                    }`
+                              )}. `
+                            : " "
+                    }Select territories to deploy ${units_to_deploy} new armies.`
                 );
             }
 
@@ -99,7 +99,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             if (position) {
                 let territory_entity_id = game.TerritoryEntities[territory_id];
                 let territory_name = game.World.Territory[territory_entity_id].Name;
-                Logger(game, `${current_player_name} deploys a unit to ${territory_name}`);
+                Logger(game, `${current_player_name} deploys an army to ${territory_name}`);
 
                 let deployed_unit_entity = instantiate(
                     game,
@@ -158,7 +158,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                                 let enemy_territory_id = enemy_territory_ids[j];
                                 Logger(
                                     game,
-                                    `${current_player_name} attacks ${game.Players[i].Name} in ${territory_name} woth ${current_player_territories[enemy_territory_id]} unit(s) agains ${enemy_territories[enemy_territory_id]} unit(s).`
+                                    `${current_player_name} attacks ${game.Players[i].Name} in ${territory_name} with ${current_player_territories[enemy_territory_id]} armies against ${enemy_territories[enemy_territory_id]} armies.`
                                 );
 
                                 let battle_result = fight(
@@ -169,10 +169,10 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
 
                                 let looser;
                                 if (battle_result === BattleResult.AttackWon) {
-                                    Logger(game, `${current_player_name} won!`);
+                                    Logger(game, `${current_player_name} wins the battle!`);
                                     looser = i;
                                 } else {
-                                    Logger(game, `${game.Players[i].Name} won!`);
+                                    Logger(game, `${game.Players[i].Name} wins the battle!`);
                                     looser = game.CurrentPlayer;
                                 }
 

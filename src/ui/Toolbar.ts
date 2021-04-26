@@ -17,7 +17,7 @@ export function Toolbar(game: Game) {
                     </div>
                 </div>
                 <div class="window-body">
-                    <p>Click on a territory you control to deploy additional units</p>
+                    <p>Click on a territory you control to deploy reinforcements</p>
                     <p><div class="field-row">
                     <label for="range25">Units left:</label>
                     <label for="range26">0</label>
@@ -49,7 +49,7 @@ export function Toolbar(game: Game) {
                     <button onclick="$(${Action.SetupBattles})" ${
                 game.IsAiTurn && "disabled=disabled"
             }">
-                End turn & Resolve Battles
+                End Turn & Resolve Battles
             </button>
                 </div>
             </div>`;
