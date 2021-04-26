@@ -164,7 +164,9 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                                 let battle_result = fight(
                                     game,
                                     current_player_territories[enemy_territory_id],
-                                    enemy_territories[enemy_territory_id]
+                                    enemy_territories[enemy_territory_id],
+                                    !game.IsAiTurn,
+                                    game.Players[i].Type === PlayerType.Human
                                 );
 
                                 let looser;
@@ -270,7 +272,13 @@ export const enum BattleResult {
     DefenceWon,
 }
 
-export function fight(game: Game, attacking_units: number, defending_units: number) {
+export function fight(
+    game: Game,
+    attacking_units: number,
+    defending_units: number,
+    human_player_attacking: boolean,
+    human_player_defending: boolean
+) {
     // XXX Add battle logic here
 
     let attackers = [];
@@ -292,8 +300,14 @@ export function fight(game: Game, attacking_units: number, defending_units: numb
     for (let i = 0; i < Math.min(defenders.length, attackers.length); i++) {
         if (attackers[i] > defenders[i]) {
             attacking_points++;
-        } else {
+        } else if (attackers[i] < defenders[i]) {
             defending_points++;
+        } else {
+            if (human_player_attacking) {
+                attacking_points++;
+            } else {
+                defending_points++;
+            }
         }
     }
 
