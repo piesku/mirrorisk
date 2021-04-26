@@ -40904,7 +40904,12 @@ style="width: ${alertWidth$1}px;position: absolute; left: ${(window.innerWidth -
 </div>
 <div class="window-body">
 <p>${game.AlertText}</p>
-<button style="cursor:pointer" onclick="$(${8 /* ClearAlert */})">OK</button>
+<button
+style="cursor:pointer"
+onmouseup="event.stopPropagation(); $(${8 /* ClearAlert */});"
+>
+OK
+</button>
 </div>
 </div>`;
 }
@@ -40954,7 +40959,12 @@ alertWidth) /
 </div>
 <div class="window-body">
 <p>${game.PopupText}</p>
-<button style="cursor:pointer" onclick="$(${9 /* ClearPopup */})">OK</button>
+<button
+style="cursor:pointer"
+onmouseup="event.stopPropagation(); $(${9 /* ClearPopup */});"
+>
+OK
+</button>
 </div>
 </div>`;
 }
@@ -40977,7 +40987,7 @@ return html `<div class="window" style="width: 300px;margin: 10px;">
 <p><div class="field-row">
 <progress value="${game.UnitsDeployed}" max="${game.UnitsToDeploy}" />
 </div></p>
-<button onclick="$(${1 /* EndDeployment */})" ${(game.IsAiTurn || game.UnitsDeployed !== game.UnitsToDeploy) && "disabled=disabled"}">
+<button onmouseup="event.stopPropagation(); $(${1 /* EndDeployment */});" ${(game.IsAiTurn || game.UnitsDeployed !== game.UnitsToDeploy) && "disabled=disabled"}">
 End Deployment
 </button>
 </div>
@@ -40994,7 +41004,7 @@ return html `<div class="window" style="width: 300px;margin: 10px;">
 <div class="window-body">
 <p>Current Player: ${game.Players[game.CurrentPlayer].Name}</p>
 <p>Controlled by: ${game.IsAiTurn ? "AI" : "Human"}</p>
-<button onclick="$(${3 /* SetupBattles */})" ${game.IsAiTurn && "disabled=disabled"}">
+<button onmouseup="event.stopPropagation(); $(${3 /* SetupBattles */})" ${game.IsAiTurn && "disabled=disabled"}">
 End Turn & Resolve Battles
 </button>
 </div>
@@ -83191,12 +83201,19 @@ if (audio_source.Panner) {
 let transform = game.World.Transform[entity];
 get_translation(position, transform.World);
 get_forward(forward, transform.World);
+if (audio_source.Panner.positionX) {
 audio_source.Panner.positionX.value = position[0];
 audio_source.Panner.positionY.value = position[1];
 audio_source.Panner.positionZ.value = position[2];
 audio_source.Panner.orientationX.value = forward[0];
 audio_source.Panner.orientationY.value = forward[1];
 audio_source.Panner.orientationZ.value = forward[2];
+}
+else {
+
+audio_source.Panner.setPosition(...position);
+audio_source.Panner.setOrientation(...forward);
+}
 }
 let can_exit = !audio_source.Current || audio_source.Time > audio_source.Current.duration;
 if (audio_source.Trigger && can_exit) {
@@ -85228,7 +85245,10 @@ game.Ui.innerHTML += `Loading <code>${name}</code>... ✓<br>`;
 async function load_audio(game, name) {
 let response = await fetch("./sounds/" + name);
 let arrayBuffer = await response.arrayBuffer();
-game.Sounds[name] = await game.Audio.decodeAudioData(arrayBuffer);
+
+game.Sounds[name] = await new Promise((resolve, reject) => {
+game.Audio.decodeAudioData(arrayBuffer, resolve, reject);
+});
 
 game.Ui.innerHTML += `Loading <code>${name}</code>... ✓<br>`;
 }
