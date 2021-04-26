@@ -203,7 +203,11 @@ async function load_texture(game: Game, name: string) {
 async function load_audio(game: Game, name: string) {
     let response = await fetch("./sounds/" + name);
     let arrayBuffer = await response.arrayBuffer();
-    game.Sounds[name] = await game.Audio.decodeAudioData(arrayBuffer);
+
+    // Safari doesn't support the Promise-based decodeAudioData, smh.
+    game.Sounds[name] = await new Promise((resolve, reject) => {
+        game.Audio.decodeAudioData(arrayBuffer, resolve, reject);
+    });
 
     // Report loading progress.
     game.Ui.innerHTML += `Loading <code>${name}</code>... ✓<br>`;
