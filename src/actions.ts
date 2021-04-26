@@ -179,17 +179,51 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                                     game.Players[i].Type === PlayerType.Human
                                 );
 
-                                let looser;
-                                if (battle_result === BattleResult.AttackWon) {
-                                    Logger(game, `${current_player_name} wins the battle!`);
-                                    looser = i;
+                                let loser, winner;
+                                let winner_units_lost: number | undefined;
+                                if (battle_result.result === BattleResult.AttackWon) {
+                                    winner_units_lost =
+                                        current_player_territories[enemy_territory_id] -
+                                        battle_result.attacking_units;
+                                    Logger(
+                                        game,
+                                        `${current_player_name} ${
+                                            winner_units_lost === 0
+                                                ? "wins"
+                                                : `loses ${winner_units_lost} armies but still manages to win`
+                                        } the battle!`
+                                    );
+                                    loser = i;
+                                    winner = game.CurrentPlayer;
                                 } else {
-                                    Logger(game, `${game.Players[i].Name} wins the battle!`);
-                                    looser = game.CurrentPlayer;
+                                    winner_units_lost =
+                                        enemy_territories[enemy_territory_id] -
+                                        battle_result.defending_units;
+                                    Logger(
+                                        game,
+                                        `${game.Players[i].Name} ${
+                                            winner_units_lost === 0
+                                                ? "wins"
+                                                : `loses ${winner_units_lost} armies but still manages to win`
+                                        } the battle!`
+                                    );
+
+                                    loser = game.CurrentPlayer;
+                                    winner = i;
                                 }
 
-                                if (typeof looser !== undefined) {
-                                    remove_defeated_units(game, enemy_territory_id, looser);
+                                if (typeof loser !== undefined) {
+                                    remove_defeated_units(game, enemy_territory_id, loser);
+                                }
+
+                                if (typeof winner !== undefined) {
+                                    console.log({winner, winner_units_lost});
+                                    remove_defeated_units(
+                                        game,
+                                        enemy_territory_id,
+                                        winner,
+                                        winner_units_lost
+                                    );
                                 }
                             },
                         });
@@ -289,11 +323,7 @@ export function fight(
     human_player_attacking: boolean,
     human_player_defending: boolean
 ) {
-    // XXX Add battle logic here
-    let i = 1;
     while (attacking_units && defending_units) {
-        console.log(`Runda ${i}, Attackers: ${attacking_units}, Defenders: ${defending_units}`);
-        i++;
         let attackers = [];
         let defenders = [];
         for (let i = 0; i < attacking_units; i++) {
@@ -303,9 +333,6 @@ export function fight(
         for (let i = 0; i < defending_units; i++) {
             defenders.push(integer(1, 6));
         }
-
-        let attacking_points = 0;
-        let defending_points = 0;
 
         let n_attackers = attackers.sort((a, b) => b - a).slice(0, Math.min(attacking_units, 3));
         let n_defenders = defenders.sort((a, b) => b - a).slice(0, Math.min(attacking_units, 2));
@@ -326,13 +353,26 @@ export function fight(
     }
 
     if (attacking_units) {
-        return BattleResult.AttackWon;
+        return {
+            result: BattleResult.AttackWon,
+            attacking_units,
+            defending_units,
+        };
     } else {
-        return BattleResult.DefenceWon;
+        return {
+            result: BattleResult.DefenceWon,
+            attacking_units,
+            defending_units,
+        };
     }
 }
 
-export function remove_defeated_units(game: Game, territory_id: number, team_id: number) {
+export function remove_defeated_units(
+    game: Game,
+    territory_id: number,
+    team_id: number,
+    qty?: number
+) {
     let QUERY = Has.Team | Has.NavAgent;
     for (let i = 0; i < game.World.Signature.length; i++) {
         if (
@@ -340,6 +380,14 @@ export function remove_defeated_units(game: Game, territory_id: number, team_id:
             game.World.NavAgent[i].TerritoryId === territory_id &&
             game.World.Team[i].Id === team_id
         ) {
+            if (qty === 0) {
+                return;
+            }
+
+            if (qty) {
+                qty--;
+            }
+
             let translation = game.World.Transform[i].Translation;
             game.World.Move[i].MoveSpeed += float(-5, 5);
 
