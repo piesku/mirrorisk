@@ -23,7 +23,7 @@ export function Toolbar(game: Game) {
                     <p><div class="field-row">
                     <progress value="${game.UnitsDeployed}" max="${game.UnitsToDeploy}" />
                     </div></p>
-                    <button onmouseup="event.stopPropagation(); $(${Action.EndDeployment});" ${
+                    <button onmousedown="event.stopPropagation(); $(${Action.EndDeployment});" ${
                 (game.IsAiTurn || game.UnitsDeployed !== game.UnitsToDeploy) && "disabled=disabled"
             }">
                         End Deployment
@@ -43,7 +43,7 @@ export function Toolbar(game: Game) {
                 <div class="window-body">
                     <p>Current Player: ${game.Players[game.CurrentPlayer].Name}</p>
                     <p>Controlled by: ${game.IsAiTurn ? "AI" : "Human"}</p>
-                    <button onmouseup="event.stopPropagation(); $(${Action.SetupBattles})" ${
+                    <button onmousedown="event.stopPropagation(); $(${Action.SetupBattles})" ${
                 game.IsAiTurn && "disabled=disabled"
             }">
                 End Turn & Resolve Battles
