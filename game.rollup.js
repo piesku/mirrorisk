@@ -40940,7 +40940,7 @@ Piesku&#10094;R&#10095; Mirrorisk
     </div>`;
     }
 
-    let alertWidth = 600;
+    let alertWidth = 400;
     function PopupWindow(game) {
         if (!game.PopupText) {
             return "";
@@ -85105,7 +85105,28 @@ Piesku&#10094;R&#10095; Mirrorisk
                 console.error(`Cannot find random point on territory ${JSON.stringify(territory, null, 2)}!`);
             }
         }
-        Popup(game, `This is very long hello text <br/> with HTML`, "Hello!");
+        Popup(game, html `
+            <p style="text-align: center;">
+                <img src="./textures/rose.png" width="128" height="128" style="" />
+            </p>
+
+            <p>Welcome to <em>Mirrorisk</em>!</p>
+
+            <p>
+                West is East and East is West in this virtual cardboard rendition of the 1957's
+                <em>Risk</em>. The rules have changed, too: the game ends the first time a player is
+                eliminated, so be sure to protect the underdogs when you take the lead!
+            </p>
+
+            <p>
+                Each turn you'll get reinforcements to deploy into the territories you control.
+                Controlling an entire continent will yield a bonus. Select armies with the left
+                click; issue orders with the right click. Pan the camera with your left mouse button
+                pressed, rotate with the right mosue button, and zoom with the mouse wheel.
+            </p>
+
+            <p>Good luck!</p>
+        `, "Hello!");
         dispatch(game, 0 /* StartDeployment */, {});
     }
 
