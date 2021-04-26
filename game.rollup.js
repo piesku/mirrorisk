@@ -84256,7 +84256,7 @@ Piesku&#10094;R&#10095; Mirrorisk
                     let units_on_territory = territories[current_territory_id];
                     if (units_on_territory < 2) {
                         if (game.InputDelta["Mouse0"] === 1 && game.TurnPhase === 1 /* Move */) {
-                            Alert(game, "This unit cannot move because territoies cannot be left empty.");
+                            Logger(game, "This unit cannot move because territories cannot be left empty.");
                         }
                         return;
                     }
