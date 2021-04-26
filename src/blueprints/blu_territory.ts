@@ -29,7 +29,9 @@ export function blueprint_territory(
     // XXX This relies on the fact that territories have an identity matrix as World.
     let anchor_position = random_point_up(mesh);
     if (!anchor_position) {
-        throw new Error("Territory without anchor is illegal.");
+        throw new Error(
+            "Territory without anchor is illegal. Calling the Goodluck City Police Department"
+        );
     }
 
     return [

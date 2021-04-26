@@ -22,6 +22,7 @@ export function territory(continent: Continent, index: number, name: string = ""
     return (game: Game, entity: Entity) => {
         let id = continent * 10 + index;
         game.TerritoryEntities[id] = entity;
+        game.ContinentBonus[continent].Territories.push(id);
         game.World.Signature[entity] |= Has.Territory;
         game.World.Territory[entity] = {
             Continent: continent,

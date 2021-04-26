@@ -3,7 +3,7 @@ import {float} from "../common/random.js";
 import {blueprint_unit} from "./blueprints/blu_unit.js";
 import {territories_controlled_by_team, units_entity_ids} from "./components/com_team.js";
 import {destroy_entity, instantiate} from "./entity.js";
-import {Game, PlayerType, TurnPhase} from "./game.js";
+import {ContinentBonus, Game, PlayerType, TurnPhase} from "./game.js";
 import {Alert, Logger} from "./ui/App.js";
 import {Has} from "./world.js";
 export const enum Action {
@@ -39,8 +39,32 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
 
             // XXX: Add continent bonus here
             let units_to_deploy = Math.max(~~(game.CurrentPlayerTerritories.length / 3), 3);
+            let bonus = 0;
+            let continents_controlled = [];
+
+            for (let j = 0; j < (game.ContinentBonus as Array<ContinentBonus>).length; j++) {
+                let continent = game.ContinentBonus[j];
+                let territories = continent.Territories.slice().filter(
+                    (ter_id) => !game.CurrentPlayerTerritories.includes(ter_id)
+                );
+
+                if (territories.length === 0) {
+                    bonus += continent.Bonus;
+                    units_to_deploy += continent.Bonus;
+                    continents_controlled.push(continent.Name);
+                }
+            }
             if (!game.IsAiTurn) {
-                Alert(game, `Select territories to deploy ${units_to_deploy} units.`);
+                Alert(
+                    game,
+                    `Select territories to deploy ${units_to_deploy} units${
+                        bonus > 0
+                            ? `, including ${bonus} for controlling continents: ${continents_controlled.join(
+                                  ", "
+                              )}.`
+                            : "."
+                    }`
+                );
             }
 
             game.TurnPhase = TurnPhase.Deploy;
@@ -156,7 +180,6 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
 
             let battle = game.Battles.pop()!;
 
-            // setTimeout(() => {
             // XXX This isn't currently reset anywhere. Instead,
             // sys_control_camera resets mimic.Target in the deploy
             // phase.
@@ -169,10 +192,6 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                     dispatch(game, Action.ResolveBattles, {});
                 }, 1000);
             }, 1000);
-
-            // setTimeout(() => {
-            // }, 1000);
-            // }, 3000);
             break;
         }
         case Action.EndTurn: {
@@ -203,7 +222,6 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
 
         case Action.ShowTooltipText: {
             game.TooltipText = payload as string;
-            // console.log(payload);
             break;
         }
 
@@ -227,11 +245,11 @@ export const enum BattleResult {
 
 export function fight(game: Game, attacking_units: number, defending_units: number) {
     // XXX Add battle logic here
-    if (float(0, 1) < 0.5) {
-        return BattleResult.AttackWon;
-    } else {
-        return BattleResult.DefenceWon;
-    }
+    // if (float(0, 1) < 0.5) {
+    return BattleResult.AttackWon;
+    // } else {
+    //     return BattleResult.DefenceWon;
+    // }
 }
 
 export function remove_defeated_units(game: Game, territory_id: number, team_id: number) {
@@ -250,7 +268,7 @@ export function remove_defeated_units(game: Game, territory_id: number, team_id:
             game.World.NavAgent[i].TerritoryId = 0;
             game.World.NavAgent[i].Destination = [
                 translation[0],
-                translation[1] - 5,
+                translation[1] - 7,
                 translation[2],
             ];
             setTimeout(() => {

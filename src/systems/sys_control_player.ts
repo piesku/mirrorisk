@@ -22,10 +22,6 @@ function update(game: Game, entity: Entity) {
     let agent = game.World.NavAgent[entity];
     let transform = game.World.Transform[entity];
 
-    // if (game.InputDelta["Mouse0"] === 1) {
-    //     console.log(game.Picked?.Point);
-    // }
-
     if (
         game.InputDelta["Mouse2"] === -1 &&
         game.InputState["Mouse2DownTraveled"] < 10 &&

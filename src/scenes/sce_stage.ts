@@ -173,9 +173,6 @@ export function scene_stage(game: Game) {
         .sort(() => 0.5 - Math.random())
         .map((e) => parseInt(e, 10));
 
-    territory_entities.unshift(31);
-    // territory_entities.unshift(56);
-
     for (let i = 0; i < territory_entities.length; i++) {
         let team = (number_of_players + i) % number_of_players;
         let territory_entity_id = game.TerritoryEntities[territory_entities[i]];

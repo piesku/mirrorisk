@@ -65,6 +65,11 @@ interface BattleCallback {
     Run: Function;
 }
 
+export interface ContinentBonus {
+    Territories: number[];
+    Bonus: number;
+    Name: string;
+}
 export class Game {
     World = new World();
 
@@ -89,6 +94,8 @@ export class Game {
     CurrentPlayer = 0;
     Players: Player[] = [];
     CurrentPlayerTerritories: Entity[] = [];
+
+    ContinentBonus: Record<number, ContinentBonus> = [];
 
     AiActiveUnits: Entity[] = [];
     CurrentlyMovingAiUnit: Entity | null = null;

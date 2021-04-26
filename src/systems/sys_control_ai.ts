@@ -50,6 +50,20 @@ function update(game: Game, entity: Entity) {
                     agent.Actions -= 1;
                 }
 
+                let Alaska = 31;
+                let Kamchatka = 56;
+                let transform = game.World.Transform[entity];
+                // Kamchatka -> Alaska & Alaska -> Kamchatka
+                if (agent.TerritoryId === Kamchatka && territory.Id === Alaska) {
+                    transform.Translation[0] = 140;
+                    transform.Translation[2] = -64.29;
+                    transform.Dirty = true;
+                } else if (agent.TerritoryId === Alaska && territory.Id === Kamchatka) {
+                    transform.Translation[0] = -160;
+                    transform.Translation[2] = -64.58;
+                    transform.Dirty = true;
+                }
+
                 let destination_worldspace = get_coord_by_territory_id(game, territory.Id);
 
                 agent.TerritoryId = territory.Id;

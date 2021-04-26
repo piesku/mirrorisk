@@ -42,6 +42,7 @@ import {mesh_sa02} from "../meshes/sa02.js";
 import {mesh_sa03} from "../meshes/sa03.js";
 import {mesh_sa04} from "../meshes/sa04.js";
 import {dispatch} from "./actions.js";
+import {Continent} from "./components/com_territory.js";
 import {Game, PlayerType} from "./game.js";
 import {loop_start} from "./loop.js";
 import {scene_stage} from "./scenes/sce_stage.js";
@@ -161,6 +162,36 @@ Promise.all([
     loop_start(game);
 });
 
+game.ContinentBonus[Continent.Australia] = {
+    Territories: [],
+    Bonus: 2,
+    Name: "Australia",
+};
+game.ContinentBonus[Continent.SouthAmerica] = {
+    Territories: [],
+    Bonus: 2,
+    Name: "South America",
+};
+game.ContinentBonus[Continent.Africa] = {
+    Territories: [],
+    Bonus: 3,
+    Name: "Africa",
+};
+game.ContinentBonus[Continent.Europe] = {
+    Territories: [],
+    Bonus: 5,
+    Name: "Europe",
+};
+game.ContinentBonus[Continent.NorthAmerica] = {
+    Territories: [],
+    Bonus: 5,
+    Name: "North America",
+};
+game.ContinentBonus[Continent.Asia] = {
+    Territories: [],
+    Bonus: 7,
+    Name: "Asia",
+};
 async function load_texture(game: Game, name: string) {
     let image = await fetch_image("./textures/" + name);
     game.Textures[name] = create_texture_from(game.Gl, image);
