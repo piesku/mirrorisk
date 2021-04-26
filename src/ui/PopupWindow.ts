@@ -2,7 +2,7 @@ import {html} from "../../common/html.js";
 import {Action} from "../actions.js";
 import {Game} from "../game.js";
 
-let alertWidth = 600;
+let alertWidth = 400;
 
 export function PopupWindow(game: Game) {
     if (!game.PopupText) {
