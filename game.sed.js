@@ -40123,6 +40123,20 @@ let index_arr$7 = Uint16Array.from([
 0, 42, 32
 ]);
 
+function play_buffer(audio, panner, buffer) {
+let source = audio.createBufferSource();
+source.buffer = buffer;
+source.connect(audio.destination);
+if (panner) {
+source.connect(panner);
+panner.connect(audio.destination);
+}
+else {
+source.connect(audio.destination);
+}
+source.start();
+}
+
 let seed = 1;
 function set_seed(new_seed) {
 seed = 198706 * new_seed;
@@ -41127,6 +41141,15 @@ let territory_entity = game.TerritoryEntities[territory_id];
 game.Battles.push({
 TerritoryEntity: territory_entity,
 Run: () => {
+let sfx = [
+"battle1.mp3",
+"battle2.mp3",
+"battle3.mp3",
+"battle4.mp3",
+"battle5.mp3",
+"battle6.mp3",
+];
+play_buffer(game.Audio, undefined, game.Sounds[element(sfx)]);
 let territory_name = game.World.Territory[territory_entity].Name;
 let enemy_territory_id = enemy_territory_ids[j];
 Logger(game, `${current_player_name} attacks ${game.Players[i].Name} in ${territory_name} with ${current_player_territories[enemy_territory_id]} armies against ${enemy_territories[enemy_territory_id]} armies.`);
@@ -83179,20 +83202,6 @@ listener.setOrientation(...forward$1, ...up);
 }
 }
 
-function play_buffer(audio, panner, buffer) {
-let source = audio.createBufferSource();
-source.buffer = buffer;
-source.connect(audio.destination);
-if (panner) {
-source.connect(panner);
-panner.connect(audio.destination);
-}
-else {
-source.connect(audio.destination);
-}
-source.start();
-}
-
 const QUERY$j = 2 /* AudioSource */;
 function sys_audio_source(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
@@ -83715,15 +83724,18 @@ update$6(game, i);
 }
 }
 }
+const sfx = ["mhm1.mp3", "mhm2.mp3", "mhm3.mp3", "mhm4.mp3"];
 function update$6(game, entity) {
 let agent = game.World.NavAgent[entity];
 let transform = game.World.Transform[entity];
+let audio_source = game.World.AudioSource[entity];
 if (game.InputDelta["Mouse2"] === -1 &&
 game.InputState["Mouse2DownTraveled"] < 10 &&
 game.Picked &&
 agent.Actions > 0) {
 let territory_entity = game.Picked.Entity;
 let territory = game.World.Territory[territory_entity];
+audio_source.Trigger = game.Sounds[element(sfx)];
 if (!game.TerritoryGraph[agent.TerritoryId].includes(territory.Id)) {
 
 return;
@@ -85128,6 +85140,10 @@ pressed, rotate with the right mosue button, and zoom with the mouse wheel.
 <p>Good luck!</p>
 `, "Hello!");
 dispatch(game, 0 /* StartDeployment */, {});
+play_buffer(game.Audio, undefined, game.Sounds[element(["music1.mp3", "music2.mp3"])]);
+setInterval(() => {
+play_buffer(game.Audio, undefined, game.Sounds[element(["music1.mp3", "music2.mp3"])]);
+}, 30000);
 }
 
 let game = new Game();
@@ -85226,11 +85242,23 @@ load_texture(game, "Cardboard004_1K_Roughness.jpg"),
 load_texture(game, "Wood063_1K_Color.jpg"),
 load_texture(game, "Wood063_1K_Normal.jpg"),
 load_texture(game, "Wood063_1K_Roughness.jpg"),
+load_audio(game, "music1.mp3"),
+load_audio(game, "music2.mp3"),
+load_audio(game, "mhm1.mp3"),
+load_audio(game, "mhm2.mp3"),
+load_audio(game, "mhm3.mp3"),
+load_audio(game, "mhm4.mp3"),
 load_audio(game, "huh1.mp3"),
 load_audio(game, "huh2.mp3"),
 load_audio(game, "huh3.mp3"),
 load_audio(game, "huh4.mp3"),
 load_audio(game, "huh5.mp3"),
+load_audio(game, "battle1.mp3"),
+load_audio(game, "battle2.mp3"),
+load_audio(game, "battle3.mp3"),
+load_audio(game, "battle4.mp3"),
+load_audio(game, "battle5.mp3"),
+load_audio(game, "battle6.mp3"),
 ]).then(() => {
 scene_stage(game);
 loop_start(game);
