@@ -83751,7 +83751,7 @@ agent.Destination = game.Picked.Point;
 }
 
 function sys_deploy(game, delta) {
-if (game.TurnPhase !== 0 /* Deploy */) {
+if (game.TurnPhase !== 0 /* Deploy */ || game.AlertText) {
 return;
 }
 if (game.IsAiTurn) {

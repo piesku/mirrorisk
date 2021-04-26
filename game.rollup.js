@@ -83751,7 +83751,7 @@ Piesku&#10094;R&#10095; Mirrorisk
     }
 
     function sys_deploy(game, delta) {
-        if (game.TurnPhase !== 0 /* Deploy */) {
+        if (game.TurnPhase !== 0 /* Deploy */ || game.AlertText) {
             return;
         }
         if (game.IsAiTurn) {
