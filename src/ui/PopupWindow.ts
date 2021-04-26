@@ -24,7 +24,7 @@ export function PopupWindow(game: Game) {
             <p>${game.PopupText}</p>
             <button
                 style="cursor:pointer"
-                onmouseup="event.stopPropagation(); $(${Action.ClearPopup});"
+                onmousedown="event.stopPropagation(); $(${Action.ClearPopup});"
             >
                 OK
             </button>
