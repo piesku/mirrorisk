@@ -13,6 +13,7 @@ import {Continent} from "../components/com_territory.js";
 import {transform} from "../components/com_transform.js";
 import {instantiate} from "../entity.js";
 import {Game, Layer} from "../game.js";
+import {Popup} from "../ui/App.js";
 import {World} from "../world.js";
 
 export function scene_stage(game: Game) {
@@ -187,6 +188,8 @@ export function scene_stage(game: Game) {
             );
         }
     }
+
+    Popup(game, `This is very long hello text <br/> with HTML`, "Hello!");
 
     dispatch(game, Action.StartDeployment, {});
 }

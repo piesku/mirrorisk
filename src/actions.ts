@@ -1,10 +1,10 @@
-import {Vec3} from "../common/math.js";
+import {Quat, Vec3} from "../common/math.js";
 import {float} from "../common/random.js";
 import {blueprint_unit} from "./blueprints/blu_unit.js";
 import {territories_controlled_by_team, units_entity_ids} from "./components/com_team.js";
 import {destroy_entity, instantiate} from "./entity.js";
 import {ContinentBonus, Game, PlayerType, TurnPhase} from "./game.js";
-import {Alert, Logger} from "./ui/App.js";
+import {Alert, Logger, Popup} from "./ui/App.js";
 import {Has} from "./world.js";
 export const enum Action {
     StartDeployment,
@@ -16,20 +16,35 @@ export const enum Action {
     ShowTooltipText,
     ClearTooltipText,
     ClearAlert,
+    ClearPopup,
 }
 
 export function dispatch(game: Game, action: Action, payload: unknown) {
     let current_player_name = game.Players[game.CurrentPlayer].Name;
     switch (action) {
         case Action.StartDeployment: {
+            let game_over = false;
+            let most_territories = 0;
+            let best_player = 0;
+
             game.Battles = [];
             for (let i = 0; i < game.Players.length; i++) {
-                Logger(
-                    game,
-                    `${game.Players[i].Name} controlls ${
-                        Object.keys(territories_controlled_by_team(game, i)).length
-                    } territories`
-                );
+                let ters = Object.keys(territories_controlled_by_team(game, i)).length;
+                Logger(game, `${game.Players[i].Name} controlls ${ters} territories`);
+
+                if (most_territories < ters) {
+                    most_territories = ters;
+                    best_player = i;
+                }
+
+                if (ters === 0) {
+                    game_over = true;
+                }
+            }
+
+            if (game_over) {
+                Popup(game, `Game over! ${game.Players[best_player]} won!`, `Game over!`);
+                game.TurnPhase = TurnPhase.Endgame;
             }
 
             Logger(game, `C:&#92;> ${current_player_name}'s turn`);
@@ -214,9 +229,13 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                 }
 
                 game.World.Signature[game.SunEntity] &= ~Has.ControlAlways;
+                game.World.Transform[
+                    game.SunEntity
+                ].Rotation = game.InitialSunPosition.slice() as Quat;
+                game.World.Transform[game.SunEntity].Dirty = true;
                 game.CurrentPlayer = next_player;
                 dispatch(game, Action.StartDeployment, {});
-            }, 2000);
+            }, 1000);
             break;
         }
 
@@ -233,6 +252,12 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
         case Action.ClearAlert: {
             game.Audio.resume();
             game.AlertText = null;
+            break;
+        }
+
+        case Action.ClearPopup: {
+            game.PopupText = undefined;
+            game.PopupTitle = undefined;
             break;
         }
     }

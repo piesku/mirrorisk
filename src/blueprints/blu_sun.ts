@@ -1,3 +1,4 @@
+import {Quat} from "../../common/math.js";
 import {from_euler} from "../../common/quat.js";
 import {callback} from "../components/com_callback.js";
 import {camera_framebuffer_ortho} from "../components/com_camera.js";
@@ -16,10 +17,10 @@ export function blueprint_sun(game: Game): Blueprint {
         transform(undefined, from_euler([0, 0, 0, 0], -30, 0, 0)),
         children([
             callback((game, entity) => (game.SunEntity = entity)),
-            transform(undefined, from_euler([0, 0, 0, 0], 0, 35, 0)),
+            transform(undefined, game.InitialSunPosition.slice() as Quat),
             control_always(null, [0, -1, 0, 0]),
             disable(Has.ControlAlways),
-            move(0, 3.1),
+            move(0, 6.2),
             children(
                 // The Sun.
                 [
