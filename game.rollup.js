@@ -41130,7 +41130,7 @@ Piesku&#10094;R&#10095; Mirrorisk
                                     let territory_name = game.World.Territory[territory_entity].Name;
                                     let enemy_territory_id = enemy_territory_ids[j];
                                     Logger(game, `${current_player_name} attacks ${game.Players[i].Name} in ${territory_name} with ${current_player_territories[enemy_territory_id]} armies against ${enemy_territories[enemy_territory_id]} armies.`);
-                                    let battle_result = fight(game, current_player_territories[enemy_territory_id], enemy_territories[enemy_territory_id]);
+                                    let battle_result = fight(game, current_player_territories[enemy_territory_id], enemy_territories[enemy_territory_id], !game.IsAiTurn, game.Players[i].Type === 0 /* Human */);
                                     let looser;
                                     if (battle_result === 0 /* AttackWon */) {
                                         Logger(game, `${current_player_name} wins the battle!`);
@@ -41212,7 +41212,7 @@ Piesku&#10094;R&#10095; Mirrorisk
             }
         }
     }
-    function fight(game, attacking_units, defending_units) {
+    function fight(game, attacking_units, defending_units, human_player_attacking, human_player_defending) {
         // XXX Add battle logic here
         let attackers = [];
         let defenders = [];
@@ -41230,8 +41230,16 @@ Piesku&#10094;R&#10095; Mirrorisk
             if (attackers[i] > defenders[i]) {
                 attacking_points++;
             }
-            else {
+            else if (attackers[i] < defenders[i]) {
                 defending_points++;
+            }
+            else {
+                if (human_player_attacking) {
+                    attacking_points++;
+                }
+                else {
+                    defending_points++;
+                }
             }
         }
         if (attacking_points > defending_points) {
