@@ -40973,12 +40973,9 @@ Piesku&#10094;R&#10095; Mirrorisk
                     </div>
                 </div>
                 <div class="window-body">
-                    <p>Click on a territory you control to deploy reinforcements</p>
+                    <p>Click on a territory you control to deploy reinforcements. Armies left to deploy: ${game.UnitsToDeploy - game.UnitsDeployed}.</p>
                     <p><div class="field-row">
-                    <label for="range25">Units left:</label>
-                    <label for="range26">0</label>
-                    <input id="range26" type="range" min="0" max="${game.UnitsToDeploy}" value="${game.UnitsDeployed}" style="pointer-events: none"/>
-                    <label for="range27">${game.UnitsToDeploy}</label>
+                    <progress value="${game.UnitsDeployed}" max="${game.UnitsToDeploy}" />
                     </div></p>
                     <button onclick="$(${1 /* EndDeployment */})" ${(game.IsAiTurn || game.UnitsDeployed !== game.UnitsToDeploy) && "disabled=disabled"}">
                         End Deployment
