@@ -41154,17 +41154,34 @@ let territory_name = game.World.Territory[territory_entity].Name;
 let enemy_territory_id = enemy_territory_ids[j];
 Logger(game, `${current_player_name} attacks ${game.Players[i].Name} in ${territory_name} with ${current_player_territories[enemy_territory_id]} armies against ${enemy_territories[enemy_territory_id]} armies.`);
 let battle_result = fight(game, current_player_territories[enemy_territory_id], enemy_territories[enemy_territory_id], !game.IsAiTurn, game.Players[i].Type === 0 /* Human */);
-let looser;
-if (battle_result === 0 /* AttackWon */) {
-Logger(game, `${current_player_name} wins the battle!`);
-looser = i;
+let loser, winner;
+let winner_units_lost;
+if (battle_result.result === 0 /* AttackWon */) {
+winner_units_lost =
+current_player_territories[enemy_territory_id] -
+battle_result.attacking_units;
+Logger(game, `${current_player_name} ${winner_units_lost === 0
+? "wins"
+: `loses ${winner_units_lost} armies but still manages to win`} the battle!`);
+loser = i;
+winner = game.CurrentPlayer;
 }
 else {
-Logger(game, `${game.Players[i].Name} wins the battle!`);
-looser = game.CurrentPlayer;
+winner_units_lost =
+enemy_territories[enemy_territory_id] -
+battle_result.defending_units;
+Logger(game, `${game.Players[i].Name} ${winner_units_lost === 0
+? "wins"
+: `loses ${winner_units_lost} armies but still manages to win`} the battle!`);
+loser = game.CurrentPlayer;
+winner = i;
 }
-if (typeof looser !== undefined) {
-remove_defeated_units(game, enemy_territory_id, looser);
+if (typeof loser !== undefined) {
+remove_defeated_units(game, enemy_territory_id, loser);
+}
+if (typeof winner !== undefined) {
+console.log({ winner, winner_units_lost });
+remove_defeated_units(game, enemy_territory_id, winner, winner_units_lost);
 }
 },
 });
@@ -41236,11 +41253,7 @@ break;
 }
 }
 function fight(game, attacking_units, defending_units, human_player_attacking, human_player_defending) {
-
-let i = 1;
 while (attacking_units && defending_units) {
-console.log(`Runda ${i}, Attackers: ${attacking_units}, Defenders: ${defending_units}`);
-i++;
 let attackers = [];
 let defenders = [];
 for (let i = 0; i < attacking_units; i++) {
@@ -41269,18 +41282,32 @@ attacking_units--;
 }
 }
 if (attacking_units) {
-return 0 /* AttackWon */;
+return {
+result: 0 /* AttackWon */,
+attacking_units,
+defending_units,
+};
 }
 else {
-return 1 /* DefenceWon */;
+return {
+result: 1 /* DefenceWon */,
+attacking_units,
+defending_units,
+};
 }
 }
-function remove_defeated_units(game, territory_id, team_id) {
+function remove_defeated_units(game, territory_id, team_id, qty) {
 let QUERY = 262144 /* Team */ | 4096 /* NavAgent */;
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY) === QUERY &&
 game.World.NavAgent[i].TerritoryId === territory_id &&
 game.World.Team[i].Id === team_id) {
+if (qty === 0) {
+return;
+}
+if (qty) {
+qty--;
+}
 let translation = game.World.Transform[i].Translation;
 game.World.Move[i].MoveSpeed += float(-5, 5);
 game.World.Signature[i] &= ~262144 /* Team */;
@@ -84601,6 +84628,7 @@ game.Selected = i;
 }
 }
 }
+//
 const select_sfx = ["huh1.mp3", "huh2.mp3", "huh3.mp3", "huh4.mp3", "huh5.mp3"];
 function update(game, entity) {
 var _a;
