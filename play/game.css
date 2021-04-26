@@ -10,3 +10,12 @@ main {
     height: 100vh;
     user-select: none;
 }
+
+.window-body {
+    text-align: center;
+}
+
+p,
+pre {
+    text-align: left;
+}

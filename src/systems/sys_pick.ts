@@ -7,7 +7,7 @@ import {Collide} from "../components/com_collide.js";
 import {PickableKind} from "../components/com_pickable.js";
 import {territories_controlled_by_team} from "../components/com_team.js";
 import {Entity, Game, TurnPhase} from "../game.js";
-import {Alert} from "../ui/App.js";
+import {Logger} from "../ui/App.js";
 import {Has} from "../world.js";
 
 const QUERY = Has.Pickable;
@@ -71,9 +71,9 @@ function update(game: Game, entity: Entity, pickables: Array<Collide>) {
                 let units_on_territory = territories[current_territory_id];
                 if (units_on_territory < 2) {
                     if (game.InputDelta["Mouse0"] === 1 && game.TurnPhase === TurnPhase.Move) {
-                        Alert(
+                        Logger(
                             game,
-                            "This unit cannot move because territoies cannot be left empty."
+                            "This unit cannot move because territories cannot be left empty."
                         );
                     }
                     return;
