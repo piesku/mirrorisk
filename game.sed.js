@@ -40849,23 +40849,20 @@ Dirty: true,
 function blueprint_unit(game, translation, territory_id, team_id) {
 let color = game.Players[team_id].Color.slice();
 let is_human_controlled = game.Players[team_id].Type === 0 /* Human */;
+let meshes = [game.MeshSoldier, game.MeshSoldier, game.MeshSoldier];
+if (document.monetization && document.monetization.state == "started") {
+meshes.push(game.MeshDragoon, game.MeshDragoon, game.MeshCannon);
+}
 let blueprint = [
 transform(translation),
 collide(true, 0 /* None */, 0 /* None */, [2, 6, 2]),
 nav_agent(territory_id),
 is_human_controlled ? move(10, 5) : move(20, 5),
+team(team_id),
 children([transform([0, 1, 0]), draw_selection$1("#ff0"), disable(128 /* Draw */)], [
 transform(),
-render_textured_mapped(game.MaterialTexturedMapped, element([
-game.MeshSoldier,
-game.MeshSoldier,
-game.MeshSoldier,
-game.MeshCannon,
-game.MeshDragoon,
-game.MeshDragoon,
-]), game.Textures["Wood063_1K_Color.jpg"], game.Textures["Wood063_1K_Normal.jpg"], game.Textures["Wood063_1K_Roughness.jpg"], is_human_controlled ? undefined : color),
+render_textured_mapped(game.MaterialTexturedMapped, element(meshes), game.Textures["Wood063_1K_Color.jpg"], game.Textures["Wood063_1K_Normal.jpg"], game.Textures["Wood063_1K_Roughness.jpg"], is_human_controlled ? undefined : color),
 ]),
-team(team_id),
 ];
 if (is_human_controlled) {
 blueprint.push(pickable_unit(color), selectable(), audio_source(true));
