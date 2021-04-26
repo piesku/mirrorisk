@@ -20,6 +20,11 @@ export function sys_control_player(game: Game, delta: number) {
 
 function update(game: Game, entity: Entity) {
     let agent = game.World.NavAgent[entity];
+    let transform = game.World.Transform[entity];
+
+    // if (game.InputDelta["Mouse0"] === 1) {
+    //     console.log(game.Picked?.Point);
+    // }
 
     if (
         game.InputDelta["Mouse2"] === -1 &&
@@ -37,6 +42,19 @@ function update(game: Game, entity: Entity) {
         if (agent.TerritoryId !== territory.Id) {
             // Use the action up only when moving to another territory.
             agent.Actions -= 1;
+        }
+
+        let Alaska = 31;
+        let Kamchatka = 56;
+        // Kamchatka -> Alaska & Alaska -> Kamchatka
+        if (agent.TerritoryId === Kamchatka && territory.Id === Alaska) {
+            transform.Translation[0] = 140;
+            transform.Translation[2] = -64.29;
+            transform.Dirty = true;
+        } else if (agent.TerritoryId === Alaska && territory.Id === Kamchatka) {
+            transform.Translation[0] = -160;
+            transform.Translation[2] = -64.58;
+            transform.Dirty = true;
         }
         agent.TerritoryId = territory.Id;
         agent.Destination = game.Picked.Point;

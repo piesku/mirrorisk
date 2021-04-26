@@ -242,12 +242,14 @@ export function remove_defeated_units(game: Game, territory_id: number, team_id:
             game.World.Team[i].Id === team_id
         ) {
             let translation = game.World.Transform[i].Translation;
+            game.World.Move[i].MoveSpeed += float(-5, 5);
+
             game.World.Signature[i] &= ~Has.Team;
             delete game.World.Team[i];
             game.World.NavAgent[i].TerritoryId = 0;
             game.World.NavAgent[i].Destination = [
                 translation[0],
-                translation[1] - float(5, 6),
+                translation[1] - 5,
                 translation[2],
             ];
             setTimeout(() => {
