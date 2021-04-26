@@ -7,7 +7,7 @@ import {Has} from "../world.js";
 const QUERY = Has.Territory;
 
 export function sys_deploy(game: Game, delta: number) {
-    if (game.TurnPhase !== TurnPhase.Deploy) {
+    if (game.TurnPhase !== TurnPhase.Deploy || game.AlertText) {
         return;
     }
     if (game.IsAiTurn) {
