@@ -40846,7 +40846,7 @@ Dirty: true,
 };
 }
 
-function blueprint_unit(game, translation, territory_id, mesh = game.MeshSoldier, team_id) {
+function blueprint_unit(game, translation, territory_id, team_id) {
 let color = game.Players[team_id].Color.slice();
 let is_human_controlled = game.Players[team_id].Type === 0 /* Human */;
 let blueprint = [
@@ -40856,7 +40856,14 @@ nav_agent(territory_id),
 is_human_controlled ? move(10, 5) : move(20, 5),
 children([transform([0, 1, 0]), draw_selection$1("#ff0"), disable(128 /* Draw */)], [
 transform(),
-render_textured_mapped(game.MaterialTexturedMapped, mesh, game.Textures["Wood063_1K_Color.jpg"], game.Textures["Wood063_1K_Normal.jpg"], game.Textures["Wood063_1K_Roughness.jpg"], is_human_controlled ? undefined : color),
+render_textured_mapped(game.MaterialTexturedMapped, element([
+game.MeshSoldier,
+game.MeshSoldier,
+game.MeshSoldier,
+game.MeshCannon,
+game.MeshDragoon,
+game.MeshDragoon,
+]), game.Textures["Wood063_1K_Color.jpg"], game.Textures["Wood063_1K_Normal.jpg"], game.Textures["Wood063_1K_Roughness.jpg"], is_human_controlled ? undefined : color),
 ]),
 team(team_id),
 ];
@@ -40995,14 +41002,15 @@ game.AlertText = text;
 }
 
 function dispatch(game, action, payload) {
+let current_player_name = game.Players[game.CurrentPlayer].Name;
 switch (action) {
 case 0 /* StartDeployment */: {
 game.Battles = [];
-Logger(game, `Player ${game.CurrentPlayer} turn`);
-game.CurrentPlayerTerritories = Object.keys(territories_controlled_by_team(game, game.CurrentPlayer)).map((e) => parseInt(e, 10));
 for (let i = 0; i < game.Players.length; i++) {
-Logger(game, `Player ${i} controlls ${Object.keys(territories_controlled_by_team(game, i)).length} territories`);
+Logger(game, `${game.Players[i].Name} controlls ${Object.keys(territories_controlled_by_team(game, i)).length} territories`);
 }
+Logger(game, `C:&#92;> ${current_player_name}'s turn`);
+game.CurrentPlayerTerritories = Object.keys(territories_controlled_by_team(game, game.CurrentPlayer)).map((e) => parseInt(e, 10));
 
 let units_to_deploy = Math.max(~~(game.CurrentPlayerTerritories.length / 3), 3);
 if (!game.IsAiTurn) {
@@ -41021,8 +41029,8 @@ let { territory_id, position } = payload;
 if (position) {
 let territory_entity_id = game.TerritoryEntities[territory_id];
 let territory_name = game.World.Territory[territory_entity_id].Name;
-Logger(game, `Deploying one unit to ${territory_name} (Player ${game.CurrentPlayer})`);
-let deployed_unit_entity = instantiate(game, blueprint_unit(game, [position[0], -5, position[2]], territory_id, game.MeshSoldier, game.CurrentPlayer));
+Logger(game, `${current_player_name} deploys a unit to ${territory_name}`);
+let deployed_unit_entity = instantiate(game, blueprint_unit(game, [position[0], -5, position[2]], territory_id, game.CurrentPlayer));
 game.World.NavAgent[deployed_unit_entity].Destination = [
 position[0],
 position[1] + 1,
@@ -41055,19 +41063,20 @@ game.Battles.push({
 TerritoryEntity: territory_entity,
 Run: () => {
 let territory_name = game.World.Territory[territory_entity].Name;
-Logger(game, `Player ${game.CurrentPlayer} (${current_player_territories[enemy_territory_ids[j]]} units) attacks Player ${i} (${enemy_territories[enemy_territory_ids[j]]} units) in ${territory_name}.`);
-let battle_result = fight(game, current_player_territories[enemy_territory_ids[j]], enemy_territories[enemy_territory_ids[j]]);
+let enemy_territory_id = enemy_territory_ids[j];
+Logger(game, `${current_player_name} attacks ${game.Players[i].Name} in ${territory_name} woth ${current_player_territories[enemy_territory_id]} unit(s) agains ${enemy_territories[enemy_territory_id]} unit(s).`);
+let battle_result = fight();
 let looser;
 if (battle_result === 0 /* AttackWon */) {
-Logger(game, `Player ${game.CurrentPlayer} won!`);
+Logger(game, `${current_player_name} won!`);
 looser = i;
 }
 else {
-Logger(game, `Player ${i} won!`);
+Logger(game, `${game.Players[i].Name} won!`);
 looser = game.CurrentPlayer;
 }
 if (typeof looser !== undefined) {
-remove_defeated_units(game, enemy_territory_ids[j], looser);
+remove_defeated_units(game, enemy_territory_id, looser);
 }
 },
 });
@@ -41082,9 +41091,8 @@ if (game.Battles.length === 0) {
 dispatch(game, 5 /* EndTurn */, {});
 return;
 }
-setTimeout(() => {
 let battle = game.Battles.pop();
-if (battle) {
+
 
 
 
@@ -41093,10 +41101,13 @@ let scheduled_battle = battle;
 
 setTimeout(() => {
 scheduled_battle.Run();
-}, 1000);
-}
+setTimeout(() => {
 dispatch(game, 4 /* ResolveBattles */, {});
-}, integer(500, 2000));
+}, 1000);
+}, 1000);
+
+
+
 break;
 }
 case 5 /* EndTurn */: {
@@ -41149,7 +41160,19 @@ for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY) === QUERY &&
 game.World.NavAgent[i].TerritoryId === territory_id &&
 game.World.Team[i].Id === team_id) {
+let translation = game.World.Transform[i].Translation;
+game.World.Move[i].MoveSpeed += float(-5, 5);
+game.World.Signature[i] &= ~262144 /* Team */;
+delete game.World.Team[i];
+game.World.NavAgent[i].TerritoryId = 0;
+game.World.NavAgent[i].Destination = [
+translation[0],
+translation[1] - 5,
+translation[2],
+];
+setTimeout(() => {
 destroy_entity(game.World, i);
+}, 1000);
 }
 }
 }
@@ -83577,6 +83600,10 @@ update$6(game, i);
 }
 function update$6(game, entity) {
 let agent = game.World.NavAgent[entity];
+let transform = game.World.Transform[entity];
+
+
+
 if (game.InputDelta["Mouse2"] === -1 &&
 game.InputState["Mouse2DownTraveled"] < 10 &&
 game.Picked &&
@@ -83590,6 +83617,19 @@ return;
 if (agent.TerritoryId !== territory.Id) {
 
 agent.Actions -= 1;
+}
+let Alaska = 31;
+let Kamchatka = 56;
+
+if (agent.TerritoryId === Kamchatka && territory.Id === Alaska) {
+transform.Translation[0] = 140;
+transform.Translation[2] = -64.29;
+transform.Dirty = true;
+}
+else if (agent.TerritoryId === Alaska && territory.Id === Kamchatka) {
+transform.Translation[0] = -160;
+transform.Translation[2] = -64.58;
+transform.Dirty = true;
 }
 agent.TerritoryId = territory.Id;
 agent.Destination = game.Picked.Point;
@@ -83734,7 +83774,7 @@ function update_territory(game, entity) {
 let pickable = game.World.Pickable[entity];
 let territory = game.World.Territory[entity];
 let render = game.World.Render[entity];
-if (pickable.Hover) {
+if (pickable.Hover || game.CurrentlyFoughtOverTerritory === entity) {
 copy(render.ColorDiffuse, pickable.Color);
 scale(render.ColorDiffuse, render.ColorDiffuse, 1.8);
 }
@@ -83920,11 +83960,13 @@ let distance_to_destination = distance_squared(position, agent.Destination);
 if (distance_to_destination < 1) {
 agent.Destination = null;
 
-if (game.IsAiTurn) {
+if (game.IsAiTurn && game.TurnPhase === 1 /* Move */) {
 game.AiActiveUnits = game.AiActiveUnits.filter((id) => id !== entity);
 game.CurrentlyMovingAiUnit = null;
 if (game.AiActiveUnits.length === 0) {
+setTimeout(() => {
 dispatch(game, 3 /* SetupBattles */, {});
+}, 1000);
 }
 }
 }
@@ -84933,13 +84975,15 @@ let number_of_players = game.Players.length;
 let territory_entities = Object.keys(game.TerritoryEntities)
 .sort(() => 0.5 - Math.random())
 .map((e) => parseInt(e, 10));
+territory_entities.unshift(31);
+
 for (let i = 0; i < territory_entities.length; i++) {
 let team = (number_of_players + i) % number_of_players;
 let territory_entity_id = game.TerritoryEntities[territory_entities[i]];
 let territory = game.World.Territory[territory_entity_id];
 let translation = get_coord_by_territory_id(game, territory.Id);
 if (translation) {
-instantiate(game, blueprint_unit(game, translation, territory.Id, game.MeshSoldier, team));
+instantiate(game, blueprint_unit(game, translation, territory.Id, team));
 }
 else {
 console.error(`Cannot find random point on territory ${JSON.stringify(territory, null, 2)}!`);
@@ -85021,11 +85065,12 @@ mesh_as12(game.Gl),
 ];
 game.Players = [
 {
+Name: "Yellow",
 Color: [1, 1, 0, 1],
 Type: 0 /* Human */,
 },
-{ Color: [1, 0, 0, 1], Type: 1 /* AI */ },
-{ Color: [1, 0, 1, 1], Type: 1 /* AI */ },
+{ Name: "Red", Color: [1, 0, 0, 1], Type: 1 /* AI */ },
+{ Name: "Violet", Color: [1, 0, 1, 1], Type: 1 /* AI */ },
 ];
 Promise.all([
 
