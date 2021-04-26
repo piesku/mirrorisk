@@ -40906,7 +40906,7 @@
             <p>${game.AlertText}</p>
             <button
                 style="cursor:pointer"
-                onmouseup="event.stopPropagation(); $(${8 /* ClearAlert */});"
+                onmousedown="event.stopPropagation(); $(${8 /* ClearAlert */});"
             >
                 OK
             </button>
@@ -40961,7 +40961,7 @@ Piesku&#10094;R&#10095; Mirrorisk
             <p>${game.PopupText}</p>
             <button
                 style="cursor:pointer"
-                onmouseup="event.stopPropagation(); $(${9 /* ClearPopup */});"
+                onmousedown="event.stopPropagation(); $(${9 /* ClearPopup */});"
             >
                 OK
             </button>
@@ -40987,7 +40987,7 @@ Piesku&#10094;R&#10095; Mirrorisk
                     <p><div class="field-row">
                     <progress value="${game.UnitsDeployed}" max="${game.UnitsToDeploy}" />
                     </div></p>
-                    <button onmouseup="event.stopPropagation(); $(${1 /* EndDeployment */});" ${(game.IsAiTurn || game.UnitsDeployed !== game.UnitsToDeploy) && "disabled=disabled"}">
+                    <button onmousedown="event.stopPropagation(); $(${1 /* EndDeployment */});" ${(game.IsAiTurn || game.UnitsDeployed !== game.UnitsToDeploy) && "disabled=disabled"}">
                         End Deployment
                     </button>
                 </div>
@@ -41004,7 +41004,7 @@ Piesku&#10094;R&#10095; Mirrorisk
                 <div class="window-body">
                     <p>Current Player: ${game.Players[game.CurrentPlayer].Name}</p>
                     <p>Controlled by: ${game.IsAiTurn ? "AI" : "Human"}</p>
-                    <button onmouseup="event.stopPropagation(); $(${3 /* SetupBattles */})" ${game.IsAiTurn && "disabled=disabled"}">
+                    <button onmousedown="event.stopPropagation(); $(${3 /* SetupBattles */})" ${game.IsAiTurn && "disabled=disabled"}">
                 End Turn & Resolve Battles
             </button>
                 </div>
