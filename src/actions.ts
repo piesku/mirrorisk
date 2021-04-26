@@ -290,38 +290,42 @@ export function fight(
     human_player_defending: boolean
 ) {
     // XXX Add battle logic here
+    let i = 1;
+    while (attacking_units && defending_units) {
+        console.log(`Runda ${i}, Attackers: ${attacking_units}, Defenders: ${defending_units}`);
+        i++;
+        let attackers = [];
+        let defenders = [];
+        for (let i = 0; i < attacking_units; i++) {
+            attackers.push(integer(1, 6));
+        }
 
-    let attackers = [];
-    let defenders = [];
-    for (let i = 0; i < attacking_units; i++) {
-        attackers.push(integer(1, 6));
-    }
+        for (let i = 0; i < defending_units; i++) {
+            defenders.push(integer(1, 6));
+        }
 
-    for (let i = 0; i < defending_units; i++) {
-        defenders.push(integer(1, 6));
-    }
+        let attacking_points = 0;
+        let defending_points = 0;
 
-    attackers = attackers.sort((a, b) => b - a).slice(0, Math.min(attacking_units, 3));
-    defenders = defenders.sort((a, b) => b - a).slice(0, Math.min(attacking_units, 2));
+        let n_attackers = attackers.sort((a, b) => b - a).slice(0, Math.min(attacking_units, 3));
+        let n_defenders = defenders.sort((a, b) => b - a).slice(0, Math.min(attacking_units, 2));
 
-    let attacking_points = 0;
-    let defending_points = 0;
-
-    for (let i = 0; i < Math.min(defenders.length, attackers.length); i++) {
-        if (attackers[i] > defenders[i]) {
-            attacking_points++;
-        } else if (attackers[i] < defenders[i]) {
-            defending_points++;
-        } else {
-            if (human_player_attacking) {
-                attacking_points++;
+        for (let i = 0; i < Math.min(n_defenders.length, n_attackers.length); i++) {
+            if (n_attackers[i] > n_defenders[i]) {
+                defending_units--;
+            } else if (n_attackers[i] < n_defenders[i]) {
+                attacking_units--;
             } else {
-                defending_points++;
+                if (human_player_attacking) {
+                    defending_units--;
+                } else {
+                    attacking_units--;
+                }
             }
         }
     }
 
-    if (attacking_points > defending_points) {
+    if (attacking_units) {
         return BattleResult.AttackWon;
     } else {
         return BattleResult.DefenceWon;
