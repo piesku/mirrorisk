@@ -40904,7 +40904,7 @@
         </div>
         <div class="window-body">
             <p>${game.AlertText}</p>
-            <button style="cursor:pointer" onclick="$(${8 /* ClearAlert */})">Close</button>
+            <button style="cursor:pointer" onclick="$(${8 /* ClearAlert */})">OK</button>
         </div>
     </div>`;
     }
@@ -40954,7 +40954,7 @@ Piesku&#10094;R&#10095; Mirrorisk
         </div>
         <div class="window-body">
             <p>${game.PopupText}</p>
-            <button style="cursor:pointer" onclick="$(${9 /* ClearPopup */})">Close</button>
+            <button style="cursor:pointer" onclick="$(${9 /* ClearPopup */})">OK</button>
         </div>
     </div>`;
     }
@@ -40973,7 +40973,7 @@ Piesku&#10094;R&#10095; Mirrorisk
                     </div>
                 </div>
                 <div class="window-body">
-                    <p>Click on a territory you control to deploy additional units</p>
+                    <p>Click on a territory you control to deploy reinforcements</p>
                     <p><div class="field-row">
                     <label for="range25">Units left:</label>
                     <label for="range26">0</label>
@@ -40998,7 +40998,7 @@ Piesku&#10094;R&#10095; Mirrorisk
                     <p>Current Player: ${game.Players[game.CurrentPlayer].Name}</p>
                     <p>Controlled by: ${game.IsAiTurn ? "AI" : "Human"}</p>
                     <button onclick="$(${3 /* SetupBattles */})" ${game.IsAiTurn && "disabled=disabled"}">
-                End turn & Resolve Battles
+                End Turn & Resolve Battles
             </button>
                 </div>
             </div>`;
@@ -41041,7 +41041,7 @@ Piesku&#10094;R&#10095; Mirrorisk
                 for (let i = 0; i < game.Players.length; i++) {
                     let territories = territories_controlled_by_team(game, i);
                     let territories_qty = Object.keys(territories).length;
-                    Logger(game, `${game.Players[i].Name} controlls ${territories_qty} territories`);
+                    Logger(game, `${game.Players[i].Name} controls ${territories_qty} territories`);
                     if (most_territories < territories_qty) {
                         most_territories = territories_qty;
                         best_player = i;
@@ -41070,9 +41070,9 @@ Piesku&#10094;R&#10095; Mirrorisk
                     }
                 }
                 if (!game.IsAiTurn) {
-                    Alert(game, `Select territories to deploy ${units_to_deploy} units${bonus > 0
-                    ? `, including ${bonus} for controlling continents: ${continents_controlled.join(", ")}.`
-                    : "."}`);
+                    Alert(game, `It's your turn now!${bonus > 0
+                    ? ` You receive ${bonus} extra armies for controling ${continents_controlled.join(", ")}. `
+                    : " "}Select territories to deploy ${units_to_deploy} new armies.`);
                 }
                 game.TurnPhase = 0 /* Deploy */;
                 game.UnitsDeployed = 0;
@@ -41087,7 +41087,7 @@ Piesku&#10094;R&#10095; Mirrorisk
                 if (position) {
                     let territory_entity_id = game.TerritoryEntities[territory_id];
                     let territory_name = game.World.Territory[territory_entity_id].Name;
-                    Logger(game, `${current_player_name} deploys a unit to ${territory_name}`);
+                    Logger(game, `${current_player_name} deploys an army to ${territory_name}`);
                     let deployed_unit_entity = instantiate(game, blueprint_unit(game, [position[0], -5, position[2]], territory_id, game.CurrentPlayer));
                     game.World.NavAgent[deployed_unit_entity].Destination = [
                         position[0],
@@ -41122,15 +41122,15 @@ Piesku&#10094;R&#10095; Mirrorisk
                                 Run: () => {
                                     let territory_name = game.World.Territory[territory_entity].Name;
                                     let enemy_territory_id = enemy_territory_ids[j];
-                                    Logger(game, `${current_player_name} attacks ${game.Players[i].Name} in ${territory_name} woth ${current_player_territories[enemy_territory_id]} unit(s) agains ${enemy_territories[enemy_territory_id]} unit(s).`);
+                                    Logger(game, `${current_player_name} attacks ${game.Players[i].Name} in ${territory_name} with ${current_player_territories[enemy_territory_id]} armies against ${enemy_territories[enemy_territory_id]} armies.`);
                                     let battle_result = fight(game, current_player_territories[enemy_territory_id], enemy_territories[enemy_territory_id]);
                                     let looser;
                                     if (battle_result === 0 /* AttackWon */) {
-                                        Logger(game, `${current_player_name} won!`);
+                                        Logger(game, `${current_player_name} wins the battle!`);
                                         looser = i;
                                     }
                                     else {
-                                        Logger(game, `${game.Players[i].Name} won!`);
+                                        Logger(game, `${game.Players[i].Name} wins the battle!`);
                                         looser = game.CurrentPlayer;
                                     }
                                     if (typeof looser !== undefined) {
@@ -84256,7 +84256,7 @@ Piesku&#10094;R&#10095; Mirrorisk
                     let units_on_territory = territories[current_territory_id];
                     if (units_on_territory < 2) {
                         if (game.InputDelta["Mouse0"] === 1 && game.TurnPhase === 1 /* Move */) {
-                            Alert(game, "You cannot leave a territory without at least one unit");
+                            Alert(game, "This unit cannot move because territoies cannot be left empty.");
                         }
                         return;
                     }
