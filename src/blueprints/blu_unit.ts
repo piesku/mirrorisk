@@ -1,5 +1,6 @@
 import {Vec3, Vec4} from "../../common/math.js";
 import {element} from "../../common/random.js";
+import {audio_source} from "../components/com_audio_source.js";
 import {children} from "../components/com_children.js";
 import {collide} from "../components/com_collide.js";
 import {disable} from "../components/com_disable.js";
@@ -27,7 +28,7 @@ export function blueprint_unit(
         transform(translation),
         collide(true, Layer.None, Layer.None, [2, 6, 2]),
         nav_agent(territory_id),
-        is_human_controlled ? move(10, 5) : move(20, 50),
+        is_human_controlled ? move(10, 5) : move(20, 5),
         children(
             [transform([0, 1, 0]), draw_selection("#ff0"), disable(Has.Draw)],
             [
@@ -53,7 +54,7 @@ export function blueprint_unit(
     ];
 
     if (is_human_controlled) {
-        blueprint.push(pickable_unit(color), selectable());
+        blueprint.push(pickable_unit(color), selectable(), audio_source(true));
     }
 
     return blueprint;

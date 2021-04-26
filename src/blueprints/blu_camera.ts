@@ -1,4 +1,5 @@
 import {from_euler} from "../../common/quat.js";
+import {audio_listener} from "../components/com_audio_listener.js";
 import {camera_display_perspective} from "../components/com_camera.js";
 import {children} from "../components/com_children.js";
 import {control_camera} from "../components/com_control_camera.js";
@@ -22,6 +23,7 @@ export function blueprint_camera(game: Game): Blueprint {
                 control_camera(0, 200, 0, 0),
                 move(200, 0),
                 camera_display_perspective(1, 1, 10000),
+                audio_listener(),
             ]),
         ]),
     ];

@@ -150,6 +150,12 @@ Promise.all([
     load_texture(game, "Wood063_1K_Color.jpg"),
     load_texture(game, "Wood063_1K_Normal.jpg"),
     load_texture(game, "Wood063_1K_Roughness.jpg"),
+
+    load_audio(game, "huh1.mp3"),
+    load_audio(game, "huh2.mp3"),
+    load_audio(game, "huh3.mp3"),
+    load_audio(game, "huh4.mp3"),
+    load_audio(game, "huh5.mp3"),
 ]).then(() => {
     scene_stage(game);
     loop_start(game);
@@ -158,6 +164,15 @@ Promise.all([
 async function load_texture(game: Game, name: string) {
     let image = await fetch_image("./textures/" + name);
     game.Textures[name] = create_texture_from(game.Gl, image);
+
+    // Report loading progress.
+    game.Ui.innerHTML += `Loading <code>${name}</code>... ✓<br>`;
+}
+
+async function load_audio(game: Game, name: string) {
+    let response = await fetch("./sounds/" + name);
+    let arrayBuffer = await response.arrayBuffer();
+    game.Sounds[name] = await game.Audio.decodeAudioData(arrayBuffer);
 
     // Report loading progress.
     game.Ui.innerHTML += `Loading <code>${name}</code>... ✓<br>`;

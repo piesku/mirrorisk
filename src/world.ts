@@ -1,3 +1,4 @@
+import {AudioSource} from "./components/com_audio_source.js";
 import {Camera} from "./components/com_camera.js";
 import {Children} from "./components/com_children.js";
 import {Collide} from "./components/com_collide.js";
@@ -18,6 +19,8 @@ import {Transform} from "./components/com_transform.js";
 import {Entity} from "./game.js";
 
 const enum Component {
+    AudioListener,
+    AudioSource,
     Camera,
     Children,
     Collide,
@@ -38,6 +41,8 @@ const enum Component {
 }
 
 export const enum Has {
+    AudioListener = 1 << Component.AudioListener,
+    AudioSource = 1 << Component.AudioSource,
     Camera = 1 << Component.Camera,
     Children = 1 << Component.Children,
     Collide = 1 << Component.Collide,
@@ -62,6 +67,8 @@ export class World {
     Graveyard: Array<Entity> = [];
 
     // Component data
+    AudioListener: Array<AudioListener> = [];
+    AudioSource: Array<AudioSource> = [];
     Camera: Array<Camera> = [];
     Children: Array<Children> = [];
     Collide: Array<Collide> = [];
