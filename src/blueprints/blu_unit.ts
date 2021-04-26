@@ -15,6 +15,12 @@ import {transform} from "../components/com_transform.js";
 import {Game, Layer, PlayerType} from "../game.js";
 import {Has} from "../world.js";
 
+declare global {
+    interface Document {
+        monetization: {state: "pending" | "started"};
+    }
+}
+
 export function blueprint_unit(
     game: Game,
     translation: Vec3,
@@ -24,25 +30,24 @@ export function blueprint_unit(
     let color = <Vec4>game.Players[team_id].Color.slice();
     let is_human_controlled = game.Players[team_id].Type === PlayerType.Human;
 
+    let meshes = [game.MeshSoldier, game.MeshSoldier, game.MeshSoldier];
+    if (document.monetization && document.monetization.state == "started") {
+        meshes.push(game.MeshDragoon, game.MeshDragoon, game.MeshCannon);
+    }
+
     let blueprint = [
         transform(translation),
         collide(true, Layer.None, Layer.None, [2, 6, 2]),
         nav_agent(territory_id),
         is_human_controlled ? move(10, 5) : move(20, 5),
+        team(team_id),
         children(
             [transform([0, 1, 0]), draw_selection("#ff0"), disable(Has.Draw)],
             [
                 transform(),
                 render_textured_mapped(
                     game.MaterialTexturedMapped,
-                    element([
-                        game.MeshSoldier,
-                        game.MeshSoldier,
-                        game.MeshSoldier,
-                        game.MeshCannon,
-                        game.MeshDragoon,
-                        game.MeshDragoon,
-                    ]),
+                    element(meshes),
                     game.Textures["Wood063_1K_Color.jpg"],
                     game.Textures["Wood063_1K_Normal.jpg"],
                     game.Textures["Wood063_1K_Roughness.jpg"],
@@ -50,7 +55,6 @@ export function blueprint_unit(
                 ),
             ]
         ),
-        team(team_id),
     ];
 
     if (is_human_controlled) {
