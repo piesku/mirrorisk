@@ -1,5 +1,6 @@
+import {play_buffer} from "../common/audio.js";
 import {Quat, Vec3} from "../common/math.js";
-import {float, integer} from "../common/random.js";
+import {element, float, integer} from "../common/random.js";
 import {blueprint_unit} from "./blueprints/blu_unit.js";
 import {territories_controlled_by_team, units_entity_ids} from "./components/com_team.js";
 import {destroy_entity, instantiate} from "./entity.js";
@@ -154,6 +155,15 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                         game.Battles.push({
                             TerritoryEntity: territory_entity,
                             Run: () => {
+                                let sfx = [
+                                    "battle1.mp3",
+                                    "battle2.mp3",
+                                    "battle3.mp3",
+                                    "battle4.mp3",
+                                    "battle5.mp3",
+                                    "battle6.mp3",
+                                ];
+                                play_buffer(game.Audio, undefined, game.Sounds[element(sfx)]);
                                 let territory_name = game.World.Territory[territory_entity].Name;
                                 let enemy_territory_id = enemy_territory_ids[j];
                                 Logger(

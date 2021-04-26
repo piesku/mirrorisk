@@ -152,11 +152,26 @@ Promise.all([
     load_texture(game, "Wood063_1K_Normal.jpg"),
     load_texture(game, "Wood063_1K_Roughness.jpg"),
 
+    load_audio(game, "music1.mp3"),
+    load_audio(game, "music2.mp3"),
+
+    load_audio(game, "mhm1.mp3"),
+    load_audio(game, "mhm2.mp3"),
+    load_audio(game, "mhm3.mp3"),
+    load_audio(game, "mhm4.mp3"),
+
     load_audio(game, "huh1.mp3"),
     load_audio(game, "huh2.mp3"),
     load_audio(game, "huh3.mp3"),
     load_audio(game, "huh4.mp3"),
     load_audio(game, "huh5.mp3"),
+
+    load_audio(game, "battle1.mp3"),
+    load_audio(game, "battle2.mp3"),
+    load_audio(game, "battle3.mp3"),
+    load_audio(game, "battle4.mp3"),
+    load_audio(game, "battle5.mp3"),
+    load_audio(game, "battle6.mp3"),
 ]).then(() => {
     scene_stage(game);
     loop_start(game);

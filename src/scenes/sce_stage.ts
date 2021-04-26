@@ -1,6 +1,7 @@
+import {play_buffer} from "../../common/audio.js";
 import {html} from "../../common/html.js";
 import {from_euler} from "../../common/quat.js";
-import {set_seed} from "../../common/random.js";
+import {element, set_seed} from "../../common/random.js";
 import {Action, dispatch} from "../actions.js";
 import {blueprint_camera} from "../blueprints/blu_camera.js";
 import {blueprint_sun} from "../blueprints/blu_sun.js";
@@ -218,4 +219,10 @@ export function scene_stage(game: Game) {
     );
 
     dispatch(game, Action.StartDeployment, {});
+
+    play_buffer(game.Audio, undefined, game.Sounds[element(["music1.mp3", "music2.mp3"])]);
+
+    setInterval(() => {
+        play_buffer(game.Audio, undefined, game.Sounds[element(["music1.mp3", "music2.mp3"])]);
+    }, 30000);
 }

@@ -1,3 +1,4 @@
+import {element} from "../../common/random.js";
 import {Entity, Game, PlayerType} from "../game.js";
 import {Has} from "../world.js";
 
@@ -18,9 +19,12 @@ export function sys_control_player(game: Game, delta: number) {
     }
 }
 
+const sfx = ["mhm1.mp3", "mhm2.mp3", "mhm3.mp3", "mhm4.mp3"];
+
 function update(game: Game, entity: Entity) {
     let agent = game.World.NavAgent[entity];
     let transform = game.World.Transform[entity];
+    let audio_source = game.World.AudioSource[entity];
 
     if (
         game.InputDelta["Mouse2"] === -1 &&
@@ -30,6 +34,8 @@ function update(game: Game, entity: Entity) {
     ) {
         let territory_entity = game.Picked.Entity;
         let territory = game.World.Territory[territory_entity];
+
+        audio_source.Trigger = game.Sounds[element(sfx)];
 
         if (!game.TerritoryGraph[agent.TerritoryId].includes(territory.Id)) {
             // This aint adjacent territory
