@@ -40900,6 +40900,17 @@ function html(strings, ...values) {
 return strings.reduce((out, cur) => out + shift(values) + cur);
 }
 
+function Button(content, action, disabled = false) {
+return html `<button
+onmousedown="event.stopPropagation();"
+onmouseup="event.stopPropagation(); $(${action});"
+style="cursor: pointer;"
+${disabled && "disabled"}
+>
+${content}
+</div>`;
+}
+
 let alertWidth$1 = 300;
 function AlertWindow(game) {
 if (!game.AlertText) {
@@ -40918,12 +40929,7 @@ style="width: ${alertWidth$1}px;position: absolute; left: ${(window.innerWidth -
 </div>
 <div class="window-body">
 <p>${game.AlertText}</p>
-<button
-style="cursor:pointer"
-onmousedown="event.stopPropagation(); $(${8 /* ClearAlert */});"
->
-OK
-</button>
+${Button("OK", 8 /* ClearAlert */)}
 </div>
 </div>`;
 }
@@ -40973,12 +40979,7 @@ alertWidth) /
 </div>
 <div class="window-body">
 <p>${game.PopupText}</p>
-<button
-style="cursor:pointer"
-onmousedown="event.stopPropagation(); $(${9 /* ClearPopup */});"
->
-OK
-</button>
+${Button("OK", 9 /* ClearPopup */)}
 </div>
 </div>`;
 }
@@ -41001,9 +41002,7 @@ return html `<div class="window" style="width: 300px;margin: 10px;">
 <p><div class="field-row">
 <progress value="${game.UnitsDeployed}" max="${game.UnitsToDeploy}" />
 </div></p>
-<button onmousedown="event.stopPropagation(); $(${1 /* EndDeployment */});" ${(game.IsAiTurn || game.UnitsDeployed !== game.UnitsToDeploy) && "disabled=disabled"}">
-End Deployment
-</button>
+${Button("End Deployment", 1 /* EndDeployment */, /*disabled?*/ game.IsAiTurn)}
 </div>
 </div>`;
 }
@@ -41018,9 +41017,8 @@ return html `<div class="window" style="width: 300px;margin: 10px;">
 <div class="window-body">
 <p>Current Player: ${game.Players[game.CurrentPlayer].Name}</p>
 <p>Controlled by: ${game.IsAiTurn ? "AI" : "Human"}</p>
-<button onmousedown="event.stopPropagation(); $(${3 /* SetupBattles */})" ${game.IsAiTurn && "disabled=disabled"}">
-End Turn & Resolve Battles
-</button>
+${Button("End Turn & Resolve Battles", 3 /* SetupBattles */, 
+/*disabled?*/ game.IsAiTurn)}
 </div>
 </div>`;
 }
@@ -41197,9 +41195,6 @@ dispatch(game, 5 /* EndTurn */, {});
 return;
 }
 let battle = game.Battles.pop();
-
-
-
 game.CurrentlyFoughtOverTerritory = battle.TerritoryEntity;
 let scheduled_battle = battle;
 
@@ -41213,6 +41208,7 @@ break;
 }
 case 5 /* EndTurn */: {
 game.World.Signature[game.SunEntity] |= 32 /* ControlAlways */;
+game.CurrentlyFoughtOverTerritory = null;
 setTimeout(() => {
 let players_count = game.Players.length;
 let next_player = (players_count + game.CurrentPlayer + 1) % players_count;
@@ -82656,13 +82652,17 @@ function update$6(game, entity) {
 let agent = game.World.NavAgent[entity];
 let transform = game.World.Transform[entity];
 let audio_source = game.World.AudioSource[entity];
-if (game.InputDelta["Mouse2"] === -1 &&
+if (
+
+game.InputDelta["Mouse2"] === -1 &&
 game.InputState["Mouse2DownTraveled"] < 10 &&
+
 game.Picked &&
+game.World.Signature[game.Picked.Entity] & 65536 /* Territory */ &&
+
 agent.Actions > 0) {
 let territory_entity = game.Picked.Entity;
 let territory = game.World.Territory[territory_entity];
-audio_source.Trigger = game.Sounds[element(sfx)];
 if (!game.TerritoryGraph[agent.TerritoryId].includes(territory.Id)) {
 
 return;
@@ -82686,6 +82686,7 @@ transform.Dirty = true;
 }
 agent.TerritoryId = territory.Id;
 agent.Destination = game.Picked.Point;
+audio_source.Trigger = game.Sounds[element(sfx)];
 }
 }
 
@@ -83693,8 +83694,8 @@ this.InputState[`Mouse${evt.button}`] = 0;
 this.InputDelta[`Mouse${evt.button}`] = -1;
 });
 this.Ui.addEventListener("mousemove", (evt) => {
-this.InputState["MouseX"] = evt.offsetX;
-this.InputState["MouseY"] = evt.offsetY;
+this.InputState["MouseX"] = evt.clientX;
+this.InputState["MouseY"] = evt.clientY;
 this.InputDelta["MouseX"] = evt.movementX;
 this.InputDelta["MouseY"] = evt.movementY;
 });
