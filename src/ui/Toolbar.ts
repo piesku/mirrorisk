@@ -1,6 +1,7 @@
 import {html} from "../../common/html.js";
 import {Action} from "../actions.js";
 import {Game, TurnPhase} from "../game.js";
+import {Button} from "./Button.js";
 
 export function Toolbar(game: Game) {
     switch (game.TurnPhase) {
@@ -23,11 +24,11 @@ export function Toolbar(game: Game) {
                     <p><div class="field-row">
                     <progress value="${game.UnitsDeployed}" max="${game.UnitsToDeploy}" />
                     </div></p>
-                    <button onmousedown="event.stopPropagation(); $(${Action.EndDeployment});" ${
-                (game.IsAiTurn || game.UnitsDeployed !== game.UnitsToDeploy) && "disabled=disabled"
-            }">
-                        End Deployment
-                    </button>
+                    ${Button(
+                        "End Deployment",
+                        Action.EndDeployment,
+                        /*disabled?*/ game.IsAiTurn || game.UnitsDeployed !== game.UnitsToDeploy
+                    )}
                 </div>
             </div>`;
         }
@@ -43,11 +44,11 @@ export function Toolbar(game: Game) {
                 <div class="window-body">
                     <p>Current Player: ${game.Players[game.CurrentPlayer].Name}</p>
                     <p>Controlled by: ${game.IsAiTurn ? "AI" : "Human"}</p>
-                    <button onmousedown="event.stopPropagation(); $(${Action.SetupBattles})" ${
-                game.IsAiTurn && "disabled=disabled"
-            }">
-                End Turn & Resolve Battles
-            </button>
+                    ${Button(
+                        "End Turn & Resolve Battles",
+                        Action.SetupBattles,
+                        /*disabled?*/ game.IsAiTurn
+                    )}
                 </div>
             </div>`;
         }

@@ -1,6 +1,7 @@
 import {html} from "../../common/html.js";
 import {Action} from "../actions.js";
 import {Game} from "../game.js";
+import {Button} from "./Button.js";
 
 let alertWidth = 300;
 
@@ -21,12 +22,7 @@ export function AlertWindow(game: Game) {
         </div>
         <div class="window-body">
             <p>${game.AlertText}</p>
-            <button
-                style="cursor:pointer"
-                onmousedown="event.stopPropagation(); $(${Action.ClearAlert});"
-            >
-                OK
-            </button>
+            ${Button("OK", Action.ClearAlert)}
         </div>
     </div>`;
 }

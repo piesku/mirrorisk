@@ -173,8 +173,8 @@ export class Game {
             this.InputDelta[`Mouse${evt.button}`] = -1;
         });
         this.Ui.addEventListener("mousemove", (evt) => {
-            this.InputState["MouseX"] = evt.offsetX;
-            this.InputState["MouseY"] = evt.offsetY;
+            this.InputState["MouseX"] = evt.clientX;
+            this.InputState["MouseY"] = evt.clientY;
             this.InputDelta["MouseX"] = evt.movementX;
             this.InputDelta["MouseY"] = evt.movementY;
         });
