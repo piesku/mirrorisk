@@ -243,9 +243,6 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
 
             let battle = game.Battles.pop()!;
 
-            // XXX This isn't currently reset anywhere. Instead,
-            // sys_control_camera resets mimic.Target in the deploy
-            // phase.
             game.CurrentlyFoughtOverTerritory = battle.TerritoryEntity;
             let scheduled_battle = battle;
             // Wait for the camera to move over the territory.
@@ -259,6 +256,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
         }
         case Action.EndTurn: {
             game.World.Signature[game.SunEntity] |= Has.ControlAlways;
+            game.CurrentlyFoughtOverTerritory = null;
 
             setTimeout(() => {
                 let players_count = game.Players.length;
