@@ -236,30 +236,30 @@ return (value & (value - 1)) == 0;
 function mesh_af01(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$M, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$K, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$M, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$K, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$M, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$K, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$M, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$K, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$M,
+VertexArray: vertex_arr$K,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$M,
+NormalArray: normal_arr$K,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$M,
+TexCoordArray: texcoord_arr$K,
 IndexBuffer: index_buf,
-IndexArray: index_arr$M,
-IndexCount: index_arr$M.length,
+IndexArray: index_arr$K,
+IndexCount: index_arr$K.length,
 };
 }
 
-let vertex_arr$M = Float32Array.from([
+let vertex_arr$K = Float32Array.from([
 -14.4835, 0.999795, -1.55236,
 -13.2071, 0.999795, -4.52866,
 -13.8454, 0.999795, -6.20576,
@@ -387,7 +387,7 @@ let vertex_arr$M = Float32Array.from([
 -13.8454, 0.999795, -6.20576
 ]);
 
-let normal_arr$M = Float32Array.from([
+let normal_arr$K = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -515,7 +515,7 @@ let normal_arr$M = Float32Array.from([
 0.2176, 0, -0.976
 ]);
 
-let texcoord_arr$M = Float32Array.from([
+let texcoord_arr$K = Float32Array.from([
 0.3081, 0.686179,
 0.320895, 0.716014,
 0.314496, 0.732826,
@@ -643,7 +643,7 @@ let texcoord_arr$M = Float32Array.from([
 0.579968, 0.032933
 ]);
 
-let index_arr$M = Uint16Array.from([
+let index_arr$K = Uint16Array.from([
 124, 123, 121,
 123, 122, 121,
 120, 119, 117,
@@ -722,30 +722,30 @@ let index_arr$M = Uint16Array.from([
 function mesh_af02(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$L, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$J, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$L, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$J, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$L, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$J, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$L, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$J, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$L,
+VertexArray: vertex_arr$J,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$L,
+NormalArray: normal_arr$J,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$L,
+TexCoordArray: texcoord_arr$J,
 IndexBuffer: index_buf,
-IndexArray: index_arr$L,
-IndexCount: index_arr$L.length,
+IndexArray: index_arr$J,
+IndexCount: index_arr$J.length,
 };
 }
 
-let vertex_arr$L = Float32Array.from([
+let vertex_arr$J = Float32Array.from([
 -31.3631, 0.999795, -18.5882,
 -31.7399, 0.999795, -18.1069,
 -32.0073, 0.999795, -16.0418,
@@ -938,7 +938,7 @@ let vertex_arr$L = Float32Array.from([
 -36.9208, 0.999795, -10.5484
 ]);
 
-let normal_arr$L = Float32Array.from([
+let normal_arr$J = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -1131,7 +1131,7 @@ let normal_arr$L = Float32Array.from([
 -0.9153, 0, -0.4028
 ]);
 
-let texcoord_arr$L = Float32Array.from([
+let texcoord_arr$J = Float32Array.from([
 0.138893, 0.856951,
 0.135116, 0.852126,
 0.132436, 0.831425,
@@ -1324,7 +1324,7 @@ let texcoord_arr$L = Float32Array.from([
 0.691042, 0.032933
 ]);
 
-let index_arr$L = Uint16Array.from([
+let index_arr$J = Uint16Array.from([
 189, 188, 186,
 188, 187, 186,
 185, 184, 182,
@@ -1442,30 +1442,30 @@ let index_arr$L = Uint16Array.from([
 function mesh_af03(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$K, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$I, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$K, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$I, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$K, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$I, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$K, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$I, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$K,
+VertexArray: vertex_arr$I,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$K,
+NormalArray: normal_arr$I,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$K,
+TexCoordArray: texcoord_arr$I,
 IndexBuffer: index_buf,
-IndexArray: index_arr$K,
-IndexCount: index_arr$K.length,
+IndexArray: index_arr$I,
+IndexCount: index_arr$I.length,
 };
 }
 
-let vertex_arr$K = Float32Array.from([
+let vertex_arr$I = Float32Array.from([
 -8.88273, 0.999795, -26.2863,
 -10.6007, 0.999795, -28.286,
 -13.4409, 0.999795, -27.7708,
@@ -1578,7 +1578,7 @@ let vertex_arr$K = Float32Array.from([
 -29.7139, 0.999795, -25.7006
 ]);
 
-let normal_arr$K = Float32Array.from([
+let normal_arr$I = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -1691,7 +1691,7 @@ let normal_arr$K = Float32Array.from([
 -0.9662, 0, 0.258
 ]);
 
-let texcoord_arr$K = Float32Array.from([
+let texcoord_arr$I = Float32Array.from([
 0.364243, 0.934119,
 0.347022, 0.954165,
 0.31855, 0.949,
@@ -1804,7 +1804,7 @@ let texcoord_arr$K = Float32Array.from([
 0.561078, 0.032933
 ]);
 
-let index_arr$K = Uint16Array.from([
+let index_arr$I = Uint16Array.from([
 109, 108, 106,
 108, 107, 106,
 105, 104, 102,
@@ -1874,30 +1874,30 @@ let index_arr$K = Uint16Array.from([
 function mesh_af04(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$J, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$H, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$J, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$H, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$J, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$H, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$J, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$H, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$J,
+VertexArray: vertex_arr$H,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$J,
+NormalArray: normal_arr$H,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$J,
+TexCoordArray: texcoord_arr$H,
 IndexBuffer: index_buf,
-IndexArray: index_arr$J,
-IndexCount: index_arr$J.length,
+IndexArray: index_arr$H,
+IndexCount: index_arr$H.length,
 };
 }
 
-let vertex_arr$J = Float32Array.from([
+let vertex_arr$H = Float32Array.from([
 -37.734, 0.999795, 13.2034,
 -39.3653, 0.999795, 12.7383,
 -40.5869, 0.999795, 11.7653,
@@ -1960,7 +1960,7 @@ let vertex_arr$J = Float32Array.from([
 -41.8812, 0.999795, 9.37259
 ]);
 
-let normal_arr$J = Float32Array.from([
+let normal_arr$H = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -2023,7 +2023,7 @@ let normal_arr$J = Float32Array.from([
 -0.9439, 0, -0.3302
 ]);
 
-let texcoord_arr$J = Float32Array.from([
+let texcoord_arr$H = Float32Array.from([
 0.07503, 0.538263,
 0.058677, 0.542925,
 0.046431, 0.552678,
@@ -2086,7 +2086,7 @@ let texcoord_arr$J = Float32Array.from([
 0.644791, 0.032933
 ]);
 
-let index_arr$J = Uint16Array.from([
+let index_arr$H = Uint16Array.from([
 59, 58, 56,
 58, 57, 56,
 55, 54, 52,
@@ -2126,30 +2126,30 @@ let index_arr$J = Uint16Array.from([
 function mesh_af05(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$I, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$G, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$I, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$G, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$I, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$G, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$I, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$G, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$I,
+VertexArray: vertex_arr$G,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$I,
+NormalArray: normal_arr$G,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$I,
+TexCoordArray: texcoord_arr$G,
 IndexBuffer: index_buf,
-IndexArray: index_arr$I,
-IndexCount: index_arr$I.length,
+IndexArray: index_arr$G,
+IndexCount: index_arr$G.length,
 };
 }
 
-let vertex_arr$I = Float32Array.from([
+let vertex_arr$G = Float32Array.from([
 -18.6709, 0.999795, -11.0008,
 -19.5304, 0.999795, -9.45984,
 -16.1611, 0.999795, -7.23434,
@@ -2317,7 +2317,7 @@ let vertex_arr$I = Float32Array.from([
 3.22513, 0.999795, -4.66289
 ]);
 
-let normal_arr$I = Float32Array.from([
+let normal_arr$G = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -2485,7 +2485,7 @@ let normal_arr$I = Float32Array.from([
 -0.3135, 0, 0.9496
 ]);
 
-let texcoord_arr$I = Float32Array.from([
+let texcoord_arr$G = Float32Array.from([
 0.266123, 0.780893,
 0.257508, 0.765446,
 0.291283, 0.743137,
@@ -2653,7 +2653,7 @@ let texcoord_arr$I = Float32Array.from([
 0.665297, 0.032933
 ]);
 
-let index_arr$I = Uint16Array.from([
+let index_arr$G = Uint16Array.from([
 164, 163, 161,
 163, 162, 161,
 160, 159, 157,
@@ -2756,30 +2756,30 @@ let index_arr$I = Uint16Array.from([
 function mesh_af06(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$H, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$F, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$H, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$F, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$H, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$F, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$H, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$F, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$H,
+VertexArray: vertex_arr$F,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$H,
+NormalArray: normal_arr$F,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$H,
+TexCoordArray: texcoord_arr$F,
 IndexBuffer: index_buf,
-IndexArray: index_arr$H,
-IndexCount: index_arr$H.length,
+IndexArray: index_arr$F,
+IndexCount: index_arr$F.length,
 };
 }
 
-let vertex_arr$H = Float32Array.from([
+let vertex_arr$F = Float32Array.from([
 -29.7258, 0.999795, 9.67088,
 -29.9433, 0.999795, 9.31008,
 -34.4626, 0.999795, 8.50051,
@@ -2997,7 +2997,7 @@ let vertex_arr$H = Float32Array.from([
 -15.8387, 0.999795, 27.3883
 ]);
 
-let normal_arr$H = Float32Array.from([
+let normal_arr$F = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -3215,7 +3215,7 @@ let normal_arr$H = Float32Array.from([
 0.9066, 0, -0.4219
 ]);
 
-let texcoord_arr$H = Float32Array.from([
+let texcoord_arr$F = Float32Array.from([
 0.155306, 0.573674,
 0.153126, 0.577291,
 0.107823, 0.585406,
@@ -3433,7 +3433,7 @@ let texcoord_arr$H = Float32Array.from([
 0.191561, 0.032933
 ]);
 
-let index_arr$H = Uint16Array.from([
+let index_arr$F = Uint16Array.from([
 214, 213, 211,
 213, 212, 211,
 210, 209, 207,
@@ -3566,30 +3566,30 @@ let index_arr$H = Uint16Array.from([
 function mesh_as01(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$G, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$E, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$G, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$E, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$G, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$E, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$G, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$E, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$G,
+VertexArray: vertex_arr$E,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$G,
+NormalArray: normal_arr$E,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$G,
+TexCoordArray: texcoord_arr$E,
 IndexBuffer: index_buf,
-IndexArray: index_arr$G,
-IndexCount: index_arr$G.length,
+IndexArray: index_arr$E,
+IndexCount: index_arr$E.length,
 };
 }
 
-let vertex_arr$G = Float32Array.from([
+let vertex_arr$E = Float32Array.from([
 -41.9816, 0.999796, -41.7265,
 -40.5195, 0.999796, -46.0799,
 -43.3752, 0.999795, -47.5029,
@@ -3827,7 +3827,7 @@ let vertex_arr$G = Float32Array.from([
 -61.8914, 0.999795, -50
 ]);
 
-let normal_arr$G = Float32Array.from([
+let normal_arr$E = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -4065,7 +4065,7 @@ let normal_arr$G = Float32Array.from([
 0.2697, 0, -0.9629
 ]);
 
-let texcoord_arr$G = Float32Array.from([
+let texcoord_arr$E = Float32Array.from([
 0.851715, 0.305658,
 0.881693, 0.334547,
 0.864684, 0.357941,
@@ -4303,7 +4303,7 @@ let texcoord_arr$G = Float32Array.from([
 0.400082, 0.022038
 ]);
 
-let index_arr$G = Uint16Array.from([
+let index_arr$E = Uint16Array.from([
 234, 233, 231,
 233, 232, 231,
 230, 229, 227,
@@ -4448,30 +4448,30 @@ let index_arr$G = Uint16Array.from([
 function mesh_as02(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$F, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$D, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$F, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$D, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$F, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$D, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$F, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$D, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$F,
+VertexArray: vertex_arr$D,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$F,
+NormalArray: normal_arr$D,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$F,
+TexCoordArray: texcoord_arr$D,
 IndexBuffer: index_buf,
-IndexArray: index_arr$F,
-IndexCount: index_arr$F.length,
+IndexArray: index_arr$D,
+IndexCount: index_arr$D.length,
 };
 }
 
-let vertex_arr$F = Float32Array.from([
+let vertex_arr$D = Float32Array.from([
 -101.846, 0.999795, -21.9294,
 -102.353, 0.999795, -21.4191,
 -101.327, 0.999795, -18.901,
@@ -4769,7 +4769,7 @@ let vertex_arr$F = Float32Array.from([
 -99.1888, 0.999795, -20.8404
 ]);
 
-let normal_arr$F = Float32Array.from([
+let normal_arr$D = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -5067,7 +5067,7 @@ let normal_arr$F = Float32Array.from([
 -0.3815, 0, 0.9244
 ]);
 
-let texcoord_arr$F = Float32Array.from([
+let texcoord_arr$D = Float32Array.from([
 0.28746, 0.397007,
 0.281249, 0.395025,
 0.278954, 0.370484,
@@ -5365,7 +5365,7 @@ let texcoord_arr$F = Float32Array.from([
 0.206769, 0.022038
 ]);
 
-let index_arr$F = Uint16Array.from([
+let index_arr$D = Uint16Array.from([
 294, 293, 291,
 293, 292, 291,
 290, 289, 287,
@@ -5542,30 +5542,30 @@ let index_arr$F = Uint16Array.from([
 function mesh_as03(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$E, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$C, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$E, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$C, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$E, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$C, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$E, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$C, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$E,
+VertexArray: vertex_arr$C,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$E,
+NormalArray: normal_arr$C,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$E,
+TexCoordArray: texcoord_arr$C,
 IndexBuffer: index_buf,
-IndexArray: index_arr$E,
-IndexCount: index_arr$E.length,
+IndexArray: index_arr$C,
+IndexCount: index_arr$C.length,
 };
 }
 
-let vertex_arr$E = Float32Array.from([
+let vertex_arr$C = Float32Array.from([
 -53.2586, 0.999795, -24.6618,
 -51.8496, 0.999795, -26.1077,
 -52.9011, 0.999795, -27.0871,
@@ -5843,7 +5843,7 @@ let vertex_arr$E = Float32Array.from([
 -56.092, 0.999795, -22.0975
 ]);
 
-let normal_arr$E = Float32Array.from([
+let normal_arr$C = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -6121,7 +6121,7 @@ let normal_arr$E = Float32Array.from([
 -0.1149, 0, 0.9934
 ]);
 
-let texcoord_arr$E = Float32Array.from([
+let texcoord_arr$C = Float32Array.from([
 0.689611, 0.215629,
 0.706993, 0.221359,
 0.702636, 0.233636,
@@ -6399,7 +6399,7 @@ let texcoord_arr$E = Float32Array.from([
 0.688254, 0.022038
 ]);
 
-let index_arr$E = Uint16Array.from([
+let index_arr$C = Uint16Array.from([
 274, 273, 271,
 273, 272, 271,
 270, 269, 267,
@@ -6566,30 +6566,30 @@ let index_arr$E = Uint16Array.from([
 function mesh_as04(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$D, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$B, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$D, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$B, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$D, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$B, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$D, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$B, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$D,
+VertexArray: vertex_arr$B,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$D,
+NormalArray: normal_arr$B,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$D,
+TexCoordArray: texcoord_arr$B,
 IndexBuffer: index_buf,
-IndexArray: index_arr$D,
-IndexCount: index_arr$D.length,
+IndexArray: index_arr$B,
+IndexCount: index_arr$B.length,
 };
 }
 
-let vertex_arr$D = Float32Array.from([
+let vertex_arr$B = Float32Array.from([
 -76.8089, 0.999796, -46.7525,
 -75.5168, 0.999795, -49.8929,
 -77.297, 0.999795, -52.0823,
@@ -6787,7 +6787,7 @@ let vertex_arr$D = Float32Array.from([
 -87.0179, 0.999796, -63.7501
 ]);
 
-let normal_arr$D = Float32Array.from([
+let normal_arr$B = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -6985,7 +6985,7 @@ let normal_arr$D = Float32Array.from([
 -0.313, 0, -0.9498
 ]);
 
-let texcoord_arr$D = Float32Array.from([
+let texcoord_arr$B = Float32Array.from([
 0.592685, 0.491836,
 0.61622, 0.511682,
 0.611068, 0.536739,
@@ -7183,7 +7183,7 @@ let texcoord_arr$D = Float32Array.from([
 0.606819, 0.022038
 ]);
 
-let index_arr$D = Uint16Array.from([
+let index_arr$B = Uint16Array.from([
 194, 193, 191,
 193, 192, 191,
 190, 189, 187,
@@ -7304,30 +7304,30 @@ let index_arr$D = Uint16Array.from([
 function mesh_as05(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$C, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$A, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$C, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$A, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$C, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$A, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$C, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$A, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$C,
+VertexArray: vertex_arr$A,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$C,
+NormalArray: normal_arr$A,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$C,
+TexCoordArray: texcoord_arr$A,
 IndexBuffer: index_buf,
-IndexArray: index_arr$C,
-IndexCount: index_arr$C.length,
+IndexArray: index_arr$A,
+IndexCount: index_arr$A.length,
 };
 }
 
-let vertex_arr$C = Float32Array.from([
+let vertex_arr$A = Float32Array.from([
 -118.938, 0.999796, -40.6765,
 -120.565, 0.999796, -39.1588,
 -121.822, 0.999796, -39.2902,
@@ -7575,7 +7575,7 @@ let vertex_arr$C = Float32Array.from([
 -112.876, 0.999795, -29.4373
 ]);
 
-let normal_arr$C = Float32Array.from([
+let normal_arr$A = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -7823,7 +7823,7 @@ let normal_arr$C = Float32Array.from([
 -0.997, 0, -0.0774
 ]);
 
-let texcoord_arr$C = Float32Array.from([
+let texcoord_arr$A = Float32Array.from([
 0.22847, 0.6193,
 0.209036, 0.613905,
 0.199478, 0.620221,
@@ -8071,7 +8071,7 @@ let texcoord_arr$C = Float32Array.from([
 0.424022, 0.022038
 ]);
 
-let index_arr$C = Uint16Array.from([
+let index_arr$A = Uint16Array.from([
 244, 243, 241,
 243, 242, 241,
 240, 239, 237,
@@ -8216,30 +8216,30 @@ let index_arr$C = Uint16Array.from([
 function mesh_as06(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$B, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$z, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$B, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$z, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$B, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$z, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$B, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$z, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$B,
+VertexArray: vertex_arr$z,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$B,
+NormalArray: normal_arr$z,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$B,
+TexCoordArray: texcoord_arr$z,
 IndexBuffer: index_buf,
-IndexArray: index_arr$B,
-IndexCount: index_arr$B.length,
+IndexArray: index_arr$z,
+IndexCount: index_arr$z.length,
 };
 }
 
-let vertex_arr$B = Float32Array.from([
+let vertex_arr$z = Float32Array.from([
 -112.774, 0.999796, -44.2039,
 -111.6, 0.999796, -43.8365,
 -111.014, 0.999796, -43.3774,
@@ -8617,7 +8617,7 @@ let vertex_arr$B = Float32Array.from([
 -119.245, 0.999795, -55.1162
 ]);
 
-let normal_arr$B = Float32Array.from([
+let normal_arr$z = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -8995,7 +8995,7 @@ let normal_arr$B = Float32Array.from([
 -0.5028, 0, 0.8644
 ]);
 
-let texcoord_arr$B = Float32Array.from([
+let texcoord_arr$z = Float32Array.from([
 0.292803, 0.621867,
 0.300707, 0.613999,
 0.303496, 0.607855,
@@ -9373,7 +9373,7 @@ let texcoord_arr$B = Float32Array.from([
 0.716497, 0.022038
 ]);
 
-let index_arr$B = Uint16Array.from([
+let index_arr$z = Uint16Array.from([
 374, 373, 371,
 373, 372, 371,
 370, 369, 367,
@@ -9600,30 +9600,30 @@ let index_arr$B = Uint16Array.from([
 function mesh_as07(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$A, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$y, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$A, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$y, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$A, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$y, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$A, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$y, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$A,
+VertexArray: vertex_arr$y,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$A,
+NormalArray: normal_arr$y,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$A,
+TexCoordArray: texcoord_arr$y,
 IndexBuffer: index_buf,
-IndexArray: index_arr$A,
-IndexCount: index_arr$A.length,
+IndexArray: index_arr$y,
+IndexCount: index_arr$y.length,
 };
 }
 
-let vertex_arr$A = Float32Array.from([
+let vertex_arr$y = Float32Array.from([
 -25.091, 0.999796, -36.0097,
 -25.1353, 0.999796, -36.1209,
 -26.8862, 0.999796, -36.0049,
@@ -9926,7 +9926,7 @@ let vertex_arr$A = Float32Array.from([
 -24.3464, 0.999796, -36.6944
 ]);
 
-let normal_arr$A = Float32Array.from([
+let normal_arr$y = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -10229,7 +10229,7 @@ let normal_arr$A = Float32Array.from([
 -0.6149, 0, -0.7886
 ]);
 
-let texcoord_arr$A = Float32Array.from([
+let texcoord_arr$y = Float32Array.from([
 0.963616, 0.188994,
 0.963725, 0.190074,
 0.94916, 0.196469,
@@ -10532,7 +10532,7 @@ let texcoord_arr$A = Float32Array.from([
 0.743041, 0.022038
 ]);
 
-let index_arr$A = Uint16Array.from([
+let index_arr$y = Uint16Array.from([
 299, 298, 296,
 298, 297, 296,
 295, 294, 292,
@@ -10714,30 +10714,30 @@ let index_arr$A = Uint16Array.from([
 function mesh_as08(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$z, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$x, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$z, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$x, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$z, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$x, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$z, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$x, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$z,
+VertexArray: vertex_arr$x,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$z,
+NormalArray: normal_arr$x,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$z,
+TexCoordArray: texcoord_arr$x,
 IndexBuffer: index_buf,
-IndexArray: index_arr$z,
-IndexCount: index_arr$z.length,
+IndexArray: index_arr$x,
+IndexCount: index_arr$x.length,
 };
 }
 
-let vertex_arr$z = Float32Array.from([
+let vertex_arr$x = Float32Array.from([
 -100.773, 0.999796, -35.1052,
 -96.9787, 0.999796, -40.8256,
 -93.9396, 0.999796, -40.4334,
@@ -10995,7 +10995,7 @@ let vertex_arr$z = Float32Array.from([
 -102.251, 0.999796, -35.8878
 ]);
 
-let normal_arr$z = Float32Array.from([
+let normal_arr$x = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -11253,7 +11253,7 @@ let normal_arr$z = Float32Array.from([
 -0.468, 0, 0.8837
 ]);
 
-let texcoord_arr$z = Float32Array.from([
+let texcoord_arr$x = Float32Array.from([
 0.35123, 0.498471,
 0.405684, 0.528592,
 0.428482, 0.512717,
@@ -11511,7 +11511,7 @@ let texcoord_arr$z = Float32Array.from([
 0.350891, 0.022038
 ]);
 
-let index_arr$z = Uint16Array.from([
+let index_arr$x = Uint16Array.from([
 254, 253, 251,
 253, 252, 251,
 250, 249, 247,
@@ -11668,30 +11668,30 @@ let index_arr$z = Uint16Array.from([
 function mesh_as09(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$y, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$w, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$y, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$w, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$y, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$w, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$y, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$w, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$y,
+VertexArray: vertex_arr$w,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$y,
+NormalArray: normal_arr$w,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$y,
+TexCoordArray: texcoord_arr$w,
 IndexBuffer: index_buf,
-IndexArray: index_arr$y,
-IndexCount: index_arr$y.length,
+IndexArray: index_arr$w,
+IndexCount: index_arr$w.length,
 };
 }
 
-let vertex_arr$y = Float32Array.from([
+let vertex_arr$w = Float32Array.from([
 -78.1964, 0.999795, -18.3883,
 -80.1305, 0.999795, -22.78,
 -81.9132, 0.999795, -24.1984,
@@ -11959,7 +11959,7 @@ let vertex_arr$y = Float32Array.from([
 -83.8922, 0.999795, -8.00449
 ]);
 
-let normal_arr$y = Float32Array.from([
+let normal_arr$w = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -12227,7 +12227,7 @@ let normal_arr$y = Float32Array.from([
 -0.9526, 0, -0.3041
 ]);
 
-let texcoord_arr$y = Float32Array.from([
+let texcoord_arr$w = Float32Array.from([
 0.462816, 0.269552,
 0.465644, 0.312963,
 0.457245, 0.33183,
@@ -12495,7 +12495,7 @@ let texcoord_arr$y = Float32Array.from([
 0.415199, 0.022038
 ]);
 
-let index_arr$y = Uint16Array.from([
+let index_arr$w = Uint16Array.from([
 264, 263, 261,
 263, 262, 261,
 260, 259, 257,
@@ -12658,30 +12658,30 @@ let index_arr$y = Uint16Array.from([
 function mesh_as10(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$x, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$v, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$x, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$v, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$x, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$v, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$x, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$v, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$x,
+VertexArray: vertex_arr$v,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$x,
+NormalArray: normal_arr$v,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$x,
+TexCoordArray: texcoord_arr$v,
 IndexBuffer: index_buf,
-IndexArray: index_arr$x,
-IndexCount: index_arr$x.length,
+IndexArray: index_arr$v,
+IndexCount: index_arr$v.length,
 };
 }
 
-let vertex_arr$x = Float32Array.from([
+let vertex_arr$v = Float32Array.from([
 -76.3671, 0.999796, -46.5123,
 -74.4646, 0.999796, -45.1167,
 -73.5577, 0.999796, -45.0908,
@@ -12877,7 +12877,7 @@ let vertex_arr$x = Float32Array.from([
 -73.0648, 0.999796, -76.6547
 ]);
 
-let normal_arr$x = Float32Array.from([
+let normal_arr$v = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -13073,7 +13073,7 @@ let normal_arr$x = Float32Array.from([
 0.7941, 0, -0.6078
 ]);
 
-let texcoord_arr$x = Float32Array.from([
+let texcoord_arr$v = Float32Array.from([
 0.595233, 0.488055,
 0.604692, 0.468871,
 0.611876, 0.464867,
@@ -13269,7 +13269,7 @@ let texcoord_arr$x = Float32Array.from([
 0.730805, 0.022038
 ]);
 
-let index_arr$x = Uint16Array.from([
+let index_arr$v = Uint16Array.from([
 192, 191, 189,
 191, 190, 189,
 188, 187, 185,
@@ -13390,30 +13390,30 @@ let index_arr$x = Uint16Array.from([
 function mesh_as11(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$w, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$u, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$w, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$u, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$w, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$u, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$w, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$u, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$w,
+VertexArray: vertex_arr$u,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$w,
+NormalArray: normal_arr$u,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$w,
+TexCoordArray: texcoord_arr$u,
 IndexBuffer: index_buf,
-IndexArray: index_arr$w,
-IndexCount: index_arr$w.length,
+IndexArray: index_arr$u,
+IndexCount: index_arr$u.length,
 };
 }
 
-let vertex_arr$w = Float32Array.from([
+let vertex_arr$u = Float32Array.from([
 -55.3631, 0.999796, -66.2429,
 -55.0405, 0.999796, -70.5826,
 -57.8727, 0.999796, -68.6852,
@@ -13656,7 +13656,7 @@ let vertex_arr$w = Float32Array.from([
 -56.6016, 0.999796, -71.4054
 ]);
 
-let normal_arr$w = Float32Array.from([
+let normal_arr$u = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -13899,7 +13899,7 @@ let normal_arr$w = Float32Array.from([
 0.9984, 0, 0.0562
 ]);
 
-let texcoord_arr$w = Float32Array.from([
+let texcoord_arr$u = Float32Array.from([
 0.846716, 0.558812,
 0.867472, 0.592359,
 0.836757, 0.588956,
@@ -14142,7 +14142,7 @@ let texcoord_arr$w = Float32Array.from([
 0.698885, 0.022038
 ]);
 
-let index_arr$w = Uint16Array.from([
+let index_arr$u = Uint16Array.from([
 239, 238, 236,
 238, 237, 236,
 235, 234, 232,
@@ -14290,30 +14290,30 @@ let index_arr$w = Uint16Array.from([
 function mesh_as12(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$v, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$t, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$v, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$t, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$v, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$t, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$v, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$t, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$v,
+VertexArray: vertex_arr$t,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$v,
+NormalArray: normal_arr$t,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$v,
+TexCoordArray: texcoord_arr$t,
 IndexBuffer: index_buf,
-IndexArray: index_arr$v,
-IndexCount: index_arr$v.length,
+IndexArray: index_arr$t,
+IndexCount: index_arr$t.length,
 };
 }
 
-let vertex_arr$v = Float32Array.from([
+let vertex_arr$t = Float32Array.from([
 -130.984, 0.999796, -69.1478,
 -131.863, 0.999796, -68.3374,
 -127.974, 0.999796, -67.4175,
@@ -14460,7 +14460,7 @@ let vertex_arr$v = Float32Array.from([
 -127.974, 0.999796, -67.4175
 ]);
 
-let normal_arr$v = Float32Array.from([
+let normal_arr$t = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -14607,7 +14607,7 @@ let normal_arr$v = Float32Array.from([
 -0.5674, 0, 0.8235
 ]);
 
-let texcoord_arr$v = Float32Array.from([
+let texcoord_arr$t = Float32Array.from([
 0.250764, 0.898667,
 0.240303, 0.89583,
 0.267732, 0.872153,
@@ -14754,7 +14754,7 @@ let texcoord_arr$v = Float32Array.from([
 0.361289, 0.017292
 ]);
 
-let index_arr$v = Uint16Array.from([
+let index_arr$t = Uint16Array.from([
 143, 142, 140,
 142, 141, 140,
 139, 138, 136,
@@ -14848,30 +14848,30 @@ let index_arr$v = Uint16Array.from([
 function mesh_au01(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$u, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$s, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$u, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$s, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$u, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$s, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$u, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$s, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$u,
+VertexArray: vertex_arr$s,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$u,
+NormalArray: normal_arr$s,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$u,
+TexCoordArray: texcoord_arr$s,
 IndexBuffer: index_buf,
-IndexArray: index_arr$u,
-IndexCount: index_arr$u.length,
+IndexArray: index_arr$s,
+IndexCount: index_arr$s.length,
 };
 }
 
-let vertex_arr$u = Float32Array.from([
+let vertex_arr$s = Float32Array.from([
 -107.859, 0.999795, 11.9886,
 -108.591, 0.999795, 11.897,
 -108.933, 0.999795, 10.8351,
@@ -15219,7 +15219,7 @@ let vertex_arr$u = Float32Array.from([
 -126.249, 0.999795, 18.6627
 ]);
 
-let normal_arr$u = Float32Array.from([
+let normal_arr$s = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -15567,7 +15567,7 @@ let normal_arr$u = Float32Array.from([
 -0.8548, 0, -0.519
 ]);
 
-let texcoord_arr$u = Float32Array.from([
+let texcoord_arr$s = Float32Array.from([
 0.72018, 0.317396,
 0.71371, 0.318205,
 0.710691, 0.327588,
@@ -15915,7 +15915,7 @@ let texcoord_arr$u = Float32Array.from([
 0.644006, 0.030649
 ]);
 
-let index_arr$u = Uint16Array.from([
+let index_arr$s = Uint16Array.from([
 344, 343, 341,
 343, 342, 341,
 340, 339, 337,
@@ -16120,30 +16120,30 @@ let index_arr$u = Uint16Array.from([
 function mesh_au02(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$t, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$r, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$t, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$r, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$t, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$r, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$t, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$r, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$t,
+VertexArray: vertex_arr$r,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$t,
+NormalArray: normal_arr$r,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$t,
+TexCoordArray: texcoord_arr$r,
 IndexBuffer: index_buf,
-IndexArray: index_arr$t,
-IndexCount: index_arr$t.length,
+IndexArray: index_arr$r,
+IndexCount: index_arr$r.length,
 };
 }
 
-let vertex_arr$t = Float32Array.from([
+let vertex_arr$r = Float32Array.from([
 -102.027, 0.999795, -11.0038,
 -101.7, 0.999795, -10.4646,
 -101.021, 0.999795, -11.5311,
@@ -17266,7 +17266,7 @@ let vertex_arr$t = Float32Array.from([
 -104.987, 0.999795, -5.17974
 ]);
 
-let normal_arr$t = Float32Array.from([
+let normal_arr$r = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -18389,7 +18389,7 @@ let normal_arr$t = Float32Array.from([
 0.3521, 0, 0.936
 ]);
 
-let texcoord_arr$t = Float32Array.from([
+let texcoord_arr$r = Float32Array.from([
 0.771711, 0.520546,
 0.774599, 0.515782,
 0.7806, 0.525205,
@@ -19512,7 +19512,7 @@ let texcoord_arr$t = Float32Array.from([
 0.235264, 0.030649
 ]);
 
-let index_arr$t = Uint16Array.from([
+let index_arr$r = Uint16Array.from([
 1119, 1118, 1116,
 1118, 1117, 1116,
 1115, 1114, 1112,
@@ -20154,30 +20154,30 @@ let index_arr$t = Uint16Array.from([
 function mesh_au03(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$s, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$q, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$s, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$q, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$s, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$q, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$s, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$q, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$s,
+VertexArray: vertex_arr$q,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$s,
+NormalArray: normal_arr$q,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$s,
+TexCoordArray: texcoord_arr$q,
 IndexBuffer: index_buf,
-IndexArray: index_arr$s,
-IndexCount: index_arr$s.length,
+IndexArray: index_arr$q,
+IndexCount: index_arr$q.length,
 };
 }
 
-let vertex_arr$s = Float32Array.from([
+let vertex_arr$q = Float32Array.from([
 -115.738, 0.999795, 5.76825,
 -116.321, 0.999795, 5.66279,
 -116.072, 0.999795, 6.44317,
@@ -20875,7 +20875,7 @@ let vertex_arr$s = Float32Array.from([
 -107.267, 0.999795, 2.44046
 ]);
 
-let normal_arr$s = Float32Array.from([
+let normal_arr$q = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -21573,7 +21573,7 @@ let normal_arr$s = Float32Array.from([
 0.9996, 0, 0.0265
 ]);
 
-let texcoord_arr$s = Float32Array.from([
+let texcoord_arr$q = Float32Array.from([
 0.650565, 0.372356,
 0.645413, 0.373288,
 0.647614, 0.366393,
@@ -22271,7 +22271,7 @@ let texcoord_arr$s = Float32Array.from([
 0.518102, 0.030649
 ]);
 
-let index_arr$s = Uint16Array.from([
+let index_arr$q = Uint16Array.from([
 694, 693, 691,
 693, 692, 691,
 690, 689, 687,
@@ -22666,30 +22666,30 @@ let index_arr$s = Uint16Array.from([
 function mesh_au04(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$r, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$p, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$r, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$p, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$r, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$p, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$r, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$p, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$r,
+VertexArray: vertex_arr$p,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$r,
+NormalArray: normal_arr$p,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$r,
+TexCoordArray: texcoord_arr$p,
 IndexBuffer: index_buf,
-IndexArray: index_arr$r,
-IndexCount: index_arr$r.length,
+IndexArray: index_arr$p,
+IndexCount: index_arr$p.length,
 };
 }
 
-let vertex_arr$r = Float32Array.from([
+let vertex_arr$p = Float32Array.from([
 -98.3344, 0.999795, 16.9619,
 -100.814, 0.999795, 16.2908,
 -102.789, 0.999795, 14.014,
@@ -22827,7 +22827,7 @@ let vertex_arr$r = Float32Array.from([
 -100.487, 0.999795, 28.5968
 ]);
 
-let normal_arr$r = Float32Array.from([
+let normal_arr$p = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -22965,7 +22965,7 @@ let normal_arr$r = Float32Array.from([
 -0.4261, 0, 0.9047
 ]);
 
-let texcoord_arr$r = Float32Array.from([
+let texcoord_arr$p = Float32Array.from([
 0.804337, 0.273454,
 0.78243, 0.279384,
 0.76498, 0.299501,
@@ -23103,7 +23103,7 @@ let texcoord_arr$r = Float32Array.from([
 0.613607, 0.027316
 ]);
 
-let index_arr$r = Uint16Array.from([
+let index_arr$p = Uint16Array.from([
 134, 133, 131,
 133, 132, 131,
 130, 129, 127,
@@ -23188,30 +23188,30 @@ let index_arr$r = Uint16Array.from([
 function mesh_eu01(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$q, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$o, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$q, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$o, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$q, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$o, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$q, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$o, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$q,
+VertexArray: vertex_arr$o,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$q,
+NormalArray: normal_arr$o,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$q,
+TexCoordArray: texcoord_arr$o,
 IndexBuffer: index_buf,
-IndexArray: index_arr$q,
-IndexCount: index_arr$q.length,
+IndexArray: index_arr$o,
+IndexCount: index_arr$o.length,
 };
 }
 
-let vertex_arr$q = Float32Array.from([
+let vertex_arr$o = Float32Array.from([
 -2.02468, 0.999795, -47.4064,
 -1.60473, 0.999795, -46.8648,
 -0.201601, 0.999795, -46.7147,
@@ -23374,7 +23374,7 @@ let vertex_arr$q = Float32Array.from([
 0.723699, 0.999795, -53.2452
 ]);
 
-let normal_arr$q = Float32Array.from([
+let normal_arr$o = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -23537,7 +23537,7 @@ let normal_arr$q = Float32Array.from([
 -0.7359, 0, 0.6771
 ]);
 
-let texcoord_arr$q = Float32Array.from([
+let texcoord_arr$o = Float32Array.from([
 0.524521, 0.684859,
 0.528231, 0.680074,
 0.540629, 0.678747,
@@ -23700,7 +23700,7 @@ let texcoord_arr$q = Float32Array.from([
 0.570876, 0.030649
 ]);
 
-let index_arr$q = Uint16Array.from([
+let index_arr$o = Uint16Array.from([
 159, 158, 156,
 158, 157, 156,
 155, 154, 152,
@@ -23798,30 +23798,30 @@ let index_arr$q = Uint16Array.from([
 function mesh_eu02(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$p, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$n, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$p, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$n, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$p, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$n, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$p, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$n, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$p,
+VertexArray: vertex_arr$n,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$p,
+NormalArray: normal_arr$n,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$p,
+TexCoordArray: texcoord_arr$n,
 IndexBuffer: index_buf,
-IndexArray: index_arr$p,
-IndexCount: index_arr$p.length,
+IndexArray: index_arr$n,
+IndexCount: index_arr$n.length,
 };
 }
 
-let vertex_arr$p = Float32Array.from([
+let vertex_arr$n = Float32Array.from([
 18.0175, 0.999796, -61.5066,
 19.5436, 0.999796, -65.3436,
 16.1339, 0.999796, -64.8714,
@@ -23854,7 +23854,7 @@ let vertex_arr$p = Float32Array.from([
 16.1339, 0.999796, -64.8714
 ]);
 
-let normal_arr$p = Float32Array.from([
+let normal_arr$n = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -23887,7 +23887,7 @@ let normal_arr$p = Float32Array.from([
 0.0743, 0, -0.9972
 ]);
 
-let texcoord_arr$p = Float32Array.from([
+let texcoord_arr$n = Float32Array.from([
 0.701605, 0.809442,
 0.715088, 0.843344,
 0.684962, 0.839172,
@@ -23920,7 +23920,7 @@ let texcoord_arr$p = Float32Array.from([
 0.526782, 0.030649
 ]);
 
-let index_arr$p = Uint16Array.from([
+let index_arr$n = Uint16Array.from([
 29, 28, 26,
 28, 27, 26,
 25, 24, 22,
@@ -23942,30 +23942,30 @@ let index_arr$p = Uint16Array.from([
 function mesh_eu03(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$o, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$m, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$o, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$m, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$o, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$m, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$o, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$m, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$o,
+VertexArray: vertex_arr$m,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$o,
+NormalArray: normal_arr$m,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$o,
+TexCoordArray: texcoord_arr$m,
 IndexBuffer: index_buf,
-IndexArray: index_arr$o,
-IndexCount: index_arr$o.length,
+IndexArray: index_arr$m,
+IndexCount: index_arr$m.length,
 };
 }
 
-let vertex_arr$o = Float32Array.from([
+let vertex_arr$m = Float32Array.from([
 -7.6416, 0.999795, -52.8007,
 -9.52777, 0.999795, -53.2225,
 -9.52229, 0.999795, -52.8007,
@@ -24148,7 +24148,7 @@ let vertex_arr$o = Float32Array.from([
 -17.7419, 0.999796, -41.6184
 ]);
 
-let normal_arr$o = Float32Array.from([
+let normal_arr$m = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -24331,7 +24331,7 @@ let normal_arr$o = Float32Array.from([
 -0.1997, 0, 0.9798
 ]);
 
-let texcoord_arr$o = Float32Array.from([
+let texcoord_arr$m = Float32Array.from([
 0.474892, 0.732521,
 0.458227, 0.736247,
 0.458275, 0.732521,
@@ -24514,7 +24514,7 @@ let texcoord_arr$o = Float32Array.from([
 0.364358, 0.030649
 ]);
 
-let index_arr$o = Uint16Array.from([
+let index_arr$m = Uint16Array.from([
 179, 178, 176,
 178, 177, 176,
 175, 174, 172,
@@ -24626,30 +24626,30 @@ let index_arr$o = Uint16Array.from([
 function mesh_eu04(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$n, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$l, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$n, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$l, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$n, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$l, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$n, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$l, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$n,
+VertexArray: vertex_arr$l,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$n,
+NormalArray: normal_arr$l,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$n,
+TexCoordArray: texcoord_arr$l,
 IndexBuffer: index_buf,
-IndexArray: index_arr$n,
-IndexCount: index_arr$n.length,
+IndexArray: index_arr$l,
+IndexCount: index_arr$l.length,
 };
 }
 
-let vertex_arr$n = Float32Array.from([
+let vertex_arr$l = Float32Array.from([
 -24.7245, 0.999796, -66.0937,
 -25.8865, 0.999796, -62.2404,
 -24.1132, 0.999796, -57.14,
@@ -24792,7 +24792,7 @@ let vertex_arr$n = Float32Array.from([
 -15.254, 0.999796, -59.1701
 ]);
 
-let normal_arr$n = Float32Array.from([
+let normal_arr$l = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -24935,7 +24935,7 @@ let normal_arr$n = Float32Array.from([
 -0.9996, 0, -0.0279
 ]);
 
-let texcoord_arr$n = Float32Array.from([
+let texcoord_arr$l = Float32Array.from([
 0.323956, 0.849972,
 0.313689, 0.815925,
 0.329357, 0.77086,
@@ -25078,7 +25078,7 @@ let texcoord_arr$n = Float32Array.from([
 0.40983, 0.030649
 ]);
 
-let index_arr$n = Uint16Array.from([
+let index_arr$l = Uint16Array.from([
 139, 138, 136,
 138, 137, 136,
 135, 134, 132,
@@ -25166,30 +25166,30 @@ let index_arr$n = Uint16Array.from([
 function mesh_eu05(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$m, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$k, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$m, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$k, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$m, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$k, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$m, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$k, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$m,
+VertexArray: vertex_arr$k,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$m,
+NormalArray: normal_arr$k,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$m,
+TexCoordArray: texcoord_arr$k,
 IndexBuffer: index_buf,
-IndexArray: index_arr$m,
-IndexCount: index_arr$m.length,
+IndexArray: index_arr$k,
+IndexCount: index_arr$k.length,
 };
 }
 
-let vertex_arr$m = Float32Array.from([
+let vertex_arr$k = Float32Array.from([
 -16.0921, 0.999796, -37.5664,
 -12.3304, 0.999796, -40.8243,
 -11.2188, 0.999796, -40.4424,
@@ -25447,7 +25447,7 @@ let vertex_arr$m = Float32Array.from([
 -7.68576, 0.999796, -35.7243
 ]);
 
-let normal_arr$m = Float32Array.from([
+let normal_arr$k = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -25705,7 +25705,7 @@ let normal_arr$m = Float32Array.from([
 0.9791, 0, 0.2034
 ]);
 
-let texcoord_arr$m = Float32Array.from([
+let texcoord_arr$k = Float32Array.from([
 0.400227, 0.597918,
 0.433464, 0.626702,
 0.443286, 0.623328,
@@ -25963,7 +25963,7 @@ let texcoord_arr$m = Float32Array.from([
 0.453947, 0.030649
 ]);
 
-let index_arr$m = Uint16Array.from([
+let index_arr$k = Uint16Array.from([
 254, 253, 251,
 253, 252, 251,
 250, 249, 247,
@@ -26116,30 +26116,30 @@ let index_arr$m = Uint16Array.from([
 function mesh_eu06(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$l, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$j, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$l, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$j, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$l, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$j, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$l, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$j, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$l,
+VertexArray: vertex_arr$j,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$l,
+NormalArray: normal_arr$j,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$l,
+TexCoordArray: texcoord_arr$j,
 IndexBuffer: index_buf,
-IndexArray: index_arr$l,
-IndexCount: index_arr$l.length,
+IndexArray: index_arr$j,
+IndexCount: index_arr$j.length,
 };
 }
 
-let vertex_arr$l = Float32Array.from([
+let vertex_arr$j = Float32Array.from([
 -24.5855, 0.999796, -56.9758,
 -26.4121, 0.999796, -62.2294,
 -25.2562, 0.999796, -66.0624,
@@ -26462,7 +26462,7 @@ let vertex_arr$l = Float32Array.from([
 -32.0655, 0.999796, -39.8305
 ]);
 
-let normal_arr$l = Float32Array.from([
+let normal_arr$j = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -26785,7 +26785,7 @@ let normal_arr$l = Float32Array.from([
 0.8745, 0, -0.485
 ]);
 
-let texcoord_arr$l = Float32Array.from([
+let texcoord_arr$j = Float32Array.from([
 0.325184, 0.76941,
 0.309045, 0.815828,
 0.319258, 0.849694,
@@ -27108,7 +27108,7 @@ let texcoord_arr$l = Float32Array.from([
 0.208921, 0.030649
 ]);
 
-let index_arr$l = Uint16Array.from([
+let index_arr$j = Uint16Array.from([
 319, 318, 316,
 318, 317, 316,
 315, 314, 312,
@@ -27304,30 +27304,30 @@ let index_arr$l = Uint16Array.from([
 function mesh_eu07(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$k, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$i, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$k, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$i, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$k, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$i, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$k, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$i, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$k,
+VertexArray: vertex_arr$i,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$k,
+NormalArray: normal_arr$i,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$k,
+TexCoordArray: texcoord_arr$i,
 IndexBuffer: index_buf,
-IndexArray: index_arr$k,
-IndexCount: index_arr$k.length,
+IndexArray: index_arr$i,
+IndexCount: index_arr$i.length,
 };
 }
 
-let vertex_arr$k = Float32Array.from([
+let vertex_arr$i = Float32Array.from([
 -5.49306, 0.999796, -41.6182,
 -6.44635, 0.999796, -40.9811,
 -6.54547, 0.999796, -40.5437,
@@ -27555,7 +27555,7 @@ let vertex_arr$k = Float32Array.from([
 3.12078, 0.999796, -44.0558
 ]);
 
-let normal_arr$k = Float32Array.from([
+let normal_arr$i = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -27783,7 +27783,7 @@ let normal_arr$k = Float32Array.from([
 0.2776, 0, -0.9607
 ]);
 
-let texcoord_arr$k = Float32Array.from([
+let texcoord_arr$i = Float32Array.from([
 0.493876, 0.633717,
 0.485453, 0.628088,
 0.484577, 0.624223,
@@ -28011,7 +28011,7 @@ let texcoord_arr$k = Float32Array.from([
 0.574892, 0.030649
 ]);
 
-let index_arr$k = Uint16Array.from([
+let index_arr$i = Uint16Array.from([
 224, 223, 221,
 223, 222, 221,
 220, 219, 217,
@@ -28150,30 +28150,30 @@ let index_arr$k = Uint16Array.from([
 function mesh_na01(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$j, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$h, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$j, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$h, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$j, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$h, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$j, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$h, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$j,
+VertexArray: vertex_arr$h,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$j,
+NormalArray: normal_arr$h,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$j,
+TexCoordArray: texcoord_arr$h,
 IndexBuffer: index_buf,
-IndexArray: index_arr$j,
-IndexCount: index_arr$j.length,
+IndexArray: index_arr$h,
+IndexCount: index_arr$h.length,
 };
 }
 
-let vertex_arr$j = Float32Array.from([
+let vertex_arr$h = Float32Array.from([
 130.725, 0.999795, -52.8728,
 130.106, 0.999795, -54.2498,
 131.422, 0.999795, -54.6303,
@@ -28376,7 +28376,7 @@ let vertex_arr$j = Float32Array.from([
 136.138, 0.999796, -69.5609
 ]);
 
-let normal_arr$j = Float32Array.from([
+let normal_arr$h = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -28579,7 +28579,7 @@ let normal_arr$j = Float32Array.from([
 0.6545, 0, -0.7561
 ]);
 
-let texcoord_arr$j = Float32Array.from([
+let texcoord_arr$h = Float32Array.from([
 0.869193, 0.196152,
 0.869465, 0.209624,
 0.881527, 0.207664,
@@ -28782,7 +28782,7 @@ let texcoord_arr$j = Float32Array.from([
 0.809249, 0.031196
 ]);
 
-let index_arr$j = Uint16Array.from([
+let index_arr$h = Uint16Array.from([
 199, 198, 196,
 198, 197, 196,
 195, 194, 192,
@@ -28906,30 +28906,30 @@ let index_arr$j = Uint16Array.from([
 function mesh_na02(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$i, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$g, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$i, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$g, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$i, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$g, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$i, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$g, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$i,
+VertexArray: vertex_arr$g,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$i,
+NormalArray: normal_arr$g,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$i,
+TexCoordArray: texcoord_arr$g,
 IndexBuffer: index_buf,
-IndexArray: index_arr$i,
-IndexCount: index_arr$i.length,
+IndexArray: index_arr$g,
+IndexCount: index_arr$g.length,
 };
 }
 
-let vertex_arr$i = Float32Array.from([
+let vertex_arr$g = Float32Array.from([
 85.799, 0.999795, -56.3285,
 84.1921, 0.999796, -44.8286,
 101.426, 0.999796, -44.8754,
@@ -29002,7 +29002,7 @@ let vertex_arr$i = Float32Array.from([
 108.922, 0.999795, -53.0507
 ]);
 
-let normal_arr$i = Float32Array.from([
+let normal_arr$g = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -29075,7 +29075,7 @@ let normal_arr$i = Float32Array.from([
 0.7561, 0, 0.6545
 ]);
 
-let texcoord_arr$i = Float32Array.from([
+let texcoord_arr$g = Float32Array.from([
 0.520078, 0.39577,
 0.463156, 0.309168,
 0.60232, 0.243664,
@@ -29148,7 +29148,7 @@ let texcoord_arr$i = Float32Array.from([
 0.537162, 0.027047
 ]);
 
-let index_arr$i = Uint16Array.from([
+let index_arr$g = Uint16Array.from([
 69, 68, 66,
 68, 67, 66,
 65, 64, 62,
@@ -29194,30 +29194,30 @@ let index_arr$i = Uint16Array.from([
 function mesh_na03(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$h, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$f, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$h, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$f, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$h, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$f, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$h, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$f, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$h,
+VertexArray: vertex_arr$f,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$h,
+NormalArray: normal_arr$f,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$h,
+TexCoordArray: texcoord_arr$f,
 IndexBuffer: index_buf,
-IndexArray: index_arr$h,
-IndexCount: index_arr$h.length,
+IndexArray: index_arr$f,
+IndexCount: index_arr$f.length,
 };
 }
 
-let vertex_arr$h = Float32Array.from([
+let vertex_arr$f = Float32Array.from([
 88.9695, 0.999795, -26.9892,
 87.8196, 0.999795, -26.9614,
 86.325, 0.999795, -25.6586,
@@ -29625,7 +29625,7 @@ let vertex_arr$h = Float32Array.from([
 67.1253, 0.999795, -19.4272
 ]);
 
-let normal_arr$h = Float32Array.from([
+let normal_arr$f = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -30033,7 +30033,7 @@ let normal_arr$h = Float32Array.from([
 0.0302, 0, 0.9995
 ]);
 
-let texcoord_arr$h = Float32Array.from([
+let texcoord_arr$f = Float32Array.from([
 0.433487, 0.147032,
 0.424107, 0.151203,
 0.407073, 0.14641,
@@ -30441,7 +30441,7 @@ let texcoord_arr$h = Float32Array.from([
 0.378783, 0.027047
 ]);
 
-let index_arr$h = Uint16Array.from([
+let index_arr$f = Uint16Array.from([
 404, 403, 401,
 403, 402, 401,
 400, 399, 397,
@@ -30680,30 +30680,30 @@ let index_arr$h = Uint16Array.from([
 function mesh_na04(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$g, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$e, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$g, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$e, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$g, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$e, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$g, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$e, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$g,
+VertexArray: vertex_arr$e,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$g,
+NormalArray: normal_arr$e,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$g,
+TexCoordArray: texcoord_arr$e,
 IndexBuffer: index_buf,
-IndexArray: index_arr$g,
-IndexCount: index_arr$g.length,
+IndexArray: index_arr$e,
+IndexCount: index_arr$e.length,
 };
 }
 
-let vertex_arr$g = Float32Array.from([
+let vertex_arr$e = Float32Array.from([
 62.7023, 0.999795, -32.4816,
 63.1071, 0.999795, -32.3194,
 62.3546, 0.999795, -31.3565,
@@ -30966,7 +30966,7 @@ let vertex_arr$g = Float32Array.from([
 80.0524, 0.999796, -37.2655
 ]);
 
-let normal_arr$g = Float32Array.from([
+let normal_arr$e = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -31229,7 +31229,7 @@ let normal_arr$g = Float32Array.from([
 0.992, 0, 0.126
 ]);
 
-let texcoord_arr$g = Float32Array.from([
+let texcoord_arr$e = Float32Array.from([
 0.242642, 0.291743,
 0.245286, 0.288888,
 0.235537, 0.284,
@@ -31492,7 +31492,7 @@ let texcoord_arr$g = Float32Array.from([
 0.563943, 0.027047
 ]);
 
-let index_arr$g = Uint16Array.from([
+let index_arr$e = Uint16Array.from([
 259, 258, 256,
 258, 257, 256,
 255, 254, 252,
@@ -31652,30 +31652,30 @@ let index_arr$g = Uint16Array.from([
 function mesh_na05(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$f, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$d, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$f, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$d, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$f, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$d, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$f, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$d, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$f,
+VertexArray: vertex_arr$d,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$f,
+NormalArray: normal_arr$d,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$f,
+TexCoordArray: texcoord_arr$d,
 IndexBuffer: index_buf,
-IndexArray: index_arr$f,
-IndexCount: index_arr$f.length,
+IndexArray: index_arr$d,
+IndexCount: index_arr$d.length,
 };
 }
 
-let vertex_arr$f = Float32Array.from([
+let vertex_arr$d = Float32Array.from([
 42.824, 0.999796, -65.9773,
 43.5316, 0.999796, -67.483,
 41.7071, 0.999796, -67.5315,
@@ -31886,7 +31886,7 @@ let vertex_arr$f = Float32Array.from([
 40.7998, 0.999797, -96.6576
 ]);
 
-let normal_arr$f = Float32Array.from([
+let normal_arr$d = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -32097,7 +32097,7 @@ let normal_arr$f = Float32Array.from([
 0.2307, 0, -0.973
 ]);
 
-let texcoord_arr$f = Float32Array.from([
+let texcoord_arr$d = Float32Array.from([
 0.210376, 0.637875,
 0.221839, 0.647313,
 0.20731, 0.654679,
@@ -32308,7 +32308,7 @@ let texcoord_arr$f = Float32Array.from([
 0.597966, 0.027047
 ]);
 
-let index_arr$f = Uint16Array.from([
+let index_arr$d = Uint16Array.from([
 207, 206, 204,
 206, 205, 204,
 203, 202, 200,
@@ -32438,30 +32438,30 @@ let index_arr$f = Uint16Array.from([
 function mesh_na06(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$e, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$c, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$e, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$c, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$e, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$c, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$e, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$c, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$e,
+VertexArray: vertex_arr$c,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$e,
+NormalArray: normal_arr$c,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$e,
+TexCoordArray: texcoord_arr$c,
 IndexBuffer: index_buf,
-IndexArray: index_arr$e,
-IndexCount: index_arr$e.length,
+IndexArray: index_arr$c,
+IndexCount: index_arr$c.length,
 };
 }
 
-let vertex_arr$e = Float32Array.from([
+let vertex_arr$c = Float32Array.from([
 95.0994, 0.999796, -76.6547,
 99.0091, 0.999796, -76.3432,
 100.944, 0.999796, -73.8961,
@@ -33168,7 +33168,7 @@ let vertex_arr$e = Float32Array.from([
 73.4979, 0.999796, -73.767
 ]);
 
-let normal_arr$e = Float32Array.from([
+let normal_arr$c = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -33875,7 +33875,7 @@ let normal_arr$e = Float32Array.from([
 0.1801, 0, -0.9836
 ]);
 
-let texcoord_arr$e = Float32Array.from([
+let texcoord_arr$c = Float32Array.from([
 0.67279, 0.524144,
 0.70313, 0.506686,
 0.709383, 0.479551,
@@ -34582,7 +34582,7 @@ let texcoord_arr$e = Float32Array.from([
 0.34987, 0.027047
 ]);
 
-let index_arr$e = Uint16Array.from([
+let index_arr$c = Uint16Array.from([
 703, 702, 700,
 702, 701, 700,
 697, 696, 694,
@@ -34998,30 +34998,30 @@ let index_arr$e = Uint16Array.from([
 function mesh_na07(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$d, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$b, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$d, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$b, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$d, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$b, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$d, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$b, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$d,
+VertexArray: vertex_arr$b,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$d,
+NormalArray: normal_arr$b,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$d,
+TexCoordArray: texcoord_arr$b,
 IndexBuffer: index_buf,
-IndexArray: index_arr$d,
-IndexCount: index_arr$d.length,
+IndexArray: index_arr$b,
+IndexCount: index_arr$b.length,
 };
 }
 
-let vertex_arr$d = Float32Array.from([
+let vertex_arr$b = Float32Array.from([
 66.1839, 0.999795, -47.2788,
 65.079, 0.999795, -40.698,
 62.1705, 0.999796, -40.0253,
@@ -35109,7 +35109,7 @@ let vertex_arr$d = Float32Array.from([
 83.6865, 0.999796, -44.8229
 ]);
 
-let normal_arr$d = Float32Array.from([
+let normal_arr$b = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -35197,7 +35197,7 @@ let normal_arr$d = Float32Array.from([
 0.9904, 0, 0.1384
 ]);
 
-let texcoord_arr$d = Float32Array.from([
+let texcoord_arr$b = Float32Array.from([
 0.327289, 0.397771,
 0.29322, 0.348922,
 0.267192, 0.354616,
@@ -35285,7 +35285,7 @@ let texcoord_arr$d = Float32Array.from([
 0.472256, 0.027047
 ]);
 
-let index_arr$d = Uint16Array.from([
+let index_arr$b = Uint16Array.from([
 84, 83, 81,
 83, 82, 81,
 80, 79, 77,
@@ -35340,30 +35340,30 @@ let index_arr$d = Uint16Array.from([
 function mesh_na08(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$c, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$a, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$c, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$a, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$c, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$a, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$c, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$a, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$c,
+VertexArray: vertex_arr$a,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$c,
+NormalArray: normal_arr$a,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$c,
+TexCoordArray: texcoord_arr$a,
 IndexBuffer: index_buf,
-IndexArray: index_arr$c,
-IndexCount: index_arr$c.length,
+IndexArray: index_arr$a,
+IndexCount: index_arr$a.length,
 };
 }
 
-let vertex_arr$c = Float32Array.from([
+let vertex_arr$a = Float32Array.from([
 44.2136, 0.999796, -43.2506,
 48.2749, 0.999796, -43.1362,
 47.5903, 0.999796, -44.9731,
@@ -35616,7 +35616,7 @@ let vertex_arr$c = Float32Array.from([
 45.8827, 0.999795, -47.6263
 ]);
 
-let normal_arr$c = Float32Array.from([
+let normal_arr$a = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -35869,7 +35869,7 @@ let normal_arr$c = Float32Array.from([
 -0.9952, 0, 0.0974
 ]);
 
-let texcoord_arr$c = Float32Array.from([
+let texcoord_arr$a = Float32Array.from([
 0.134702, 0.449275,
 0.167018, 0.432826,
 0.168519, 0.450257,
@@ -36122,7 +36122,7 @@ let texcoord_arr$c = Float32Array.from([
 0.477251, 0.027047
 ]);
 
-let index_arr$c = Uint16Array.from([
+let index_arr$a = Uint16Array.from([
 249, 248, 246,
 248, 247, 246,
 245, 244, 242,
@@ -36274,30 +36274,30 @@ let index_arr$c = Uint16Array.from([
 function mesh_na09(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$b, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$9, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$b, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$9, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$b, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$9, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$b, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$9, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$b,
+VertexArray: vertex_arr$9,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$b,
+NormalArray: normal_arr$9,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$b,
+TexCoordArray: texcoord_arr$9,
 IndexBuffer: index_buf,
-IndexArray: index_arr$b,
-IndexCount: index_arr$b.length,
+IndexArray: index_arr$9,
+IndexCount: index_arr$9.length,
 };
 }
 
-let vertex_arr$b = Float32Array.from([
+let vertex_arr$9 = Float32Array.from([
 82.1546, 0.999796, -44.288,
 82.8272, 0.999796, -42.3185,
 80.8782, 0.999796, -39.8,
@@ -36415,7 +36415,7 @@ let vertex_arr$b = Float32Array.from([
 80.8782, 0.999796, -39.8
 ]);
 
-let normal_arr$b = Float32Array.from([
+let normal_arr$9 = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -36533,7 +36533,7 @@ let normal_arr$b = Float32Array.from([
 -0.992, 0, -0.126
 ]);
 
-let texcoord_arr$b = Float32Array.from([
+let texcoord_arr$9 = Float32Array.from([
 0.444657, 0.312597,
 0.442553, 0.294142,
 0.417206, 0.281281,
@@ -36651,7 +36651,7 @@ let texcoord_arr$b = Float32Array.from([
 0.560556, 0.027047
 ]);
 
-let index_arr$b = Uint16Array.from([
+let index_arr$9 = Uint16Array.from([
 114, 113, 111,
 113, 112, 111,
 110, 109, 107,
@@ -36724,30 +36724,30 @@ let index_arr$b = Uint16Array.from([
 function mesh_sa01(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$a, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$8, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$a, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$8, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$a, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$8, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$a, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$8, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$a,
+VertexArray: vertex_arr$8,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$a,
+NormalArray: normal_arr$8,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$a,
+TexCoordArray: texcoord_arr$8,
 IndexBuffer: index_buf,
-IndexArray: index_arr$a,
-IndexCount: index_arr$a.length,
+IndexArray: index_arr$8,
+IndexCount: index_arr$8.length,
 };
 }
 
-let vertex_arr$a = Float32Array.from([
+let vertex_arr$8 = Float32Array.from([
 44.4899, 0.999795, 22.0497,
 44.4431, 0.999795, 22.8097,
 45.8172, 0.999795, 23.7321,
@@ -36915,7 +36915,7 @@ let vertex_arr$a = Float32Array.from([
 52.7967, 0.999795, 51.0075
 ]);
 
-let normal_arr$a = Float32Array.from([
+let normal_arr$8 = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -37083,7 +37083,7 @@ let normal_arr$a = Float32Array.from([
 -0.2282, 0, 0.9736
 ]);
 
-let texcoord_arr$a = Float32Array.from([
+let texcoord_arr$8 = Float32Array.from([
 0.765398, 0.356621,
 0.76493, 0.349002,
 0.778703, 0.339756,
@@ -37251,7 +37251,7 @@ let texcoord_arr$a = Float32Array.from([
 0.483767, 0.032933
 ]);
 
-let index_arr$a = Uint16Array.from([
+let index_arr$8 = Uint16Array.from([
 164, 163, 161,
 163, 162, 161,
 160, 159, 157,
@@ -37354,30 +37354,30 @@ let index_arr$a = Uint16Array.from([
 function mesh_sa02(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$9, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$7, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$9, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$7, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$9, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$7, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$9, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$7, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$9,
+VertexArray: vertex_arr$7,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$9,
+NormalArray: normal_arr$7,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$9,
+TexCoordArray: texcoord_arr$7,
 IndexBuffer: index_buf,
-IndexArray: index_arr$9,
-IndexCount: index_arr$9.length,
+IndexArray: index_arr$7,
+IndexCount: index_arr$7.length,
 };
 }
 
-let vertex_arr$9 = Float32Array.from([
+let vertex_arr$7 = Float32Array.from([
 43.9265, 0.999795, 23.0651,
 44.0366, 0.999795, 21.2745,
 44.524, 0.999795, 19.8141,
@@ -37710,7 +37710,7 @@ let vertex_arr$9 = Float32Array.from([
 46.8157, 0.999795, 14.7681
 ]);
 
-let normal_arr$9 = Float32Array.from([
+let normal_arr$7 = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -38043,7 +38043,7 @@ let normal_arr$9 = Float32Array.from([
 0.7788, 0, 0.6273
 ]);
 
-let texcoord_arr$9 = Float32Array.from([
+let texcoord_arr$7 = Float32Array.from([
 0.759751, 0.346442,
 0.760854, 0.364392,
 0.76574, 0.379032,
@@ -38376,7 +38376,7 @@ let texcoord_arr$9 = Float32Array.from([
 0.3893, 0.032933
 ]);
 
-let index_arr$9 = Uint16Array.from([
+let index_arr$7 = Uint16Array.from([
 329, 328, 326,
 328, 327, 326,
 325, 324, 322,
@@ -38578,30 +38578,30 @@ let index_arr$9 = Uint16Array.from([
 function mesh_sa03(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$8, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$6, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$8, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$6, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$8, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$6, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$8, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$6, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$8,
+VertexArray: vertex_arr$6,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$8,
+NormalArray: normal_arr$6,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$8,
+TexCoordArray: texcoord_arr$6,
 IndexBuffer: index_buf,
-IndexArray: index_arr$8,
-IndexCount: index_arr$8.length,
+IndexArray: index_arr$6,
+IndexCount: index_arr$6.length,
 };
 }
 
-let vertex_arr$8 = Float32Array.from([
+let vertex_arr$6 = Float32Array.from([
 64.8442, 0.999795, -1.34812,
 61.9859, 0.999795, -0.005947,
 60.0764, 0.999795, 1.67824,
@@ -38799,7 +38799,7 @@ let vertex_arr$8 = Float32Array.from([
 46.1537, 0.999795, 22.8647
 ]);
 
-let normal_arr$8 = Float32Array.from([
+let normal_arr$6 = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -38997,7 +38997,7 @@ let normal_arr$8 = Float32Array.from([
 0.1713, 0, 0.9852
 ]);
 
-let texcoord_arr$8 = Float32Array.from([
+let texcoord_arr$6 = Float32Array.from([
 0.969436, 0.591168,
 0.940783, 0.577713,
 0.921641, 0.56083,
@@ -39195,7 +39195,7 @@ let texcoord_arr$8 = Float32Array.from([
 0.215588, 0.032933
 ]);
 
-let index_arr$8 = Uint16Array.from([
+let index_arr$6 = Uint16Array.from([
 194, 193, 191,
 193, 192, 191,
 190, 189, 187,
@@ -39316,30 +39316,30 @@ let index_arr$8 = Uint16Array.from([
 function mesh_sa04(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$7, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$5, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$7, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$5, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$7, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$5, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$7, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$5, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$7,
+VertexArray: vertex_arr$5,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$7,
+NormalArray: normal_arr$5,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$7,
+TexCoordArray: texcoord_arr$5,
 IndexBuffer: index_buf,
-IndexArray: index_arr$7,
-IndexCount: index_arr$7.length,
+IndexArray: index_arr$5,
+IndexCount: index_arr$5.length,
 };
 }
 
-let vertex_arr$7 = Float32Array.from([
+let vertex_arr$5 = Float32Array.from([
 63.1948, 0.999795, -6.71949,
 62.1622, 0.999795, -8.09445,
 61.4195, 0.999795, -9.45567,
@@ -39557,7 +39557,7 @@ let vertex_arr$7 = Float32Array.from([
 63.1948, 0.999795, -6.71949
 ]);
 
-let normal_arr$7 = Float32Array.from([
+let normal_arr$5 = Float32Array.from([
 0, 1, 0,
 0, 1, 0,
 0, 1, 0,
@@ -39775,7 +39775,7 @@ let normal_arr$7 = Float32Array.from([
 0.7996, 0, -0.6005
 ]);
 
-let texcoord_arr$7 = Float32Array.from([
+let texcoord_arr$5 = Float32Array.from([
 0.952901, 0.645012,
 0.942551, 0.658795,
 0.935106, 0.67244,
@@ -39993,7 +39993,7 @@ let texcoord_arr$7 = Float32Array.from([
 0.544037, 0.034333
 ]);
 
-let index_arr$7 = Uint16Array.from([
+let index_arr$5 = Uint16Array.from([
 214, 213, 211,
 213, 212, 211,
 210, 209, 207,
@@ -41526,38 +41526,6 @@ subtract(edge2, [vertices[c * 3 + 0], vertices[c * 3 + 1], vertices[c * 3 + 2]],
 return cross([0, 0, 0], edge2, edge1);
 }
 
-let vertex$3 = `
-uniform mat4 pv;
-uniform mat4 world;
-
-attribute vec3 position;
-
-void main() {
-gl_Position = pv * world * vec4(position, 1.0);
-}
-`;
-let fragment$3 = `
-precision mediump float;
-uniform vec4 color;
-
-void main() {
-gl_FragColor = color;
-}
-`;
-function mat1_colored_unlit_triangles(gl) {
-let program = link(gl, vertex$3, fragment$3);
-return {
-Mode: GL_TRIANGLES,
-Program: program,
-Locations: {
-Pv: gl.getUniformLocation(program, "pv"),
-World: gl.getUniformLocation(program, "world"),
-Color: gl.getUniformLocation(program, "color"),
-VertexPosition: gl.getAttribLocation(program, "position"),
-},
-};
-}
-
 let vertex$2 = `
 uniform mat4 pv;
 uniform mat4 world;
@@ -41570,6 +41538,38 @@ gl_Position = pv * world * vec4(position, 1.0);
 `;
 let fragment$2 = `
 precision mediump float;
+uniform vec4 color;
+
+void main() {
+gl_FragColor = color;
+}
+`;
+function mat1_colored_unlit_triangles(gl) {
+let program = link(gl, vertex$2, fragment$2);
+return {
+Mode: GL_TRIANGLES,
+Program: program,
+Locations: {
+Pv: gl.getUniformLocation(program, "pv"),
+World: gl.getUniformLocation(program, "world"),
+Color: gl.getUniformLocation(program, "color"),
+VertexPosition: gl.getAttribLocation(program, "position"),
+},
+};
+}
+
+let vertex$1 = `
+uniform mat4 pv;
+uniform mat4 world;
+
+attribute vec3 position;
+
+void main() {
+gl_Position = pv * world * vec4(position, 1.0);
+}
+`;
+let fragment$1 = `
+precision mediump float;
 
 void main() {
 float z = gl_FragCoord.z * 10.0;
@@ -41577,7 +41577,7 @@ gl_FragColor = vec4(z, z, z, 1.0);
 }
 `;
 function mat1_depth(gl) {
-let program = link(gl, vertex$2, fragment$2);
+let program = link(gl, vertex$1, fragment$1);
 return {
 Mode: GL_TRIANGLES,
 Program: program,
@@ -41589,7 +41589,7 @@ VertexPosition: gl.getAttribLocation(program, "position"),
 };
 }
 
-let vertex$1 = `
+let vertex = `
 uniform mat4 pv;
 uniform mat4 world;
 uniform mat4 self;
@@ -41615,7 +41615,7 @@ vert_texcoord = vec2(texcoord.x, -texcoord.y);
 vert_tbn = mat3(tangent, bitangent, normal);
 }
 `;
-let fragment$1 = `
+let fragment = `
 precision mediump float;
 
 
@@ -41716,7 +41716,7 @@ gl_FragColor = vec4(shaded_rgb, 1.0);
 }
 `;
 function mat1_textured_mapped(gl) {
-let program = link(gl, vertex$1, fragment$1);
+let program = link(gl, vertex, fragment);
 return {
 Mode: GL_TRIANGLES,
 Program: program,
@@ -41742,176 +41742,33 @@ VertexBitangent: gl.getAttribLocation(program, "bitangent"),
 };
 }
 
-let vertex = `
-uniform mat4 pv;
-uniform mat4 world;
-uniform mat4 self;
-
-attribute vec3 position;
-attribute vec2 texcoord;
-attribute vec3 normal;
-varying vec4 vert_pos;
-varying vec2 vert_texcoord;
-varying vec3 vert_normal;
-
-void main() {
-vert_pos = world * vec4(position, 1.0);
-gl_Position = pv * vert_pos;
-
-
-vert_texcoord = vec2(texcoord.x, -texcoord.y);
-
-vert_normal = (vec4(normal, 1.0) * self).xyz;
-}
-`;
-let fragment = `
-precision mediump float;
-
-
-const int MAX_LIGHTS = 8;
-
-uniform vec3 eye;
-uniform sampler2D diffuse_map;
-uniform vec4 color_diffuse;
-uniform vec4 color_specular;
-uniform float shininess;
-uniform vec4 light_positions[MAX_LIGHTS];
-uniform vec4 light_details[MAX_LIGHTS];
-uniform mat4 shadow_space;
-uniform sampler2D shadow_map;
-
-varying vec4 vert_pos;
-varying vec2 vert_texcoord;
-varying vec3 vert_normal;
-
-float shadow_factor(vec4 world_pos) {
-vec4 shadow_space_pos = shadow_space * world_pos;
-vec3 shadow_space_ndc = shadow_space_pos.xyz / shadow_space_pos.w;
-
-shadow_space_ndc = shadow_space_ndc * 0.5 + 0.5;
-
-float shadow_bias = 0.001;
-float shadow_acc = 0.0;
-float texel_size = 1.0 / 2048.0;
-
-
-for (int u = -1; u <= 1; u++) {
-for (int v = -1; v <= 1; v++) {
-float shadow_map_depth = texture2D(shadow_map, shadow_space_ndc.xy + vec2(u, v) * texel_size).x;
-shadow_acc += shadow_space_ndc.z - shadow_bias > shadow_map_depth ? 0.5 : 0.0;
-}
-}
-return shadow_acc / 9.0;
-}
-
-void main() {
-vec3 frag_normal = normalize(vert_normal);
-
-vec3 view_dir = eye - vert_pos.xyz;
-vec3 view_normal = normalize(view_dir);
-
-vec3 light_acc;
-
-for (int i = 0; i < MAX_LIGHTS; i++) {
-if (light_positions[i].w == 0.0) {
-break;
-}
-
-vec3 light_color = light_details[i].rgb;
-float light_intensity = light_details[i].a;
-
-vec3 light_normal;
-if (light_positions[i].w == 1.0) {
-
-light_normal = light_positions[i].xyz;
-} else {
-vec3 light_dir = light_positions[i].xyz - vert_pos.xyz;
-float light_dist = length(light_dir);
-light_normal = light_dir / light_dist;
-
-light_intensity /= (light_dist * light_dist);
-}
-
-float diffuse_factor = dot(frag_normal, light_normal);
-if (diffuse_factor > 0.0) {
-
-light_acc += color_diffuse.rgb * diffuse_factor * light_color * light_intensity;
-
-
-
-
-
-
-
-if (shininess > 0.0) {
-vec3 h = normalize(light_normal + view_normal);
-float specular_angle = max(dot(h, frag_normal), 0.0);
-float specular_factor = pow(specular_angle, shininess);
-
-
-light_acc += color_specular.rgb * specular_factor * light_color * light_intensity;
-}
-}
-}
-
-vec3 ambient_rgb = color_diffuse.rgb * 0.1;
-vec3 shaded_rgb = ambient_rgb + light_acc * (1.0 - shadow_factor(vert_pos));
-vec4 tex_color = texture2D(diffuse_map, vert_texcoord);
-gl_FragColor = vec4(shaded_rgb, 1.0) * tex_color;
-}
-`;
-function mat1_textured_specular_phong(gl) {
-let program = link(gl, vertex, fragment);
-return {
-Mode: GL_TRIANGLES,
-Program: program,
-Locations: {
-Pv: gl.getUniformLocation(program, "pv"),
-World: gl.getUniformLocation(program, "world"),
-Self: gl.getUniformLocation(program, "self"),
-Eye: gl.getUniformLocation(program, "eye"),
-DiffuseMap: gl.getUniformLocation(program, "diffuse_map"),
-DiffuseColor: gl.getUniformLocation(program, "color_diffuse"),
-SpecularColor: gl.getUniformLocation(program, "color_specular"),
-Shininess: gl.getUniformLocation(program, "shininess"),
-LightPositions: gl.getUniformLocation(program, "light_positions"),
-LightDetails: gl.getUniformLocation(program, "light_details"),
-ShadowMap: gl.getUniformLocation(program, "shadow_map"),
-ShadowSpace: gl.getUniformLocation(program, "shadow_space"),
-VertexPosition: gl.getAttribLocation(program, "position"),
-VertexTexCoord: gl.getAttribLocation(program, "texcoord"),
-VertexNormal: gl.getAttribLocation(program, "normal"),
-},
-};
-}
-
 function mesh_cannon(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$6, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$4, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$6, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$4, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$6, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$4, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$6, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$4, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$6,
+VertexArray: vertex_arr$4,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$6,
+NormalArray: normal_arr$4,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$6,
+TexCoordArray: texcoord_arr$4,
 IndexBuffer: index_buf,
-IndexArray: index_arr$6,
-IndexCount: index_arr$6.length,
+IndexArray: index_arr$4,
+IndexCount: index_arr$4.length,
 };
 }
 
-let vertex_arr$6 = Float32Array.from([
+let vertex_arr$4 = Float32Array.from([
 -0.321149, 1.25271, -1.08259,
 0.098296, 1.25271, -1.08259,
 -0.333064, 1.2503, -1.07335,
@@ -43674,7 +43531,7 @@ let vertex_arr$6 = Float32Array.from([
 0.423758, 1.13169, -0.446528
 ]);
 
-let normal_arr$6 = Float32Array.from([
+let normal_arr$4 = Float32Array.from([
 0, -0.9676, -0.2524,
 0, -0.9551, -0.2961,
 0, -0.9589, -0.2837,
@@ -45437,7 +45294,7 @@ let normal_arr$6 = Float32Array.from([
 0.3741, -0.9273, 0.006
 ]);
 
-let texcoord_arr$6 = Float32Array.from([
+let texcoord_arr$4 = Float32Array.from([
 0.326841, 0.977418,
 0.326842, 0.92264,
 0.328066, 0.978971,
@@ -47200,7 +47057,7 @@ let texcoord_arr$6 = Float32Array.from([
 0.181669, 0.932333
 ]);
 
-let index_arr$6 = Uint16Array.from([
+let index_arr$4 = Uint16Array.from([
 1755, 1754, 1753,
 1751, 1750, 1743,
 1750, 1749, 1743,
@@ -48573,155 +48430,33 @@ let index_arr$6 = Uint16Array.from([
 2, 1, 0
 ]);
 
-function mesh_cube(gl) {
-let vertex_buf = gl.createBuffer();
-gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$5, GL_STATIC_DRAW);
-let normal_buf = gl.createBuffer();
-gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$5, GL_STATIC_DRAW);
-let texcoord_buf = gl.createBuffer();
-gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$5, GL_STATIC_DRAW);
-let index_buf = gl.createBuffer();
-gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$5, GL_STATIC_DRAW);
-return {
-VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$5,
-NormalBuffer: normal_buf,
-NormalArray: normal_arr$5,
-TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$5,
-IndexBuffer: index_buf,
-IndexArray: index_arr$5,
-IndexCount: index_arr$5.length,
-};
-}
-
-let vertex_arr$5 = Float32Array.from([
--0.5, -0.5, 0.5,
--0.5, 0.5, 0.5,
--0.5, 0.5, -0.5,
--0.5, -0.5, -0.5,
--0.5, -0.5, -0.5,
--0.5, 0.5, -0.5,
-0.5, 0.5, -0.5,
-0.5, -0.5, -0.5,
-0.5, -0.5, -0.5,
-0.5, 0.5, -0.5,
-0.5, 0.5, 0.5,
-0.5, -0.5, 0.5,
-0.5, -0.5, 0.5,
-0.5, 0.5, 0.5,
--0.5, 0.5, 0.5,
--0.5, -0.5, 0.5,
--0.5, -0.5, -0.5,
-0.5, -0.5, -0.5,
-0.5, -0.5, 0.5,
--0.5, -0.5, 0.5,
-0.5, 0.5, -0.5,
--0.5, 0.5, -0.5,
--0.5, 0.5, 0.5,
-0.5, 0.5, 0.5
-]);
-
-let normal_arr$5 = Float32Array.from([
--1, 0, 0,
--1, 0, 0,
--1, 0, 0,
--1, 0, 0,
-0, 0, -1,
-0, 0, -1,
-0, 0, -1,
-0, 0, -1,
-1, 0, 0,
-1, 0, 0,
-1, 0, 0,
-1, 0, 0,
-0, 0, 1,
-0, 0, 1,
-0, 0, 1,
-0, 0, 1,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0
-]);
-
-let texcoord_arr$5 = Float32Array.from([
-0.666667, 0.333333,
-0.333333, 0.333333,
-0.333333, 0,
-0.666667, 0,
-0.333333, 0.666667,
-0, 0.666667,
-0, 0.333333,
-0.333333, 0.333333,
-0.333333, 0.333333,
-0, 0.333333,
-0, 0,
-0.333333, 0,
-0.333333, 0.666667,
-0.333333, 0.333333,
-0.666667, 0.333333,
-0.666667, 0.666667,
-1, 0.333333,
-0.666667, 0.333333,
-0.666667, 0,
-1, 0,
-0.333333, 0.666667,
-0.333333, 1,
-0, 1,
-0, 0.666667
-]);
-
-let index_arr$5 = Uint16Array.from([
-23, 22, 20,
-22, 21, 20,
-19, 18, 16,
-18, 17, 16,
-15, 14, 12,
-14, 13, 12,
-11, 10, 8,
-10, 9, 8,
-7, 6, 4,
-6, 5, 4,
-3, 2, 0,
-2, 1, 0
-]);
-
 function mesh_dragoon(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$4, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$3, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$4, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$3, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$4, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$3, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$4, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$3, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$4,
+VertexArray: vertex_arr$3,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$4,
+NormalArray: normal_arr$3,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$4,
+TexCoordArray: texcoord_arr$3,
 IndexBuffer: index_buf,
-IndexArray: index_arr$4,
-IndexCount: index_arr$4.length,
+IndexArray: index_arr$3,
+IndexCount: index_arr$3.length,
 };
 }
 
-let vertex_arr$4 = Float32Array.from([
+let vertex_arr$3 = Float32Array.from([
 -0.457961, 3.0282, -0.234034,
 -0.492766, 3.00357, -0.179684,
 -0.516059, 3.13021, -0.204048,
@@ -50356,7 +50091,7 @@ let vertex_arr$4 = Float32Array.from([
 0.076757, 2.83922, 0.441827
 ]);
 
-let normal_arr$4 = Float32Array.from([
+let normal_arr$3 = Float32Array.from([
 -0.5053, -0.4295, -0.7484,
 -0.812, -0.3569, -0.4617,
 -0.8969, -0.1259, -0.4239,
@@ -51991,7 +51726,7 @@ let normal_arr$4 = Float32Array.from([
 -0.7906, -0.5721, 0.2181
 ]);
 
-let texcoord_arr$4 = Float32Array.from([
+let texcoord_arr$3 = Float32Array.from([
 0.10471, 0.570291,
 0.097599, 0.573534,
 0.100762, 0.557185,
@@ -53626,7 +53361,7 @@ let texcoord_arr$4 = Float32Array.from([
 0, 0
 ]);
 
-let index_arr$4 = Uint16Array.from([
+let index_arr$3 = Uint16Array.from([
 1630, 1629, 1627,
 1629, 1628, 1627,
 1631, 1630, 1627,
@@ -55011,58 +54746,6 @@ let index_arr$4 = Uint16Array.from([
 function mesh_plane(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$3, GL_STATIC_DRAW);
-let normal_buf = gl.createBuffer();
-gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$3, GL_STATIC_DRAW);
-let texcoord_buf = gl.createBuffer();
-gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$3, GL_STATIC_DRAW);
-let index_buf = gl.createBuffer();
-gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$3, GL_STATIC_DRAW);
-return {
-VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$3,
-NormalBuffer: normal_buf,
-NormalArray: normal_arr$3,
-TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$3,
-IndexBuffer: index_buf,
-IndexArray: index_arr$3,
-IndexCount: index_arr$3.length,
-};
-}
-
-let vertex_arr$3 = Float32Array.from([
-0.5, 0, 0.5,
--0.5, 0, -0.5,
--0.5, 0, 0.5,
-0.5, 0, -0.5
-]);
-
-let normal_arr$3 = Float32Array.from([
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0
-]);
-
-let texcoord_arr$3 = Float32Array.from([
-1, 0,
-0, 1,
-0, 0,
-1, 1
-]);
-
-let index_arr$3 = Uint16Array.from([
-1, 3, 0,
-2, 1, 0
-]);
-
-function mesh_room07(gl) {
-let vertex_buf = gl.createBuffer();
-gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
 gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$2, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
@@ -55087,6 +54770,58 @@ IndexCount: index_arr$2.length,
 }
 
 let vertex_arr$2 = Float32Array.from([
+0.5, 0, 0.5,
+-0.5, 0, -0.5,
+-0.5, 0, 0.5,
+0.5, 0, -0.5
+]);
+
+let normal_arr$2 = Float32Array.from([
+0, 1, 0,
+0, 1, 0,
+0, 1, 0,
+0, 1, 0
+]);
+
+let texcoord_arr$2 = Float32Array.from([
+1, 0,
+0, 1,
+0, 0,
+1, 1
+]);
+
+let index_arr$2 = Uint16Array.from([
+1, 3, 0,
+2, 1, 0
+]);
+
+function mesh_room07(gl) {
+let vertex_buf = gl.createBuffer();
+gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$1, GL_STATIC_DRAW);
+let normal_buf = gl.createBuffer();
+gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr$1, GL_STATIC_DRAW);
+let texcoord_buf = gl.createBuffer();
+gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$1, GL_STATIC_DRAW);
+let index_buf = gl.createBuffer();
+gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$1, GL_STATIC_DRAW);
+return {
+VertexBuffer: vertex_buf,
+VertexArray: vertex_arr$1,
+NormalBuffer: normal_buf,
+NormalArray: normal_arr$1,
+TexCoordBuffer: texcoord_buf,
+TexCoordArray: texcoord_arr$1,
+IndexBuffer: index_buf,
+IndexArray: index_arr$1,
+IndexCount: index_arr$1.length,
+};
+}
+
+let vertex_arr$1 = Float32Array.from([
 0.671959, 0.406662, -1.71479,
 0.671959, 0.120445, -1.63301,
 0.671959, 0.324886, -1.63301,
@@ -60595,7 +60330,7 @@ let vertex_arr$2 = Float32Array.from([
 -3.25676, -0.34977, 1.74618
 ]);
 
-let normal_arr$2 = Float32Array.from([
+let normal_arr$1 = Float32Array.from([
 -1, 0, 0,
 -1, 0, 0,
 -1, 0, 0,
@@ -66104,7 +65839,7 @@ let normal_arr$2 = Float32Array.from([
 -0.0322339, 0.489892, 0.871187
 ]);
 
-let texcoord_arr$2 = Float32Array.from([
+let texcoord_arr$1 = Float32Array.from([
 -2.36221, 14.5669,
 -0.787402, 9.05512,
 -0.787402, 12.9921,
@@ -71613,7 +71348,7 @@ NaN, NaN,
 25.3937, -19.3946
 ]);
 
-let index_arr$2 = Uint16Array.from([
+let index_arr$1 = Uint16Array.from([
 5499, 5498, 5497,
 5496, 5495, 5494,
 5493, 5492, 5491,
@@ -74963,30 +74698,30 @@ let index_arr$2 = Uint16Array.from([
 function mesh_soldier(gl) {
 let vertex_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr$1, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, vertex_arr, GL_STATIC_DRAW);
 let normal_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr$1, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, normal_arr, GL_STATIC_DRAW);
 let texcoord_buf = gl.createBuffer();
 gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr$1, GL_STATIC_DRAW);
+gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr, GL_STATIC_DRAW);
 let index_buf = gl.createBuffer();
 gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr$1, GL_STATIC_DRAW);
+gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr, GL_STATIC_DRAW);
 return {
 VertexBuffer: vertex_buf,
-VertexArray: vertex_arr$1,
+VertexArray: vertex_arr,
 NormalBuffer: normal_buf,
-NormalArray: normal_arr$1,
+NormalArray: normal_arr,
 TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr$1,
+TexCoordArray: texcoord_arr,
 IndexBuffer: index_buf,
-IndexArray: index_arr$1,
-IndexCount: index_arr$1.length,
+IndexArray: index_arr,
+IndexCount: index_arr.length,
 };
 }
 
-let vertex_arr$1 = Float32Array.from([
+let vertex_arr = Float32Array.from([
 -0.167295, 2.24354, -0.253657,
 -0.312891, 2.30913, -0.278707,
 -0.235879, 2.11911, -0.256966,
@@ -76991,7 +76726,7 @@ let vertex_arr$1 = Float32Array.from([
 -0.379393, 0, -0.915323
 ]);
 
-let normal_arr$1 = Float32Array.from([
+let normal_arr = Float32Array.from([
 -0.0986, 0.1564, 0.9827,
 -0.2918, 0.3642, 0.8844,
 -0.1474, -0.0144, 0.989,
@@ -78996,7 +78731,7 @@ let normal_arr$1 = Float32Array.from([
 -0.3825, 0, -0.9239
 ]);
 
-let texcoord_arr$1 = Float32Array.from([
+let texcoord_arr = Float32Array.from([
 0.650206, 0.610476,
 0.627514, 0.59569,
 0.662615, 0.589288,
@@ -81001,7 +80736,7 @@ let texcoord_arr$1 = Float32Array.from([
 0.68184, 0.750749
 ]);
 
-let index_arr$1 = Uint16Array.from([
+let index_arr = Uint16Array.from([
 1983, 1982, 1981,
 1938, 1937, 1935,
 1936, 1935, 1934,
@@ -82337,844 +82072,6 @@ let index_arr$1 = Uint16Array.from([
 2, 869, 868,
 2, 868, 1,
 2, 870, 869,
-2, 1, 0
-]);
-
-function mesh_table_round(gl) {
-let vertex_buf = gl.createBuffer();
-gl.bindBuffer(GL_ARRAY_BUFFER, vertex_buf);
-gl.bufferData(GL_ARRAY_BUFFER, vertex_arr, GL_STATIC_DRAW);
-let normal_buf = gl.createBuffer();
-gl.bindBuffer(GL_ARRAY_BUFFER, normal_buf);
-gl.bufferData(GL_ARRAY_BUFFER, normal_arr, GL_STATIC_DRAW);
-let texcoord_buf = gl.createBuffer();
-gl.bindBuffer(GL_ARRAY_BUFFER, texcoord_buf);
-gl.bufferData(GL_ARRAY_BUFFER, texcoord_arr, GL_STATIC_DRAW);
-let index_buf = gl.createBuffer();
-gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buf);
-gl.bufferData(GL_ELEMENT_ARRAY_BUFFER, index_arr, GL_STATIC_DRAW);
-return {
-VertexBuffer: vertex_buf,
-VertexArray: vertex_arr,
-NormalBuffer: normal_buf,
-NormalArray: normal_arr,
-TexCoordBuffer: texcoord_buf,
-TexCoordArray: texcoord_arr,
-IndexBuffer: index_buf,
-IndexArray: index_arr,
-IndexCount: index_arr.length,
-};
-}
-
-let vertex_arr = Float32Array.from([
-0, 0.632692, -0.802488,
--0.080249, 0.632692, -0.080249,
--0.694975, 0.632692, -0.401244,
--0.080249, 0.632692, -0.080249,
-0, 0.632692, -0.802488,
-0.080249, 0.632692, -0.080249,
-0.080249, 0.632692, -0.080249,
-0, 0.632692, -0.802488,
-0.694975, 0.632692, -0.401244,
-0.080249, 0.632692, -0.080249,
-0.694975, 0.632692, -0.401244,
-0.080249, 0.632692, 0.080249,
--0.080249, 0.632692, 0.080249,
--0.694975, 0.632692, -0.401244,
--0.080249, 0.632692, -0.080249,
-0, 0.632692, 0.802487,
--0.694975, 0.632692, -0.401244,
--0.080249, 0.632692, 0.080249,
-0, 0.632692, 0.802487,
--0.080249, 0.632692, 0.080249,
-0.080249, 0.632692, 0.080249,
--0.694975, 0.632692, 0.401244,
--0.694975, 0.632692, -0.401244,
-0, 0.632692, 0.802487,
--0.694975, 0.632692, -0.401244,
--0.694975, 0.632692, 0.401244,
--0.694975, 0.632692, 0,
-0, 0.632692, 0.802487,
-0.080249, 0.632692, 0.080249,
-0.694975, 0.632692, 0.401244,
-0.694975, 0.632692, 0.401244,
-0.080249, 0.632692, 0.080249,
-0.694975, 0.632692, -0.401244,
-0, 0.736159, 0.802487,
--0.694975, 0.736159, -0.401244,
--0.694975, 0.736159, 0.401244,
--0.694975, 0.736159, -0.401244,
-0, 0.736159, 0.802487,
-0, 0.736159, -0.802488,
-0, 0.736159, -0.802488,
-0, 0.736159, 0.802487,
-0.694975, 0.736159, 0.401244,
-0, 0.736159, -0.802488,
-0.694975, 0.736159, 0.401244,
-0.694975, 0.736159, -0.401244,
-0, 0.736159, -0.802488,
-0.694975, 0.632692, -0.401244,
-0, 0.632692, -0.802488,
-0.694975, 0.632692, -0.401244,
-0, 0.736159, -0.802488,
-0.694975, 0.736159, -0.401244,
-0.694975, 0.632692, 0,
-0.694975, 0.736159, 0.401244,
-0.694975, 0.632692, 0.401244,
-0.694975, 0.736159, 0.401244,
-0.694975, 0.632692, 0,
-0.694975, 0.736159, -0.401244,
-0.694975, 0.736159, -0.401244,
-0.694975, 0.632692, 0,
-0.694975, 0.632692, -0.401244,
-0.694975, 0.736159, 0.401244,
-0, 0.632692, 0.802487,
-0.694975, 0.632692, 0.401244,
-0, 0.632692, 0.802487,
-0.694975, 0.736159, 0.401244,
-0, 0.736159, 0.802487,
-0, 0.736159, 0.802487,
--0.694975, 0.632692, 0.401244,
-0, 0.632692, 0.802487,
--0.694975, 0.632692, 0.401244,
-0, 0.736159, 0.802487,
--0.694975, 0.736159, 0.401244,
--0.694975, 0.736159, -0.401244,
--0.694975, 0.632692, 0.401244,
--0.694975, 0.736159, 0.401244,
--0.694975, 0.632692, 0.401244,
--0.694975, 0.736159, -0.401244,
--0.694975, 0.632692, 0,
--0.694975, 0.632692, 0,
--0.694975, 0.736159, -0.401244,
--0.694975, 0.632692, -0.401244,
--0.694975, 0.736159, -0.401244,
-0, 0.632692, -0.802488,
--0.694975, 0.632692, -0.401244,
-0, 0.632692, -0.802488,
--0.694975, 0.736159, -0.401244,
-0, 0.736159, -0.802488,
-0.080249, 0.632692, 0.080249,
--0.080249, 0.140846, 0.080249,
-0.080249, 0.140846, 0.080249,
--0.080249, 0.140846, 0.080249,
-0.080249, 0.632692, 0.080249,
--0.080249, 0.632692, 0.080249,
--0.080249, 0.632692, -0.080249,
--0.080249, 0.140846, 0.080249,
--0.080249, 0.632692, 0.080249,
--0.080249, 0.140846, 0.080249,
--0.080249, 0.632692, -0.080249,
--0.080249, 0.140846, -0.080249,
--0.080249, 0.632692, -0.080249,
-0.080249, 0.140846, -0.080249,
--0.080249, 0.140846, -0.080249,
-0.080249, 0.140846, -0.080249,
--0.080249, 0.632692, -0.080249,
-0.080249, 0.632692, -0.080249,
-0.080249, 0.140846, -0.080249,
-0.080249, 0.632692, 0.080249,
-0.080249, 0.140846, 0.080249,
-0.080249, 0.632692, 0.080249,
-0.080249, 0.140846, -0.080249,
-0.080249, 0.632692, -0.080249,
-0.120373, 0.140846, 0.120373,
--0.120373, 0.100721, 0.120373,
-0.120373, 0.100721, 0.120373,
--0.120373, 0.100721, 0.120373,
-0.120373, 0.140846, 0.120373,
--0.120373, 0.140846, 0.120373,
--0.120373, 0.140846, -0.120373,
--0.120373, 0.100721, 0.120373,
--0.120373, 0.140846, 0.120373,
--0.120373, 0.100721, 0.120373,
--0.120373, 0.140846, -0.120373,
--0.120373, 0.100721, -0.120373,
-0.120373, 0.100721, -0.120373,
-0.120373, 0.140846, 0.120373,
-0.120373, 0.100721, 0.120373,
-0.120373, 0.140846, 0.120373,
-0.120373, 0.100721, -0.120373,
-0.120373, 0.140846, -0.120373,
--0.120373, 0.140846, 0.120373,
--0.080249, 0.140846, 0.080249,
--0.120373, 0.140846, -0.120373,
--0.080249, 0.140846, 0.080249,
--0.120373, 0.140846, 0.120373,
-0.120373, 0.140846, 0.120373,
--0.080249, 0.140846, 0.080249,
-0.120373, 0.140846, 0.120373,
-0.080249, 0.140846, 0.080249,
-0.080249, 0.140846, 0.080249,
-0.120373, 0.140846, 0.120373,
-0.080249, 0.140846, -0.080249,
--0.080249, 0.140846, -0.080249,
--0.120373, 0.140846, -0.120373,
--0.080249, 0.140846, 0.080249,
--0.120373, 0.140846, -0.120373,
--0.080249, 0.140846, -0.080249,
-0.120373, 0.140846, -0.120373,
-0.120373, 0.140846, -0.120373,
--0.080249, 0.140846, -0.080249,
-0.080249, 0.140846, -0.080249,
-0.120373, 0.140846, -0.120373,
-0.080249, 0.140846, -0.080249,
-0.120373, 0.140846, 0.120373,
--0.200622, 0.100721, -0.200622,
--0.200622, 0.040535, 0.200622,
--0.200622, 0.100721, 0.200622,
--0.200622, 0.040535, 0.200622,
--0.200622, 0.100721, -0.200622,
--0.200622, 0.040535, -0.200622,
--0.200622, 0.100721, -0.200622,
-0.200622, 0.040535, -0.200622,
--0.200622, 0.040535, -0.200622,
-0.200622, 0.040535, -0.200622,
--0.200622, 0.100721, -0.200622,
-0.200622, 0.100721, -0.200622,
-0.200622, 0.100721, 0.200622,
--0.200622, 0.040535, 0.200622,
-0.200622, 0.040535, 0.200622,
--0.200622, 0.040535, 0.200622,
-0.200622, 0.100721, 0.200622,
--0.200622, 0.100721, 0.200622,
-0.200622, 0.040535, -0.200622,
-0.200622, 0.100721, 0.200622,
-0.200622, 0.040535, 0.200622,
-0.200622, 0.100721, 0.200622,
-0.200622, 0.040535, -0.200622,
-0.200622, 0.100721, -0.200622,
--0.200622, 0.100721, 0.200622,
--0.120373, 0.100721, 0.120373,
--0.200622, 0.100721, -0.200622,
--0.120373, 0.100721, 0.120373,
--0.200622, 0.100721, 0.200622,
-0.200622, 0.100721, 0.200622,
--0.120373, 0.100721, 0.120373,
-0.200622, 0.100721, 0.200622,
-0.120373, 0.100721, 0.120373,
-0.120373, 0.100721, 0.120373,
-0.200622, 0.100721, 0.200622,
-0.120373, 0.100721, -0.120373,
--0.120373, 0.100721, -0.120373,
--0.200622, 0.100721, -0.200622,
--0.120373, 0.100721, 0.120373,
--0.200622, 0.100721, -0.200622,
--0.120373, 0.100721, -0.120373,
-0.200622, 0.100721, -0.200622,
-0.200622, 0.100721, -0.200622,
--0.120373, 0.100721, -0.120373,
-0.120373, 0.100721, -0.120373,
-0.200622, 0.100721, -0.200622,
-0.120373, 0.100721, -0.120373,
-0.200622, 0.100721, 0.200622,
-0.220684, 0.00041, -0.220684,
--0.220684, 0.00041, 0.220684,
--0.220684, 0.00041, -0.220684,
--0.220684, 0.00041, 0.220684,
-0.220684, 0.00041, -0.220684,
-0.220684, 0.00041, 0.220684,
--0.200622, 0.040535, -0.200622,
-0.220684, 0.00041, -0.220684,
--0.220684, 0.00041, -0.220684,
-0.220684, 0.00041, -0.220684,
--0.200622, 0.040535, -0.200622,
-0.200622, 0.040535, -0.200622,
-0.220684, 0.00041, -0.220684,
-0.200622, 0.040535, 0.200622,
-0.220684, 0.00041, 0.220684,
-0.200622, 0.040535, 0.200622,
-0.220684, 0.00041, -0.220684,
-0.200622, 0.040535, -0.200622,
-0.200622, 0.040535, 0.200622,
--0.220684, 0.00041, 0.220684,
-0.220684, 0.00041, 0.220684,
--0.220684, 0.00041, 0.220684,
-0.200622, 0.040535, 0.200622,
--0.200622, 0.040535, 0.200622,
--0.200622, 0.040535, 0.200622,
--0.220684, 0.00041, -0.220684,
--0.220684, 0.00041, 0.220684,
--0.220684, 0.00041, -0.220684,
--0.200622, 0.040535, 0.200622,
--0.200622, 0.040535, -0.200622,
--0.120373, 0.140846, -0.120373,
-0.120373, 0.100721, -0.120373,
--0.120373, 0.100721, -0.120373,
-0.120373, 0.100721, -0.120373,
--0.120373, 0.140846, -0.120373,
-0.120373, 0.140846, -0.120373,
-0.694975, 0.632692, 0.401244,
-0.694975, 0.632692, -0.401244,
-0.694975, 0.632692, 0
-]);
-
-let normal_arr = Float32Array.from([
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
--0.0540784, -0.997438, -0.0468333,
--0.339058, -0.910966, 0.234907,
--1, 0, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0.188982, 0, -0.981981,
-0.654654, 0, -0.755929,
--0.188982, 0, -0.981981,
-0.654654, 0, -0.755929,
-0.188982, 0, -0.981981,
-0.917663, 0, -0.39736,
-1, 0, 0,
-0.821995, 0, 0.569495,
-0.755929, 0, 0.654654,
-0.821995, 0, 0.569495,
-1, 0, 0,
-0.917663, 0, -0.39736,
-0.917663, 0, -0.39736,
-1, 0, 0,
-0.654654, 0, -0.755929,
-0.821995, 0, 0.569495,
-0.188982, 0, 0.981981,
-0.755929, 0, 0.654654,
-0.188982, 0, 0.981981,
-0.821995, 0, 0.569495,
--0.188982, 0, 0.981981,
--0.188982, 0, 0.981981,
--0.821995, 0, 0.569495,
-0.188982, 0, 0.981981,
--0.821995, 0, 0.569495,
--0.188982, 0, 0.981981,
--0.866025, 0, 0.5,
--0.866025, 0, -0.5,
--0.821995, 0, 0.569495,
--0.866025, 0, 0.5,
--0.821995, 0, 0.569495,
--0.866025, 0, -0.5,
--1, 0, 0,
--1, 0, 0,
--0.866025, 0, -0.5,
--0.755929, 0, -0.654654,
--0.866025, 0, -0.5,
--0.188982, 0, -0.981981,
--0.755929, 0, -0.654654,
--0.188982, 0, -0.981981,
--0.866025, 0, -0.5,
-0.188982, 0, -0.981981,
-0, 0, 1,
-0, 0, 1,
-0, 0, 1,
-0, 0, 1,
-0, 0, 1,
-0, 0, 1,
--1, 0, 0,
--1, 0, 0,
--1, 0, 0,
--1, 0, 0,
--1, 0, 0,
--1, 0, 0,
-0, 0, -1,
-0, 0, -1,
-0, 0, -1,
-0, 0, -1,
-0, 0, -1,
-0, 0, -1,
-1, 0, 0,
-1, 0, 0,
-1, 0, 0,
-1, 0, 0,
-1, 0, 0,
-1, 0, 0,
-0, 0, 1,
-0, 0, 1,
-0, 0, 1,
-0, 0, 1,
-0, 0, 1,
-0, 0, 1,
--1, 0, 0,
--1, 0, 0,
--1, 0, 0,
--1, 0, 0,
--1, 0, 0,
--1, 0, 0,
-1, 0, 0,
-1, 0, 0,
-1, 0, 0,
-1, 0, 0,
-1, 0, 0,
-1, 0, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
--1, 0, 0,
--0.979457, 0.201651, 0,
--1, 0, 0,
--0.979457, 0.201651, 0,
--1, 0, 0,
--0.980581, 0.196114, 0,
-0, 0, -1,
-0, 0.124034, -0.992278,
-0, 0.279996, -0.960001,
-0, 0.124034, -0.992278,
-0, 0, -1,
-0, 0, -1,
-0, 0, 1,
-0, 0.124034, 0.992278,
-0, 0.279996, 0.960001,
-0, 0.124034, 0.992278,
-0, 0, 1,
-0, 0, 1,
-0.992278, 0.124034, 0,
-1, 0, 0,
-0.960001, 0.279996, 0,
-1, 0, 0,
-0.992278, 0.124034, 0,
-1, 0, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, 1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, -1, 0,
-0, 0.279996, -0.960001,
-0, 0.447205, -0.894432,
-0, 0.447205, -0.894432,
-0, 0.447205, -0.894432,
-0, 0.279996, -0.960001,
-0, 0.124034, -0.992278,
-0.894432, 0.447205, 0,
-0.960001, 0.279996, 0,
-0.894432, 0.447205, 0,
-0.960001, 0.279996, 0,
-0.894432, 0.447205, 0,
-0.992278, 0.124034, 0,
-0, 0.279996, 0.960001,
-0, 0.447205, 0.894432,
-0, 0.447205, 0.894432,
-0, 0.447205, 0.894432,
-0, 0.279996, 0.960001,
-0, 0.124034, 0.992278,
--0.979457, 0.201651, 0,
--0.894432, 0.447205, 0,
--0.894432, 0.447205, 0,
--0.894432, 0.447205, 0,
--0.979457, 0.201651, 0,
--0.980581, 0.196114, 0,
-0, 0, -1,
-0, 0, -1,
-0, 0, -1,
-0, 0, -1,
-0, 0, -1,
-0, 0, -1,
-0.0856615, -0.993559, 0.0741851,
-0.115468, -0.984322, -0.133331,
-1, 0, 0
-]);
-
-let texcoord_arr = Float32Array.from([
-0.362635, 0.002002,
-0.362635, 0.332332,
-0.002002, 0.332332,
-0.726272, 0.668669,
-0.365638, 0.748999,
-0.726272, 0.748999,
-0.362635, 0.998999,
-0.362635, 0.668669,
-0.002002, 0.998999,
-0.726272, 0.873999,
-0.365638, 0.873999,
-0.726272, 0.835335,
-0.364637, 0.747998,
-0.725271, 0.667668,
-0.364637, 0.667668,
-0.002002, 0.665666,
-0.362635, 0.335335,
-0.362635, 0.665666,
-0.771726, 0.502002,
-0.729275, 0.832332,
-0.771726, 0.832332,
-0.726272, 0.665666,
-0.726272, 0.335335,
-0.365638, 0.665666,
-0.90809, 0.335335,
-0.729275, 0.498999,
-0.90809, 0.498999,
-0.001001, 0.997998,
-0.001001, 0.667668,
-0.361634, 0.667668,
-0.361634, 0.001001,
-0.001001, 0.001001,
-0.001001, 0.331331,
-0.361634, 0.334334,
-0.001001, 0.664665,
-0.001001, 0.334334,
-0.726272, 0.332332,
-0.726272, 0.002002,
-0.365638, 0.332332,
-0.364637, 0.331331,
-0.725271, 0.001001,
-0.364637, 0.001001,
-0.725271, 0.334334,
-0.364637, 0.664665,
-0.364637, 0.334334,
-0.911093, 0.332332,
-0.953544, 0.002002,
-0.953544, 0.332332,
-0.726272, 0.918669,
-0.365638, 0.957332,
-0.726272, 0.957332,
-0.728274, 0.831331,
-0.770725, 0.501001,
-0.728274, 0.501001,
-0.907089, 0.001001,
-0.728274, 0.001001,
-0.728274, 0.164665,
-0.911093, 0.665666,
-0.953544, 0.502002,
-0.953544, 0.665666,
-0.726272, 0.877002,
-0.365638, 0.915666,
-0.726272, 0.915666,
-0.774729, 0.832332,
-0.817181, 0.502002,
-0.817181, 0.832332,
-0.364637, 0.872998,
-0.725271, 0.834334,
-0.364637, 0.834334,
-0.81618, 0.501001,
-0.773728, 0.831331,
-0.773728, 0.501001,
-0.725271, 0.876001,
-0.364637, 0.914665,
-0.364637, 0.876001,
-0.907089, 0.334334,
-0.728274, 0.497998,
-0.728274, 0.334334,
-0.910092, 0.664665,
-0.952543, 0.501001,
-0.910092, 0.501001,
-0.364637, 0.956331,
-0.725271, 0.917668,
-0.364637, 0.917668,
-0.952543, 0.001001,
-0.910092, 0.331331,
-0.910092, 0.001001,
-0.90809, 0.502002,
-0.820184, 0.665666,
-0.90809, 0.665666,
-0.547457, 0.832332,
-0.726272, 0.752002,
-0.726272, 0.832332,
-0.820184, 0.832332,
-0.90809, 0.668669,
-0.90809, 0.832332,
-0.544454, 0.752002,
-0.365638, 0.832332,
-0.544454, 0.832332,
-0.543453, 0.751001,
-0.364637, 0.831331,
-0.364637, 0.751001,
-0.819183, 0.831331,
-0.907089, 0.667668,
-0.819183, 0.667668,
-0.546456, 0.831331,
-0.725271, 0.751001,
-0.546456, 0.751001,
-0.907089, 0.501001,
-0.819183, 0.664665,
-0.819183, 0.501001,
-0.979275, 0.165666,
-0.998999, 0.085335,
-0.998999, 0.165666,
-0.998999, 0.897835,
-0.911093, 0.915666,
-0.998999, 0.915666,
-0.998999, 0.002002,
-0.979275, 0.082332,
-0.998999, 0.082332,
-0.911093, 0.894832,
-0.998999, 0.877002,
-0.998999, 0.894832,
-0.997998, 0.876001,
-0.910092, 0.893831,
-0.910092, 0.876001,
-0.978274, 0.081331,
-0.997998, 0.001001,
-0.978274, 0.001001,
-0.998999, 0.856169,
-0.998999, 0.873999,
-0.911093, 0.873999,
-0.910092, 0.855168,
-0.910092, 0.872998,
-0.997998, 0.855168,
-0.976272, 0.668669,
-0.956547, 0.748999,
-0.976272, 0.748999,
-0.955546, 0.667668,
-0.975271, 0.667668,
-0.955546, 0.747998,
-0.998999, 0.853166,
-0.998999, 0.835335,
-0.911093, 0.853166,
-0.956547, 0.832332,
-0.976272, 0.832332,
-0.976272, 0.752002,
-0.910092, 0.852165,
-0.997998, 0.834334,
-0.910092, 0.834334,
-0.975271, 0.751001,
-0.955546, 0.751001,
-0.955546, 0.831331,
-0.976272, 0.335335,
-0.956547, 0.498999,
-0.976272, 0.498999,
-0.729275, 0.853166,
-0.90809, 0.835335,
-0.90809, 0.853166,
-0.956547, 0.332332,
-0.976272, 0.168669,
-0.976272, 0.332332,
-0.90809, 0.939502,
-0.729275, 0.957332,
-0.90809, 0.957332,
-0.728274, 0.956331,
-0.907089, 0.938501,
-0.728274, 0.938501,
-0.975271, 0.167668,
-0.955546, 0.331331,
-0.955546, 0.167668,
-0.907089, 0.834334,
-0.728274, 0.852165,
-0.728274, 0.834334,
-0.955546, 0.497998,
-0.975271, 0.334334,
-0.955546, 0.334334,
-0.911093, 0.498999,
-0.953544, 0.498999,
-0.953544, 0.335335,
-0.953544, 0.832332,
-0.911093, 0.832332,
-0.953544, 0.668669,
-0.729275, 0.894832,
-0.817181, 0.856169,
-0.817181, 0.894832,
-0.90809, 0.894832,
-0.90809, 0.856169,
-0.820184, 0.894832,
-0.819183, 0.855168,
-0.819183, 0.893831,
-0.907089, 0.855168,
-0.952543, 0.667668,
-0.910092, 0.667668,
-0.910092, 0.831331,
-0.728274, 0.893831,
-0.81618, 0.855168,
-0.728274, 0.855168,
-0.952543, 0.334334,
-0.910092, 0.334334,
-0.910092, 0.497998,
-0.90809, 0.168669,
-0.729275, 0.332332,
-0.90809, 0.332332,
-0.728274, 0.331331,
-0.907089, 0.167668,
-0.728274, 0.167668,
-0.90809, 0.936499,
-0.729275, 0.936499,
-0.90809, 0.918669,
-0.956547, 0.165666,
-0.976272, 0.002002,
-0.976272, 0.165666,
-0.729275, 0.915666,
-0.90809, 0.915666,
-0.90809, 0.897835,
-0.976272, 0.502002,
-0.956547, 0.665666,
-0.976272, 0.665666,
-0.728274, 0.917668,
-0.907089, 0.917668,
-0.728274, 0.935498,
-0.975271, 0.001001,
-0.955546, 0.164665,
-0.955546, 0.001001,
-0.728274, 0.896834,
-0.907089, 0.896834,
-0.728274, 0.914665,
-0.975271, 0.501001,
-0.955546, 0.664665,
-0.955546, 0.501001,
-0.910092, 0.914665,
-0.997998, 0.896834,
-0.910092, 0.896834,
-0.997998, 0.084334,
-0.978274, 0.164665,
-0.978274, 0.084334,
-0.90809, 0.002002,
-0.729275, 0.165666,
-0.90809, 0.165666
-]);
-
-let index_arr = Uint16Array.from([
-239, 238, 237,
-236, 235, 234,
-233, 232, 231,
-230, 229, 228,
-227, 226, 225,
-224, 223, 222,
-221, 220, 219,
-218, 217, 216,
-215, 214, 213,
-212, 211, 210,
-209, 208, 207,
-206, 205, 204,
-203, 202, 201,
-200, 199, 198,
-197, 196, 195,
-194, 193, 192,
-191, 190, 189,
-188, 187, 186,
-185, 184, 183,
-182, 181, 180,
-179, 178, 177,
-176, 175, 174,
-173, 172, 171,
-170, 169, 168,
-167, 166, 165,
-164, 163, 162,
-161, 160, 159,
-158, 157, 156,
-155, 154, 153,
-152, 151, 150,
-149, 148, 147,
-146, 145, 144,
-143, 142, 141,
-140, 139, 138,
-137, 136, 135,
-134, 133, 132,
-131, 130, 129,
-128, 127, 126,
-125, 124, 123,
-122, 121, 120,
-119, 118, 117,
-116, 115, 114,
-113, 112, 111,
-110, 109, 108,
-107, 106, 105,
-104, 103, 102,
-101, 100, 99,
-98, 97, 96,
-95, 94, 93,
-92, 91, 90,
-89, 88, 87,
-86, 85, 84,
-83, 82, 81,
-80, 79, 78,
-77, 76, 75,
-74, 73, 72,
-71, 70, 69,
-68, 67, 66,
-65, 64, 63,
-62, 61, 60,
-59, 58, 57,
-56, 55, 54,
-53, 52, 51,
-50, 49, 48,
-47, 46, 45,
-44, 43, 42,
-41, 40, 39,
-38, 37, 36,
-35, 34, 33,
-32, 31, 30,
-29, 28, 27,
-26, 25, 24,
-23, 22, 21,
-20, 19, 18,
-17, 16, 15,
-14, 13, 12,
-11, 10, 9,
-8, 7, 6,
-5, 4, 3,
 2, 1, 0
 ]);
 
@@ -84769,11 +83666,8 @@ this.CanvasBillboard = document.querySelector("canvas#billboard");
 this.Context2D = this.CanvasBillboard.getContext("2d");
 this.MaterialDepth = mat1_depth(this.Gl);
 this.MaterialColoredUnlit = mat1_colored_unlit_triangles(this.Gl);
-this.MaterialTexturedSpecular = mat1_textured_specular_phong(this.Gl);
 this.MaterialTexturedMapped = mat1_textured_mapped(this.Gl);
-this.MeshCube = mesh_cube(this.Gl);
 this.MeshPlane = mesh_plane(this.Gl);
-this.MeshTable = mesh_table_round(this.Gl);
 this.MeshRoom = mesh_room07(this.Gl);
 this.MeshSoldier = mesh_soldier(this.Gl);
 this.MeshDragoon = mesh_dragoon(this.Gl);
