@@ -6,14 +6,11 @@ import {GL_CULL_FACE, GL_DEPTH_TEST} from "../common/webgl.js";
 import {mat1_colored_unlit_triangles} from "../materials/mat1_colored_unlit_triangles.js";
 import {mat1_depth} from "../materials/mat1_depth.js";
 import {mat1_textured_mapped} from "../materials/mat1_textured_mapped.js";
-import {mat1_textured_specular_phong} from "../materials/mat1_textured_specular_phong.js";
 import {mesh_cannon} from "../meshes/cannon.js";
-import {mesh_cube} from "../meshes/cube.js";
 import {mesh_dragoon} from "../meshes/dragoon.js";
 import {mesh_plane} from "../meshes/plane.js";
 import {mesh_room07} from "../meshes/room07.js";
 import {mesh_soldier} from "../meshes/soldier.js";
-import {mesh_table_round} from "../meshes/table_round.js";
 import {loop_start, loop_stop} from "./loop.js";
 import {sys_audio_listener} from "./systems/sys_audio_listener.js";
 import {sys_audio_source} from "./systems/sys_audio_source.js";
@@ -134,11 +131,8 @@ export class Game {
 
     MaterialDepth = mat1_depth(this.Gl);
     MaterialColoredUnlit = mat1_colored_unlit_triangles(this.Gl);
-    MaterialTexturedSpecular = mat1_textured_specular_phong(this.Gl);
     MaterialTexturedMapped = mat1_textured_mapped(this.Gl);
-    MeshCube = mesh_cube(this.Gl);
     MeshPlane = mesh_plane(this.Gl);
-    MeshTable = mesh_table_round(this.Gl);
     MeshRoom = mesh_room07(this.Gl);
     MeshSoldier = mesh_soldier(this.Gl);
     MeshDragoon = mesh_dragoon(this.Gl);
