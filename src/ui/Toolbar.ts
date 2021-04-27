@@ -24,11 +24,7 @@ export function Toolbar(game: Game) {
                     <p><div class="field-row">
                     <progress value="${game.UnitsDeployed}" max="${game.UnitsToDeploy}" />
                     </div></p>
-                    ${Button(
-                        "End Deployment",
-                        Action.EndDeployment,
-                        /*disabled?*/ game.IsAiTurn || game.UnitsDeployed !== game.UnitsToDeploy
-                    )}
+                    ${Button("End Deployment", Action.EndDeployment, /*disabled?*/ game.IsAiTurn)}
                 </div>
             </div>`;
         }
