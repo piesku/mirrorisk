@@ -84054,7 +84054,7 @@ console.error(`Cannot find random point on territory ${JSON.stringify(territory,
 }
 Popup(game, html `
 <p style="text-align: center;">
-<img src="./textures/rose.png" width="128" height="128" style="" />
+<img src="./textures/rose.webp" width="128" height="128" style="" />
 </p>
 
 <p>Welcome to <em>Mirrorisk</em>!</p>
