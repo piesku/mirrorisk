@@ -40126,7 +40126,6 @@ let index_arr$5 = Uint16Array.from([
 function play_buffer(audio, panner, buffer) {
 let source = audio.createBufferSource();
 source.buffer = buffer;
-source.connect(audio.destination);
 if (panner) {
 source.connect(panner);
 panner.connect(audio.destination);
@@ -82097,9 +82096,10 @@ update$d(game, i);
 }
 }
 }
-let position$1 = [0, 0, 0];
-let forward$1 = [0, 0, 0];
-let up = [0, 0, 0];
+const distance_factor$1 = 15;
+const position$1 = [0, 0, 0];
+const forward$1 = [0, 0, 0];
+const up = [0, 0, 0];
 function update$d(game, entity) {
 let transform = game.World.Transform[entity];
 get_translation(position$1, transform.World);
@@ -82108,9 +82108,9 @@ get_up(up, transform.World);
 let listener = game.Audio.listener;
 if (listener.positionX) {
 
-listener.positionX.value = position$1[0];
-listener.positionY.value = position$1[1];
-listener.positionZ.value = position$1[2];
+listener.positionX.value = position$1[0] / distance_factor$1;
+listener.positionY.value = position$1[1] / distance_factor$1;
+listener.positionZ.value = position$1[2] / distance_factor$1;
 listener.forwardX.value = forward$1[0];
 listener.forwardY.value = forward$1[1];
 listener.forwardZ.value = forward$1[2];
@@ -82133,42 +82133,51 @@ update$c(game, i, delta);
 }
 }
 }
-let position = [0, 0, 0];
-let forward = [0, 0, 0];
 function update$c(game, entity, delta) {
 let audio_source = game.World.AudioSource[entity];
-if (audio_source.Panner) {
 let transform = game.World.Transform[entity];
-get_translation(position, transform.World);
-get_forward(forward, transform.World);
-if (audio_source.Panner.positionX) {
-audio_source.Panner.positionX.value = position[0];
-audio_source.Panner.positionY.value = position[1];
-audio_source.Panner.positionZ.value = position[2];
-audio_source.Panner.orientationX.value = forward[0];
-audio_source.Panner.orientationY.value = forward[1];
-audio_source.Panner.orientationZ.value = forward[2];
+if (audio_source.Current) {
+audio_source.Time += delta;
+if (audio_source.Time > audio_source.Current.duration) {
+audio_source.Current = undefined;
 }
-else {
-
-audio_source.Panner.setPosition(...position);
-audio_source.Panner.setOrientation(...forward);
+else if (audio_source.Panner) {
+update_panner(audio_source.Panner, transform);
 }
 }
-let can_exit = !audio_source.Current || audio_source.Time > audio_source.Current.duration;
-if (audio_source.Trigger && can_exit) {
+if (audio_source.Trigger && !audio_source.Current) {
 play_buffer(game.Audio, audio_source.Panner, audio_source.Trigger);
 audio_source.Current = audio_source.Trigger;
 audio_source.Time = 0;
+if (audio_source.Panner) {
+update_panner(audio_source.Panner, transform);
 }
-else {
-audio_source.Time += delta;
 }
 
 
 
 
 audio_source.Trigger = audio_source.Idle;
+}
+const distance_factor = 15;
+const position = [0, 0, 0];
+const forward = [0, 0, 0];
+function update_panner(panner, transform) {
+get_translation(position, transform.World);
+get_forward(forward, transform.World);
+if (panner.positionX) {
+panner.positionX.value = position[0] / distance_factor;
+panner.positionY.value = position[1] / distance_factor;
+panner.positionZ.value = position[2] / distance_factor;
+panner.orientationX.value = forward[0];
+panner.orientationY.value = forward[1];
+panner.orientationZ.value = forward[2];
+}
+else {
+
+panner.setPosition(...position);
+panner.setOrientation(...forward);
+}
 }
 
 const QUERY$i = 131072 /* Transform */ | 4 /* Camera */;
