@@ -202,7 +202,6 @@ export function play_buffer(
 ) {
     let source = audio.createBufferSource();
     source.buffer = buffer;
-    source.connect(audio.destination);
 
     if (panner) {
         source.connect(panner);

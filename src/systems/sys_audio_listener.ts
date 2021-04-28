@@ -13,9 +13,10 @@ export function sys_audio_listener(game: Game, delta: number) {
     }
 }
 
-let position: Vec3 = [0, 0, 0];
-let forward: Vec3 = [0, 0, 0];
-let up: Vec3 = [0, 0, 0];
+const distance_factor = 15;
+const position: Vec3 = [0, 0, 0];
+const forward: Vec3 = [0, 0, 0];
+const up: Vec3 = [0, 0, 0];
 
 function update(game: Game, entity: Entity) {
     let transform = game.World.Transform[entity];
@@ -26,9 +27,9 @@ function update(game: Game, entity: Entity) {
     let listener = game.Audio.listener;
     if (listener.positionX) {
         // The new AudioListener API.
-        listener.positionX.value = position[0];
-        listener.positionY.value = position[1];
-        listener.positionZ.value = position[2];
+        listener.positionX.value = position[0] / distance_factor;
+        listener.positionY.value = position[1] / distance_factor;
+        listener.positionZ.value = position[2] / distance_factor;
         listener.forwardX.value = forward[0];
         listener.forwardY.value = forward[1];
         listener.forwardZ.value = forward[2];
