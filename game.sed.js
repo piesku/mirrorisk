@@ -1,6 +1,22 @@
 (function () {
 
 
+function shift(values) {
+let value = values.shift();
+if (typeof value === "boolean" || value == undefined) {
+return "";
+}
+else if (Array.isArray(value)) {
+return value.join("");
+}
+else {
+return value;
+}
+}
+function html(strings, ...values) {
+return strings.reduce((out, cur) => out + shift(values) + cur);
+}
+
 
 
 
@@ -182,56 +198,6 @@ const GL_FRAMEBUFFER_COMPLETE = 0x8cd5;
 
 const GL_UNSIGNED_SHORT = 0x1403;
 const GL_FLOAT = 0x1406;
-
-function fetch_image(path) {
-return new Promise((resolve) => {
-let image = new Image();
-image.src = path;
-image.onload = () => resolve(image);
-});
-}
-function create_texture_from(gl, image) {
-let texture = gl.createTexture();
-gl.bindTexture(GL_TEXTURE_2D, texture);
-gl.texImage2D(GL_TEXTURE_2D, 0, GL_RGBA, GL_RGBA, GL_PIXEL_UNSIGNED_BYTE, image);
-
-
-if (is_power_of_2(image.width) && is_power_of_2(image.height)) {
-gl.generateMipmap(GL_TEXTURE_2D);
-
-
-gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
-
-gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-}
-else {
-
-gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-}
-
-gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-return texture;
-}
-
-function resize_texture_rgba(gl, texture, width, height) {
-gl.bindTexture(GL_TEXTURE_2D, texture);
-gl.texImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_DATA_UNSIGNED_BYTE, null);
-gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-return texture;
-}
-function resize_texture_depth(gl, texture, width, height) {
-gl.bindTexture(GL_TEXTURE_2D, texture);
-gl.texImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_DATA_UNSIGNED_INT, null);
-gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-return texture;
-}
-function is_power_of_2(value) {
-return (value & (value - 1)) == 0;
-}
 
 function mesh_af01(gl) {
 let vertex_buf = gl.createBuffer();
@@ -40172,6 +40138,56 @@ Time: 0,
 };
 }
 
+function fetch_image(path) {
+return new Promise((resolve) => {
+let image = new Image();
+image.src = path;
+image.onload = () => resolve(image);
+});
+}
+function create_texture_from(gl, image) {
+let texture = gl.createTexture();
+gl.bindTexture(GL_TEXTURE_2D, texture);
+gl.texImage2D(GL_TEXTURE_2D, 0, GL_RGBA, GL_RGBA, GL_PIXEL_UNSIGNED_BYTE, image);
+
+
+if (is_power_of_2(image.width) && is_power_of_2(image.height)) {
+gl.generateMipmap(GL_TEXTURE_2D);
+
+
+gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+
+gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+}
+else {
+
+gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+}
+
+gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+return texture;
+}
+
+function resize_texture_rgba(gl, texture, width, height) {
+gl.bindTexture(GL_TEXTURE_2D, texture);
+gl.texImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_DATA_UNSIGNED_BYTE, null);
+gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+return texture;
+}
+function resize_texture_depth(gl, texture, width, height) {
+gl.bindTexture(GL_TEXTURE_2D, texture);
+gl.texImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_DATA_UNSIGNED_INT, null);
+gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+return texture;
+}
+function is_power_of_2(value) {
+return (value & (value - 1)) == 0;
+}
+
 function create_entity(world) {
 if (world.Graveyard.length > 0) {
 return world.Graveyard.pop();
@@ -40202,6 +40218,39 @@ mixin(game, entity);
 }
 }
 return entity;
+}
+let raf = 0;
+function loop_start(game) {
+let last = performance.now();
+let tick = (now) => {
+let delta = (now - last) / 1000;
+game.FrameSetup();
+game.FrameUpdate(delta);
+game.FrameReset();
+last = now;
+raf = requestAnimationFrame(tick);
+};
+loop_stop();
+tick(last);
+}
+function loop_stop() {
+cancelAnimationFrame(raf);
+}
+async function load_texture(game, name) {
+let image = await fetch_image("./textures/" + name);
+game.Textures[name] = create_texture_from(game.Gl, image);
+
+game.Ui.innerHTML += `Loading <code>${name}</code>... ✓<br>`;
+}
+async function load_audio(game, name) {
+let response = await fetch("./sounds/" + name);
+let arrayBuffer = await response.arrayBuffer();
+
+game.Sounds[name] = await new Promise((resolve, reject) => {
+game.Audio.decodeAudioData(arrayBuffer, resolve, reject);
+});
+
+game.Ui.innerHTML += `Loading <code>${name}</code>... ✓<br>`;
 }
 
 function children(...blueprints) {
@@ -40883,33 +40932,6 @@ blueprint.push(pickable_unit(color), selectable(), audio_source(true));
 return blueprint;
 }
 
-function shift(values) {
-let value = values.shift();
-if (typeof value === "boolean" || value == undefined) {
-return "";
-}
-else if (Array.isArray(value)) {
-return value.join("");
-}
-else {
-return value;
-}
-}
-function html(strings, ...values) {
-return strings.reduce((out, cur) => out + shift(values) + cur);
-}
-
-function Button(content, action, disabled = false) {
-return html `<button
-onmousedown="event.stopPropagation();"
-onmouseup="event.stopPropagation(); $(${action});"
-style="cursor: pointer;"
-${disabled && "disabled"}
->
-${content}
-</div>`;
-}
-
 let alertWidth$1 = 300;
 function AlertWindow(game) {
 if (!game.AlertText) {
@@ -40917,8 +40939,13 @@ return "";
 }
 return html `<div
 class="window"
-style="width: ${alertWidth$1}px;position: absolute; left: ${(window.innerWidth - alertWidth$1) /
-2}px"
+style="
+width: ${alertWidth$1}px;
+position: absolute;
+left: ${(window.innerWidth - alertWidth$1) / 2}px;
+"
+onmousedown="event.stopPropagation();"
+onmouseup="event.stopPropagation();"
 >
 <div class="title-bar">
 <div class="title-bar-text">Alert</div>
@@ -40928,7 +40955,9 @@ style="width: ${alertWidth$1}px;position: absolute; left: ${(window.innerWidth -
 </div>
 <div class="window-body">
 <p>${game.AlertText}</p>
-${Button("OK", 8 /* ClearAlert */)}
+<div style="text-align: center;">
+<button onclick="$(${6 /* ClearAlert */});">OK</button>
+</div>
 </div>
 </div>`;
 }
@@ -40960,26 +40989,25 @@ Piesku&#10094;R&#10095; Mirrorisk
 }
 
 let alertWidth = 400;
-function PopupWindow(game) {
-if (!game.PopupText) {
-return "";
-}
+function PopupWindow(title, content) {
 return html `<div
 class="window"
-style="z-index:100; width: ${alertWidth}px;position: absolute; left: ${(window.innerWidth -
-alertWidth) /
-2}px"
+style="
+z-index: 100;
+width: ${alertWidth}px;
+position: absolute;
+left: ${(window.innerWidth - alertWidth) / 2}px;
+"
+onmousedown="event.stopPropagation();"
+onmouseup="event.stopPropagation();"
 >
 <div class="title-bar">
-<div class="title-bar-text">${game.PopupTitle || "Mirrorisk"}</div>
+<div class="title-bar-text">${title}</div>
 <div class="title-bar-controls">
 <button aria-label="Close"></button>
 </div>
 </div>
-<div class="window-body">
-<p>${game.PopupText}</p>
-${Button("OK", 9 /* ClearPopup */)}
-</div>
+<div class="window-body">${content}</div>
 </div>`;
 }
 
@@ -40989,7 +41017,15 @@ case 0 /* Deploy */: {
 if (game.IsAiTurn) {
 return "";
 }
-return html `<div class="window" style="width: 300px;margin: 10px;">
+return html `<div
+class="window"
+style="
+width: 300px;
+margin: 10px;
+"
+onmousedown="event.stopPropagation();"
+onmouseup="event.stopPropagation();"
+>
 <div class="title-bar">
 <div class="title-bar-text">Deployment Phase</div>
 <div class="title-bar-controls">
@@ -40997,16 +41033,34 @@ return html `<div class="window" style="width: 300px;margin: 10px;">
 </div>
 </div>
 <div class="window-body">
-<p>Click on a territory you control to deploy reinforcements. Armies left to deploy: ${game.UnitsToDeploy - game.UnitsDeployed}.</p>
-<p><div class="field-row">
+<p>
+Click on a territory you control to deploy reinforcements. Armies left to
+deploy: ${game.UnitsToDeploy - game.UnitsDeployed}.
+</p>
+<div class="field-row">
 <progress value="${game.UnitsDeployed}" max="${game.UnitsToDeploy}" />
-</div></p>
-${Button("End Deployment", 1 /* EndDeployment */, /*disabled?*/ game.IsAiTurn)}
+</div>
+<div style="text-align: center; margin-top: 10px;">
+<button
+onclick="$(${1 /* EndDeployment */});"
+${game.IsAiTurn && "disabled"}
+>
+End Deployment
+</button>
+</div>
 </div>
 </div>`;
 }
 case 1 /* Move */: {
-return html `<div class="window" style="width: 300px;margin: 10px;">
+return html `<div
+class="window"
+style="
+width: 300px;
+margin: 10px;
+"
+onmousedown="event.stopPropagation();"
+onmouseup="event.stopPropagation();"
+>
 <div class="title-bar">
 <div class="title-bar-text">Movement Phase</div>
 <div class="title-bar-controls">
@@ -41016,25 +41070,28 @@ return html `<div class="window" style="width: 300px;margin: 10px;">
 <div class="window-body">
 <p>Current Player: ${game.Players[game.CurrentPlayer].Name}</p>
 <p>Controlled by: ${game.IsAiTurn ? "AI" : "Human"}</p>
-${Button("End Turn & Resolve Battles", 3 /* SetupBattles */, 
-/*disabled?*/ game.IsAiTurn)}
+<div style="text-align: center;">
+<button onclick="$(${3 /* SetupBattles */});" ${game.IsAiTurn && "disabled"}>
+End Turn & Resolve Battles
+</button>
+</div>
 </div>
 </div>`;
 }
 }
 }
 
-function Tooltip(game) {
-return html `<div
-style="position:absolute; bottom:0; color: black; font-size: 20px; background: white"
->
-${game.TooltipText}
-</div>`;
-}
-
 function App(game) {
-return html ` ${Toolbar(game)} ${Tooltip(game)} ${LogWindow(game)} ${AlertWindow(game)}
-${PopupWindow(game)}`;
+return html `
+${Toolbar(game)} ${LogWindow(game)} ${AlertWindow(game)}
+${game.Popup &&
+PopupWindow(game.Popup.Title, html `
+${game.Popup.Content}
+<div style="text-align: center;">
+<button onclick="$(${7 /* ClearPopup */});">OK</button>
+</div>
+`)}
+`;
 }
 function Logger(game, text) {
 
@@ -41044,8 +41101,7 @@ function Alert(game, text) {
 game.AlertText = text;
 }
 function Popup(game, text, title) {
-game.PopupText = text;
-game.PopupTitle = title;
+game.Popup = { Title: title, Content: text };
 }
 
 function dispatch(game, action, payload) {
@@ -41227,22 +41283,13 @@ dispatch(game, 0 /* StartDeployment */, {});
 }, 1000);
 break;
 }
-case 6 /* ShowTooltipText */: {
-game.TooltipText = payload;
-break;
-}
-case 7 /* ClearTooltipText */: {
-game.TooltipText = null;
-break;
-}
-case 8 /* ClearAlert */: {
+case 6 /* ClearAlert */: {
 game.Audio.resume();
 game.AlertText = null;
 break;
 }
-case 9 /* ClearPopup */: {
-game.PopupText = undefined;
-game.PopupTitle = undefined;
+case 7 /* ClearPopup */: {
+game.Popup = undefined;
 break;
 }
 }
@@ -82070,24 +82117,6 @@ let index_arr = Uint16Array.from([
 2, 1, 0
 ]);
 
-let raf = 0;
-function loop_start(game) {
-let last = performance.now();
-let tick = (now) => {
-let delta = (now - last) / 1000;
-game.FrameSetup();
-game.FrameUpdate(delta);
-game.FrameReset();
-last = now;
-raf = requestAnimationFrame(tick);
-};
-loop_stop();
-tick(last);
-}
-function loop_stop() {
-cancelAnimationFrame(raf);
-}
-
 const QUERY$k = 1 /* AudioListener */ | 131072 /* Transform */;
 function sys_audio_listener(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
@@ -82818,7 +82847,6 @@ return out;
 
 const QUERY$9 = 8192 /* Pickable */;
 function sys_highlight(game, delta) {
-dispatch(game, 7 /* ClearTooltipText */, {});
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$9) == QUERY$9) {
 let pickable = game.World.Pickable[i];
@@ -83652,7 +83680,11 @@ MouseY: 0,
 this.Logs = "";
 this.AlertText = null;
 this.CurrentPlayer = 0;
-this.Players = [];
+this.Players = [
+{ Name: "Yellow", Color: [1, 1, 0, 1], Type: 0 /* Human */ },
+{ Name: "Red", Color: [1, 0, 0, 1], Type: 1 /* AI */ },
+{ Name: "Magenta", Color: [1, 0, 1, 1], Type: 1 /* AI */ },
+];
 this.CurrentPlayerTerritories = [];
 this.InitialSunPosition = from_euler([0, 0, 0, 0], 0, 35, 0);
 this.ContinentBonus = [];
@@ -83665,7 +83697,6 @@ this.Battles = [];
 this.TurnPhase = 0 /* Deploy */;
 this.UnitsToDeploy = 0;
 this.UnitsDeployed = 0;
-this.TooltipText = null;
 this.SunEntity = 0;
 this.Ui = document.querySelector("main");
 this.CanvasScene = document.querySelector("canvas#scene");
@@ -83935,11 +83966,7 @@ camera_framebuffer_ortho(game.Targets.Sun, 250, 1, 1000, [0, 0, 0, 1]),
 ];
 }
 
-function scene_stage(game) {
-set_seed(25);
-game.World = new World();
-game.ViewportResized = true;
-game.Gl.clearColor(0.9, 0.9, 0.9, 1);
+function map_earth(game) {
 game.TerritoryGraph = {
 
 1: [2, 3, 4, 7],
@@ -83990,6 +84017,36 @@ game.TerritoryGraph = {
 61: [51, 52, 60, 6],
 62: [54, 56, 60],
 };
+game.ContinentBonus[2 /* Australia */] = {
+Territories: [],
+Bonus: 2,
+Name: "Australia",
+};
+game.ContinentBonus[4 /* SouthAmerica */] = {
+Territories: [],
+Bonus: 2,
+Name: "South America",
+};
+game.ContinentBonus[1 /* Africa */] = {
+Territories: [],
+Bonus: 3,
+Name: "Africa",
+};
+game.ContinentBonus[0 /* Europe */] = {
+Territories: [],
+Bonus: 5,
+Name: "Europe",
+};
+game.ContinentBonus[3 /* NorthAmerica */] = {
+Territories: [],
+Bonus: 5,
+Name: "North America",
+};
+game.ContinentBonus[5 /* Asia */] = {
+Territories: [],
+Bonus: 7,
+Name: "Asia",
+};
 
 instantiate(game, [...blueprint_camera(), transform([0, 0, 0], [0, 1, 0, 0])]);
 
@@ -84035,6 +84092,14 @@ blueprint_territory(game, 4 /* SouthAmerica */, 1, "Argentina"), blueprint_terri
 
 blueprint_territory(game, 5 /* Asia */, 1, "Afghanistan"), blueprint_territory(game, 5 /* Asia */, 2, "China"), blueprint_territory(game, 5 /* Asia */, 3, "India"), blueprint_territory(game, 5 /* Asia */, 4, "Irkuck"), blueprint_territory(game, 5 /* Asia */, 5, "Japan"), blueprint_territory(game, 5 /* Asia */, 6, "Kamtchatka"), blueprint_territory(game, 5 /* Asia */, 7, "Middle East"), blueprint_territory(game, 5 /* Asia */, 8, "Mongolia"), blueprint_territory(game, 5 /* Asia */, 9, "Siam"), blueprint_territory(game, 5 /* Asia */, 10, "Siberia"), blueprint_territory(game, 5 /* Asia */, 11, "Ural"), blueprint_territory(game, 5 /* Asia */, 12, "Yakutsk")),
 ]);
+}
+
+function scene_stage(game) {
+set_seed(Date.now());
+game.World = new World();
+game.ViewportResized = true;
+game.Gl.clearColor(0.9, 0.9, 0.9, 1);
+map_earth(game);
 
 let number_of_players = game.Players.length;
 let territory_entities = Object.keys(game.TerritoryEntities)
@@ -84052,28 +84117,6 @@ else {
 console.error(`Cannot find random point on territory ${JSON.stringify(territory, null, 2)}!`);
 }
 }
-Popup(game, html `
-<p style="text-align: center;">
-<img src="./textures/rose.webp" width="128" height="128" style="" />
-</p>
-
-<p>Welcome to <em>Mirrorisk</em>!</p>
-
-<p>
-West is East and East is West in this virtual cardboard rendition of the 1957's
-<em>Risk</em>. The rules have changed, too: the game ends the first time a player is
-eliminated, so be sure to protect the underdogs when you take the lead!
-</p>
-
-<p>
-Each turn you'll get reinforcements to deploy into the territories you control.
-Controlling an entire continent will yield a bonus. Select armies with the left
-click; issue orders with the right click. Pan the camera with your left mouse button
-pressed, rotate with the right mosue button, and zoom with the mouse wheel.
-</p>
-
-<p>Good luck!</p>
-`, "Hello!");
 dispatch(game, 0 /* StartDeployment */, {});
 play_buffer(game.Audio, undefined, game.Sounds[element(["music1.mp3", "music2.mp3"])]);
 setInterval(() => {
@@ -84086,10 +84129,6 @@ let game = new Game();
 window.game = game;
 
 window.$ = dispatch.bind(null, game);
-
-for (let texture of document.querySelectorAll("img")) {
-game.Textures[texture.id] = create_texture_from(game.Gl, texture);
-}
 game.TerritoryMeshes = [
 [
 
@@ -84152,15 +84191,6 @@ mesh_as11(game.Gl),
 mesh_as12(game.Gl),
 ],
 ];
-game.Players = [
-{
-Name: "Yellow",
-Color: [1, 1, 0, 1],
-Type: 0 /* Human */,
-},
-{ Name: "Red", Color: [1, 0, 0, 1], Type: 1 /* AI */ },
-{ Name: "Violet", Color: [1, 0, 1, 1], Type: 1 /* AI */ },
-];
 Promise.all([
 
 load_texture(game, "Fabric023_1K_Color.jpg"),
@@ -84197,52 +84227,28 @@ load_audio(game, "battle6.mp3"),
 ]).then(() => {
 scene_stage(game);
 loop_start(game);
+Popup(game, html `
+<p style="text-align: center;">
+<img src="./textures/rose.webp" width="128" height="128" style="" />
+</p>
+
+<p>Welcome to <em>Mirrorisk</em>!</p>
+
+<p>
+West is East and East is West in this virtual cardboard rendition of the 1957's
+<em>Risk</em>. The rules have changed, too: the game ends the first time a player is
+eliminated, so be sure to protect the underdogs when you take the lead!
+</p>
+
+<p>
+Each turn you'll get reinforcements to deploy into the territories you control.
+Controlling an entire continent will yield a bonus. Select armies with the left
+click; issue orders with the right click. Pan the camera with your left mouse button
+pressed, rotate with the right mosue button, and zoom with the mouse wheel.
+</p>
+
+<p>Good luck!</p>
+`, "Hello!");
 });
-game.ContinentBonus[2 /* Australia */] = {
-Territories: [],
-Bonus: 2,
-Name: "Australia",
-};
-game.ContinentBonus[4 /* SouthAmerica */] = {
-Territories: [],
-Bonus: 2,
-Name: "South America",
-};
-game.ContinentBonus[1 /* Africa */] = {
-Territories: [],
-Bonus: 3,
-Name: "Africa",
-};
-game.ContinentBonus[0 /* Europe */] = {
-Territories: [],
-Bonus: 5,
-Name: "Europe",
-};
-game.ContinentBonus[3 /* NorthAmerica */] = {
-Territories: [],
-Bonus: 5,
-Name: "North America",
-};
-game.ContinentBonus[5 /* Asia */] = {
-Territories: [],
-Bonus: 7,
-Name: "Asia",
-};
-async function load_texture(game, name) {
-let image = await fetch_image("./textures/" + name);
-game.Textures[name] = create_texture_from(game.Gl, image);
-
-game.Ui.innerHTML += `Loading <code>${name}</code>... ✓<br>`;
-}
-async function load_audio(game, name) {
-let response = await fetch("./sounds/" + name);
-let arrayBuffer = await response.arrayBuffer();
-
-game.Sounds[name] = await new Promise((resolve, reject) => {
-game.Audio.decodeAudioData(arrayBuffer, resolve, reject);
-});
-
-game.Ui.innerHTML += `Loading <code>${name}</code>... ✓<br>`;
-}
 
 }());
