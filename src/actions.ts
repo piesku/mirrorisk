@@ -1,13 +1,18 @@
 import {play_buffer} from "../common/audio.js";
+import {hex_to_vec4} from "../common/color.js";
 import {Quat, Vec3} from "../common/math.js";
 import {element, float, integer} from "../common/random.js";
 import {blueprint_unit} from "./blueprints/blu_unit.js";
 import {territories_controlled_by_team, units_entity_ids} from "./components/com_team.js";
-import {ContinentBonus, Game, PlayerType, TurnPhase} from "./game.js";
+import {ContinentBonus, Game, PlayerType, PlayState, TurnPhase} from "./game.js";
 import {destroy_entity, instantiate} from "./impl.js";
+import {scene_stage} from "./scenes/sce_stage.js";
 import {Alert, Logger, Popup} from "./ui/App.js";
 import {Has} from "./world.js";
 export const enum Action {
+    ChangeNumberOfTeams,
+    ChangeTeamDetails,
+    StartGame,
     StartDeployment,
     EndDeployment,
     DeployUnit,
@@ -21,6 +26,39 @@ export const enum Action {
 export function dispatch(game: Game, action: Action, payload: unknown) {
     let current_player_name = game.Players[game.CurrentPlayer].Name;
     switch (action) {
+        case Action.ChangeNumberOfTeams: {
+            let count = payload as number;
+            if (count < game.Players.length) {
+                game.Players.splice(count);
+            } else if (count > game.Players.length) {
+                for (let i = 0; game.Players.length < count; i++) {
+                    game.Players.push({
+                        Name: `Player #${game.Players.length + 1}`,
+                        Color: [1, 1, 1, 1],
+                        Type: PlayerType.AI,
+                    });
+                }
+            }
+            break;
+        }
+        case Action.ChangeTeamDetails: {
+            let [idx, form] = payload as [number, Element];
+            let team_color = (form.querySelector("input[type=color]") as HTMLInputElement).value;
+            let team_name = (form.querySelector("input[type=text]") as HTMLInputElement).value;
+            let team_type = (form.querySelector("select") as HTMLSelectElement).value;
+
+            game.Players[idx].Name = team_name;
+            game.Players[idx].Color = hex_to_vec4(team_color);
+            game.Players[idx].Type = parseInt(team_type);
+            break;
+        }
+        case Action.StartGame: {
+            requestAnimationFrame(() => {
+                game.PlayState = PlayState.Playing;
+                scene_stage(game);
+            });
+            break;
+        }
         case Action.StartDeployment: {
             let game_over = false;
             let most_territories = 0;
@@ -73,7 +111,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             if (!game.IsAiTurn) {
                 Alert(
                     game,
-                    `It's your turn now!${
+                    `It's ${current_player_name}'s turn now!${
                         bonus > 0
                             ? ` You receive ${bonus} extra armies for controling ${continents_controlled.join(
                                   ", "

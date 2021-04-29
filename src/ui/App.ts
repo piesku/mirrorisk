@@ -1,7 +1,8 @@
 import {html} from "../../common/html.js";
 import {Action} from "../actions.js";
-import {Game} from "../game.js";
+import {Game, PlayState} from "../game.js";
 import {AlertWindow} from "./AlertWindow.js";
+import {GameSetup} from "./GameSetup.js";
 import {LogWindow} from "./LogWindow.js";
 import {PopupWindow} from "./PopupWindow.js";
 import {Toolbar} from "./Toolbar.js";
@@ -9,6 +10,7 @@ import {Toolbar} from "./Toolbar.js";
 export function App(game: Game) {
     return html`
         ${Toolbar(game)} ${LogWindow(game)} ${AlertWindow(game)}
+        ${game.PlayState === PlayState.Setup && GameSetup(game)}
         ${game.Popup &&
         PopupWindow(
             game.Popup.Title,

@@ -51,6 +51,11 @@ export interface Player {
     Color: Vec4;
 }
 
+export const enum PlayState {
+    Setup,
+    Playing,
+}
+
 export const enum TurnPhase {
     Deploy,
     Move,
@@ -88,6 +93,7 @@ export class Game {
         MouseY: 0,
     };
 
+    PlayState: PlayState = PlayState.Setup;
     Logs: string = "";
     AlertText: string | null = null;
     Popup?: {Title: string; Content: string};
