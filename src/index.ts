@@ -1,3 +1,4 @@
+import {html} from "../common/html.js";
 import {create_texture_from, fetch_image} from "../common/texture.js";
 import {mesh_af01} from "../meshes/af01.js";
 import {mesh_af02} from "../meshes/af02.js";
@@ -42,10 +43,10 @@ import {mesh_sa02} from "../meshes/sa02.js";
 import {mesh_sa03} from "../meshes/sa03.js";
 import {mesh_sa04} from "../meshes/sa04.js";
 import {dispatch} from "./actions.js";
-import {Continent} from "./components/com_territory.js";
-import {Game, PlayerType} from "./game.js";
+import {Game} from "./game.js";
 import {loop_start} from "./loop.js";
 import {scene_stage} from "./scenes/sce_stage.js";
+import {Popup} from "./ui/App.js";
 
 let game = new Game();
 
@@ -54,11 +55,6 @@ window.game = game;
 
 // @ts-ignore
 window.$ = dispatch.bind(null, game);
-
-// @ts-ignore
-for (let texture of document.querySelectorAll("img")) {
-    game.Textures[texture.id] = create_texture_from(game.Gl, texture);
-}
 
 game.TerritoryMeshes = [
     [
@@ -123,16 +119,6 @@ game.TerritoryMeshes = [
     ],
 ];
 
-game.Players = [
-    {
-        Name: "Yellow",
-        Color: [1, 1, 0, 1],
-        Type: PlayerType.Human,
-    },
-    {Name: "Red", Color: [1, 0, 0, 1], Type: PlayerType.AI},
-    {Name: "Violet", Color: [1, 0, 1, 1], Type: PlayerType.AI},
-];
-
 Promise.all([
     // Table cloth.
     load_texture(game, "Fabric023_1K_Color.jpg"),
@@ -175,38 +161,35 @@ Promise.all([
 ]).then(() => {
     scene_stage(game);
     loop_start(game);
+
+    Popup(
+        game,
+        html`
+            <p style="text-align: center;">
+                <img src="./textures/rose.webp" width="128" height="128" style="" />
+            </p>
+
+            <p>Welcome to <em>Mirrorisk</em>!</p>
+
+            <p>
+                West is East and East is West in this virtual cardboard rendition of the 1957's
+                <em>Risk</em>. The rules have changed, too: the game ends the first time a player is
+                eliminated, so be sure to protect the underdogs when you take the lead!
+            </p>
+
+            <p>
+                Each turn you'll get reinforcements to deploy into the territories you control.
+                Controlling an entire continent will yield a bonus. Select armies with the left
+                click; issue orders with the right click. Pan the camera with your left mouse button
+                pressed, rotate with the right mosue button, and zoom with the mouse wheel.
+            </p>
+
+            <p>Good luck!</p>
+        `,
+        "Hello!"
+    );
 });
 
-game.ContinentBonus[Continent.Australia] = {
-    Territories: [],
-    Bonus: 2,
-    Name: "Australia",
-};
-game.ContinentBonus[Continent.SouthAmerica] = {
-    Territories: [],
-    Bonus: 2,
-    Name: "South America",
-};
-game.ContinentBonus[Continent.Africa] = {
-    Territories: [],
-    Bonus: 3,
-    Name: "Africa",
-};
-game.ContinentBonus[Continent.Europe] = {
-    Territories: [],
-    Bonus: 5,
-    Name: "Europe",
-};
-game.ContinentBonus[Continent.NorthAmerica] = {
-    Territories: [],
-    Bonus: 5,
-    Name: "North America",
-};
-game.ContinentBonus[Continent.Asia] = {
-    Territories: [],
-    Bonus: 7,
-    Name: "Asia",
-};
 async function load_texture(game: Game, name: string) {
     let image = await fetch_image("./textures/" + name);
     game.Textures[name] = create_texture_from(game.Gl, image);

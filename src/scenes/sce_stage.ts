@@ -1,5 +1,4 @@
 import {play_buffer} from "../../common/audio.js";
-import {html} from "../../common/html.js";
 import {from_euler} from "../../common/quat.js";
 import {element, set_seed} from "../../common/random.js";
 import {Action, dispatch} from "../actions.js";
@@ -15,7 +14,6 @@ import {Continent} from "../components/com_territory.js";
 import {transform} from "../components/com_transform.js";
 import {instantiate} from "../entity.js";
 import {Game, Layer} from "../game.js";
-import {Popup} from "../ui/App.js";
 import {World} from "../world.js";
 
 export function scene_stage(game: Game) {
@@ -73,6 +71,37 @@ export function scene_stage(game: Game) {
         60: [52, 54, 58, 61, 62],
         61: [51, 52, 60, 6],
         62: [54, 56, 60],
+    };
+
+    game.ContinentBonus[Continent.Australia] = {
+        Territories: [],
+        Bonus: 2,
+        Name: "Australia",
+    };
+    game.ContinentBonus[Continent.SouthAmerica] = {
+        Territories: [],
+        Bonus: 2,
+        Name: "South America",
+    };
+    game.ContinentBonus[Continent.Africa] = {
+        Territories: [],
+        Bonus: 3,
+        Name: "Africa",
+    };
+    game.ContinentBonus[Continent.Europe] = {
+        Territories: [],
+        Bonus: 5,
+        Name: "Europe",
+    };
+    game.ContinentBonus[Continent.NorthAmerica] = {
+        Territories: [],
+        Bonus: 5,
+        Name: "North America",
+    };
+    game.ContinentBonus[Continent.Asia] = {
+        Territories: [],
+        Bonus: 7,
+        Name: "Asia",
     };
 
     // Camera.
@@ -190,33 +219,6 @@ export function scene_stage(game: Game) {
             );
         }
     }
-
-    Popup(
-        game,
-        html`
-            <p style="text-align: center;">
-                <img src="./textures/rose.webp" width="128" height="128" style="" />
-            </p>
-
-            <p>Welcome to <em>Mirrorisk</em>!</p>
-
-            <p>
-                West is East and East is West in this virtual cardboard rendition of the 1957's
-                <em>Risk</em>. The rules have changed, too: the game ends the first time a player is
-                eliminated, so be sure to protect the underdogs when you take the lead!
-            </p>
-
-            <p>
-                Each turn you'll get reinforcements to deploy into the territories you control.
-                Controlling an entire continent will yield a bonus. Select armies with the left
-                click; issue orders with the right click. Pan the camera with your left mouse button
-                pressed, rotate with the right mosue button, and zoom with the mouse wheel.
-            </p>
-
-            <p>Good luck!</p>
-        `,
-        "Hello!"
-    );
 
     dispatch(game, Action.StartDeployment, {});
 

@@ -91,7 +91,11 @@ export class Game {
     Logs: string = "";
     AlertText: string | null = null;
     CurrentPlayer = 0;
-    Players: Player[] = [];
+    Players: Player[] = [
+        {Name: "Yellow", Color: [1, 1, 0, 1], Type: PlayerType.Human},
+        {Name: "Red", Color: [1, 0, 0, 1], Type: PlayerType.AI},
+        {Name: "Magenta", Color: [1, 0, 1, 1], Type: PlayerType.AI},
+    ];
     CurrentPlayerTerritories: Entity[] = [];
 
     InitialSunPosition: Quat = from_euler([0, 0, 0, 0], 0, 35, 0);
