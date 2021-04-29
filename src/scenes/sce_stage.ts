@@ -9,7 +9,7 @@ import {World} from "../world.js";
 import {map_earth} from "./map_earth.js";
 
 export function scene_stage(game: Game) {
-    set_seed(25);
+    set_seed(Date.now());
     game.World = new World();
     game.ViewportResized = true;
     game.Gl.clearColor(0.9, 0.9, 0.9, 1);
