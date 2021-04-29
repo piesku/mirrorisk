@@ -1,6 +1,19 @@
 (function () {
     'use strict';
 
+    function play_buffer(audio, panner, buffer) {
+        let source = audio.createBufferSource();
+        source.buffer = buffer;
+        if (panner) {
+            source.connect(panner);
+            panner.connect(audio.destination);
+        }
+        else {
+            source.connect(audio.destination);
+        }
+        source.start();
+    }
+
     function shift(values) {
         let value = values.shift();
         if (typeof value === "boolean" || value == undefined) {
@@ -15,6 +28,24 @@
     }
     function html(strings, ...values) {
         return strings.reduce((out, cur) => out + shift(values) + cur);
+    }
+
+    let seed = 1;
+    function set_seed(new_seed) {
+        seed = 198706 * new_seed;
+    }
+    function rand() {
+        seed = (seed * 16807) % 2147483647;
+        return (seed - 1) / 2147483646;
+    }
+    function integer(min = 0, max = 1) {
+        return ~~(rand() * (max - min + 1) + min);
+    }
+    function float(min = 0, max = 1) {
+        return rand() * (max - min) + min;
+    }
+    function element(arr) {
+        return arr[integer(0, arr.length - 1)];
     }
 
     // The following defined constants and descriptions are directly ported from
@@ -40089,19 +40120,6 @@
         0, 42, 32
     ]);
 
-    function play_buffer(audio, panner, buffer) {
-        let source = audio.createBufferSource();
-        source.buffer = buffer;
-        if (panner) {
-            source.connect(panner);
-            panner.connect(audio.destination);
-        }
-        else {
-            source.connect(audio.destination);
-        }
-        source.start();
-    }
-
     function vec4_to_hex(color) {
         let r = (color[0] * 255).toString(16).padStart(2, "0");
         let g = (color[1] * 255).toString(16).padStart(2, "0");
@@ -40115,24 +40133,6 @@
             parseInt(color.slice(5, 7), 16) / 255,
             1,
         ];
-    }
-
-    let seed = 1;
-    function set_seed(new_seed) {
-        seed = 198706 * new_seed;
-    }
-    function rand() {
-        seed = (seed * 16807) % 2147483647;
-        return (seed - 1) / 2147483646;
-    }
-    function integer(min = 0, max = 1) {
-        return ~~(rand() * (max - min + 1) + min);
-    }
-    function float(min = 0, max = 1) {
-        return rand() * (max - min) + min;
-    }
-    function element(arr) {
-        return arr[integer(0, arr.length - 1)];
     }
 
     /**
@@ -41501,10 +41501,6 @@
             }
         }
         dispatch(game, 3 /* StartDeployment */, {});
-        play_buffer(game.Audio, undefined, game.Sounds[element(["music1.mp3", "music2.mp3"])]);
-        setInterval(() => {
-            play_buffer(game.Audio, undefined, game.Sounds[element(["music1.mp3", "music2.mp3"])]);
-        }, 30000);
     }
 
     let alertWidth$1 = 300;
@@ -84360,6 +84356,10 @@ Piesku&#10094;R&#10095; Mirrorisk
 
             <p>Good luck!</p>
         `, "Hello!");
+        play_buffer(game.Audio, undefined, game.Sounds[element(["music1.mp3", "music2.mp3"])]);
+        setInterval(() => {
+            play_buffer(game.Audio, undefined, game.Sounds[element(["music1.mp3", "music2.mp3"])]);
+        }, 30000);
     });
 
 }());
