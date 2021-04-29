@@ -2,7 +2,6 @@ import {html} from "../../common/html.js";
 import {Action} from "../actions.js";
 import {Game} from "../game.js";
 import {AlertWindow} from "./AlertWindow.js";
-import {Button} from "./Button.js";
 import {LogWindow} from "./LogWindow.js";
 import {PopupWindow} from "./PopupWindow.js";
 import {Toolbar} from "./Toolbar.js";
@@ -14,7 +13,9 @@ export function App(game: Game) {
         ${game.Popup &&
         PopupWindow(game.Popup.Title, [
             game.Popup.Content,
-            `<div>${Button("OK", Action.ClearPopup)}</div>`,
+            `<div style="text-align: center;">
+                <button onclick="$(${Action.ClearPopup});">OK</button>
+            </div>`,
         ])}
     `;
 }

@@ -11,6 +11,8 @@ export function PopupWindow(title: string, content: Array<string>) {
             position: absolute;
             left: ${(window.innerWidth - alertWidth) / 2}px;
         "
+        onmousedown="event.stopPropagation();"
+        onmouseup="event.stopPropagation();"
     >
         <div class="title-bar">
             <div class="title-bar-text">${title}</div>
