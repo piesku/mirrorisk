@@ -6,8 +6,8 @@ import {control_camera} from "../components/com_control_camera.js";
 import {mimic} from "../components/com_mimic.js";
 import {move} from "../components/com_move.js";
 import {transform} from "../components/com_transform.js";
-import {Blueprint} from "../entity.js";
 import {Game} from "../game.js";
+import {Blueprint} from "../impl.js";
 
 export function blueprint_camera(game: Game): Blueprint {
     return [

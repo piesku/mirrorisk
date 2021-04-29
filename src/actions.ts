@@ -3,8 +3,8 @@ import {Quat, Vec3} from "../common/math.js";
 import {element, float, integer} from "../common/random.js";
 import {blueprint_unit} from "./blueprints/blu_unit.js";
 import {territories_controlled_by_team, units_entity_ids} from "./components/com_team.js";
-import {destroy_entity, instantiate} from "./entity.js";
 import {ContinentBonus, Game, PlayerType, TurnPhase} from "./game.js";
+import {destroy_entity, instantiate} from "./impl.js";
 import {Alert, Logger, Popup} from "./ui/App.js";
 import {Has} from "./world.js";
 export const enum Action {

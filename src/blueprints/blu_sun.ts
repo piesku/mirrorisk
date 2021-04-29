@@ -8,8 +8,8 @@ import {disable} from "../components/com_disable.js";
 import {light_directional} from "../components/com_light.js";
 import {move} from "../components/com_move.js";
 import {transform} from "../components/com_transform.js";
-import {Blueprint} from "../entity.js";
 import {Game} from "../game.js";
+import {Blueprint} from "../impl.js";
 import {Has} from "../world.js";
 
 export function blueprint_sun(game: Game): Blueprint {

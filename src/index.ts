@@ -1,5 +1,4 @@
 import {html} from "../common/html.js";
-import {create_texture_from, fetch_image} from "../common/texture.js";
 import {mesh_af01} from "../meshes/af01.js";
 import {mesh_af02} from "../meshes/af02.js";
 import {mesh_af03} from "../meshes/af03.js";
@@ -44,7 +43,7 @@ import {mesh_sa03} from "../meshes/sa03.js";
 import {mesh_sa04} from "../meshes/sa04.js";
 import {dispatch} from "./actions.js";
 import {Game} from "./game.js";
-import {loop_start} from "./loop.js";
+import {load_audio, load_texture, loop_start} from "./impl.js";
 import {scene_stage} from "./scenes/sce_stage.js";
 import {Popup} from "./ui/App.js";
 
@@ -189,24 +188,3 @@ Promise.all([
         "Hello!"
     );
 });
-
-async function load_texture(game: Game, name: string) {
-    let image = await fetch_image("./textures/" + name);
-    game.Textures[name] = create_texture_from(game.Gl, image);
-
-    // Report loading progress.
-    game.Ui.innerHTML += `Loading <code>${name}</code>... ✓<br>`;
-}
-
-async function load_audio(game: Game, name: string) {
-    let response = await fetch("./sounds/" + name);
-    let arrayBuffer = await response.arrayBuffer();
-
-    // Safari doesn't support the Promise-based decodeAudioData, smh.
-    game.Sounds[name] = await new Promise((resolve, reject) => {
-        game.Audio.decodeAudioData(arrayBuffer, resolve, reject);
-    });
-
-    // Report loading progress.
-    game.Ui.innerHTML += `Loading <code>${name}</code>... ✓<br>`;
-}

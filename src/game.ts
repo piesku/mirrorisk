@@ -11,7 +11,7 @@ import {mesh_dragoon} from "../meshes/dragoon.js";
 import {mesh_plane} from "../meshes/plane.js";
 import {mesh_room07} from "../meshes/room07.js";
 import {mesh_soldier} from "../meshes/soldier.js";
-import {loop_start, loop_stop} from "./loop.js";
+import {loop_start, loop_stop} from "./impl.js";
 import {sys_audio_listener} from "./systems/sys_audio_listener.js";
 import {sys_audio_source} from "./systems/sys_audio_source.js";
 import {sys_camera} from "./systems/sys_camera.js";

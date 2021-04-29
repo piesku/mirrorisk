@@ -13,6 +13,7 @@ import {selectable} from "../components/com_selectable.js";
 import {team} from "../components/com_team.js";
 import {transform} from "../components/com_transform.js";
 import {Game, Layer, PlayerType} from "../game.js";
+import {Blueprint} from "../impl.js";
 import {Has} from "../world.js";
 
 declare global {
@@ -26,7 +27,7 @@ export function blueprint_unit(
     translation: Vec3,
     territory_id: number,
     team_id: number
-) {
+): Blueprint {
     let color = <Vec4>game.Players[team_id].Color.slice();
     let is_human_controlled = game.Players[team_id].Type === PlayerType.Human;
 

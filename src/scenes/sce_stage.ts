@@ -12,8 +12,8 @@ import {light_directional, light_point} from "../components/com_light.js";
 import {render_colored_unlit, render_textured_mapped} from "../components/com_render1.js";
 import {Continent} from "../components/com_territory.js";
 import {transform} from "../components/com_transform.js";
-import {instantiate} from "../entity.js";
 import {Game, Layer} from "../game.js";
+import {instantiate} from "../impl.js";
 import {World} from "../world.js";
 
 export function scene_stage(game: Game) {

@@ -5,8 +5,8 @@ import {pickable_territory} from "../components/com_pickable.js";
 import {render_textured_mapped} from "../components/com_render1.js";
 import {Continent, territory} from "../components/com_territory.js";
 import {transform} from "../components/com_transform.js";
-import {Blueprint} from "../entity.js";
 import {Game} from "../game.js";
+import {Blueprint} from "../impl.js";
 
 const textures_by_continent: Record<Continent, string> = {
     [Continent.Europe]: "euau.webp",
