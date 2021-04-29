@@ -90,6 +90,7 @@ export class Game {
 
     Logs: string = "";
     AlertText: string | null = null;
+    Popup?: {Title: string; Content: string};
     CurrentPlayer = 0;
     Players: Player[] = [
         {Name: "Yellow", Color: [1, 1, 0, 1], Type: PlayerType.Human},
@@ -108,8 +109,6 @@ export class Game {
     // TODO: EndTurn Actions sets this, so it will break if AI moves first
     IsAiTurn: boolean = false;
 
-    Popup?: {Title: string; Content: string};
-
     Battles: Array<BattleCallback> = [];
 
     ForceHover: Entity | undefined;
@@ -118,7 +117,6 @@ export class Game {
     UnitsToDeploy: number = 0;
     UnitsDeployed: number = 0;
 
-    TooltipText: string | null = null;
     SunEntity: Entity = 0;
 
     Ui = document.querySelector("main")!;

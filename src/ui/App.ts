@@ -5,11 +5,10 @@ import {AlertWindow} from "./AlertWindow.js";
 import {LogWindow} from "./LogWindow.js";
 import {PopupWindow} from "./PopupWindow.js";
 import {Toolbar} from "./Toolbar.js";
-import {Tooltip} from "./Tooltip.js";
 
 export function App(game: Game) {
     return html`
-        ${Toolbar(game)} ${Tooltip(game)}${LogWindow(game)} ${AlertWindow(game)}
+        ${Toolbar(game)} ${LogWindow(game)} ${AlertWindow(game)}
         ${game.Popup &&
         PopupWindow(game.Popup.Title, [
             game.Popup.Content,

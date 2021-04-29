@@ -14,8 +14,6 @@ export const enum Action {
     SetupBattles,
     ResolveBattles,
     EndTurn,
-    ShowTooltipText,
-    ClearTooltipText,
     ClearAlert,
     ClearPopup,
 }
@@ -282,16 +280,6 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                 game.CurrentPlayer = next_player;
                 dispatch(game, Action.StartDeployment, {});
             }, 1000);
-            break;
-        }
-
-        case Action.ShowTooltipText: {
-            game.TooltipText = payload as string;
-            break;
-        }
-
-        case Action.ClearTooltipText: {
-            game.TooltipText = null;
             break;
         }
 

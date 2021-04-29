@@ -1,5 +1,4 @@
 import {copy, scale} from "../../common/vec4.js";
-import {Action, dispatch} from "../actions.js";
 import {DrawSelection} from "../components/com_draw.js";
 import {PickableKind} from "../components/com_pickable.js";
 import {RenderTexturedMapped} from "../components/com_render1.js";
@@ -9,7 +8,6 @@ import {Has} from "../world.js";
 const QUERY = Has.Pickable;
 
 export function sys_highlight(game: Game, delta: number) {
-    dispatch(game, Action.ClearTooltipText, {});
     for (let i = 0; i < game.World.Signature.length; i++) {
         if ((game.World.Signature[i] & QUERY) == QUERY) {
             let pickable = game.World.Pickable[i];
