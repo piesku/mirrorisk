@@ -108,8 +108,7 @@ export class Game {
     // TODO: EndTurn Actions sets this, so it will break if AI moves first
     IsAiTurn: boolean = false;
 
-    PopupText: string | undefined;
-    PopupTitle: string | undefined;
+    Popup?: {Title: string; Content: string};
 
     Battles: Array<BattleCallback> = [];
 

@@ -302,8 +302,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
         }
 
         case Action.ClearPopup: {
-            game.PopupText = undefined;
-            game.PopupTitle = undefined;
+            game.Popup = undefined;
             break;
         }
     }
