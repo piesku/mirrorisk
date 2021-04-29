@@ -40102,6 +40102,21 @@ source.connect(audio.destination);
 source.start();
 }
 
+function vec4_to_hex(color) {
+let r = (color[0] * 255).toString(16).padStart(2, "0");
+let g = (color[1] * 255).toString(16).padStart(2, "0");
+let b = (color[2] * 255).toString(16).padStart(2, "0");
+return `#${r}${g}${b}`;
+}
+function hex_to_vec4(color) {
+return [
+parseInt(color.slice(1, 3), 16) / 255,
+parseInt(color.slice(3, 5), 16) / 255,
+parseInt(color.slice(5, 7), 16) / 255,
+1,
+];
+}
+
 let seed = 1;
 function set_seed(new_seed) {
 seed = 198706 * new_seed;
@@ -40932,457 +40947,169 @@ blueprint.push(pickable_unit(color), selectable(), audio_source(true));
 return blueprint;
 }
 
-let alertWidth$1 = 300;
-function AlertWindow(game) {
-if (!game.AlertText) {
-return "";
+function link(gl, vertex, fragment) {
+let program = gl.createProgram();
+gl.attachShader(program, compile(gl, GL_VERTEX_SHADER, vertex));
+gl.attachShader(program, compile(gl, GL_FRAGMENT_SHADER, fragment));
+gl.linkProgram(program);
+if (!gl.getProgramParameter(program, GL_LINK_STATUS)) {
+throw new Error(gl.getProgramInfoLog(program));
 }
-return html `<div
-class="window"
-style="
-width: ${alertWidth$1}px;
-position: absolute;
-left: ${(window.innerWidth - alertWidth$1) / 2}px;
-"
-onmousedown="event.stopPropagation();"
-onmouseup="event.stopPropagation();"
->
-<div class="title-bar">
-<div class="title-bar-text">Alert</div>
-<div class="title-bar-controls">
-<button aria-label="Close"></button>
-</div>
-</div>
-<div class="window-body">
-<p>${game.AlertText}</p>
-<div style="text-align: center;">
-<button onclick="$(${6 /* ClearAlert */});">OK</button>
-</div>
-</div>
-</div>`;
+return program;
 }
+function compile(gl, type, source) {
+let shader = gl.createShader(type);
+gl.shaderSource(shader, source);
+gl.compileShader(shader);
+if (!gl.getShaderParameter(shader, GL_COMPILE_STATUS)) {
+throw new Error(gl.getShaderInfoLog(shader));
+}
+return shader;
+}
+function random_point_up_worldspace(mesh, world_space) {
+let point_localspace = random_point_up(mesh);
+if (point_localspace === null) {
+return null;
+}
+return transform_point(point_localspace, point_localspace, world_space);
+}
+function random_point_up(mesh, min_area = 3) {
+let up_face_indices = [];
+let face_count = mesh.IndexCount / 3;
+for (let f = 0; f < face_count; f++) {
+let v0 = mesh.IndexArray[f * 3 + 0];
+let v1 = mesh.IndexArray[f * 3 + 1];
+let v2 = mesh.IndexArray[f * 3 + 2];
+let n = cross_product(mesh.VertexArray, v0, v1, v2);
+let face_area = length(n) * 0.5;
+if (face_area > min_area) {
+normalize(n, n);
+if (n[1] === 1) {
+let times = face_area - min_area + 1;
+for (let i = 0; i < times; i++) {
+up_face_indices.push(f);
+}
+}
+}
+}
+if (up_face_indices.length === 0) {
 
-function LogWindow(game) {
-return html `<div
-class="window"
-style="width: 500px; max-height: 300px; margin: 10px; position: absolute; bottom:0; right: 0;"
->
-<div class="title-bar">
-<div class="title-bar-text">Game log</div>
-<div class="title-bar-controls">
-<button aria-label="Minimize"></button>
-<button aria-label="Maximize"></button>
-<button aria-label="Close"></button>
-</div>
-</div>
-<div class="window-body">
-<pre
-class="pre-log"
-style="white-space: pre-wrap;word-wrap: break-word; overflow-y: scroll;height:150px;"
->
-Piesku&#10094;R&#10095; Mirrorisk
-&#10094;C&#10095; Copyright Piesku Corp 2001-2021.
-<br/>${game.Logs}
-</pre>
-</div>
-</div>`;
+return null;
 }
+let f = element(up_face_indices);
+let v0 = mesh.IndexArray[f * 3 + 0];
+let v1 = mesh.IndexArray[f * 3 + 1];
+let v2 = mesh.IndexArray[f * 3 + 2];
+let p0 = [
+mesh.VertexArray[v0 * 3 + 0],
+mesh.VertexArray[v0 * 3 + 1],
+mesh.VertexArray[v0 * 3 + 2],
+];
+let p1 = [
+mesh.VertexArray[v1 * 3 + 0],
+mesh.VertexArray[v1 * 3 + 1],
+mesh.VertexArray[v1 * 3 + 2],
+];
+let p2 = [
+mesh.VertexArray[v2 * 3 + 0],
+mesh.VertexArray[v2 * 3 + 1],
+mesh.VertexArray[v2 * 3 + 2],
+];
 
-let alertWidth = 400;
-function PopupWindow(title, content) {
-return html `<div
-class="window"
-style="
-z-index: 100;
-width: ${alertWidth}px;
-position: absolute;
-left: ${(window.innerWidth - alertWidth) / 2}px;
-"
-onmousedown="event.stopPropagation();"
-onmouseup="event.stopPropagation();"
->
-<div class="title-bar">
-<div class="title-bar-text">${title}</div>
-<div class="title-bar-controls">
-<button aria-label="Close"></button>
-</div>
-</div>
-<div class="window-body">${content}</div>
-</div>`;
+let t0 = float(0.1, 0.8);
+let t1 = float(0.1, 0.8);
+if (t0 + t1 > 1) {
+t0 = 1 - t0;
+t1 = 1 - t1;
 }
+let t2 = 1 - t0 - t1;
 
-function Toolbar(game) {
-switch (game.TurnPhase) {
-case 0 /* Deploy */: {
-if (game.IsAiTurn) {
-return "";
-}
-return html `<div
-class="window"
-style="
-width: 300px;
-margin: 10px;
-"
-onmousedown="event.stopPropagation();"
-onmouseup="event.stopPropagation();"
->
-<div class="title-bar">
-<div class="title-bar-text">Deployment Phase</div>
-<div class="title-bar-controls">
-<button aria-label="Close"></button>
-</div>
-</div>
-<div class="window-body">
-<p>
-Click on a territory you control to deploy reinforcements. Armies left to
-deploy: ${game.UnitsToDeploy - game.UnitsDeployed}.
-</p>
-<div class="field-row">
-<progress value="${game.UnitsDeployed}" max="${game.UnitsToDeploy}" />
-</div>
-<div style="text-align: center; margin-top: 10px;">
-<button
-onclick="$(${1 /* EndDeployment */});"
-${game.IsAiTurn && "disabled"}
->
-End Deployment
-</button>
-</div>
-</div>
-</div>`;
-}
-case 1 /* Move */: {
-return html `<div
-class="window"
-style="
-width: 300px;
-margin: 10px;
-"
-onmousedown="event.stopPropagation();"
-onmouseup="event.stopPropagation();"
->
-<div class="title-bar">
-<div class="title-bar-text">Movement Phase</div>
-<div class="title-bar-controls">
-<button aria-label="Close"></button>
-</div>
-</div>
-<div class="window-body">
-<p>Current Player: ${game.Players[game.CurrentPlayer].Name}</p>
-<p>Controlled by: ${game.IsAiTurn ? "AI" : "Human"}</p>
-<div style="text-align: center;">
-<button onclick="$(${3 /* SetupBattles */});" ${game.IsAiTurn && "disabled"}>
-End Turn & Resolve Battles
-</button>
-</div>
-</div>
-</div>`;
-}
-}
-}
-
-function App(game) {
-return html `
-${Toolbar(game)} ${LogWindow(game)} ${AlertWindow(game)}
-${game.Popup &&
-PopupWindow(game.Popup.Title, html `
-${game.Popup.Content}
-<div style="text-align: center;">
-<button onclick="$(${7 /* ClearPopup */});">OK</button>
-</div>
-`)}
-`;
-}
-function Logger(game, text) {
-
-game.Logs += `${text}<br/>`;
-}
-function Alert(game, text) {
-game.AlertText = text;
-}
-function Popup(game, text, title) {
-game.Popup = { Title: title, Content: text };
-}
-
-function dispatch(game, action, payload) {
-let current_player_name = game.Players[game.CurrentPlayer].Name;
-switch (action) {
-case 0 /* StartDeployment */: {
-let game_over = false;
-let most_territories = 0;
-let best_player = 0;
-game.Battles = [];
-for (let i = 0; i < game.Players.length; i++) {
-let territories = territories_controlled_by_team(game, i);
-let territories_qty = Object.keys(territories).length;
-Logger(game, `${game.Players[i].Name} controls ${territories_qty} territories`);
-if (most_territories < territories_qty) {
-most_territories = territories_qty;
-best_player = i;
-}
-if (territories_qty === 0) {
-game_over = true;
-}
-}
-if (game_over) {
-Popup(game, `Game over! ${game.Players[best_player].Name} won!`, `Game over!`);
-game.TurnPhase = 4 /* Endgame */;
-}
-Logger(game, `C:&#92;> ${current_player_name}'s turn`);
-game.CurrentPlayerTerritories = Object.keys(territories_controlled_by_team(game, game.CurrentPlayer)).map((e) => parseInt(e, 10));
-
-let units_to_deploy = Math.max(~~(game.CurrentPlayerTerritories.length / 3), 3);
-let bonus = 0;
-let continents_controlled = [];
-for (let j = 0; j < game.ContinentBonus.length; j++) {
-let continent = game.ContinentBonus[j];
-let territories = continent.Territories.slice().filter((ter_id) => !game.CurrentPlayerTerritories.includes(ter_id));
-if (territories.length === 0 && continent.Territories.length > 0) {
-bonus += continent.Bonus;
-units_to_deploy += continent.Bonus;
-continents_controlled.push(continent.Name);
-}
-}
-if (!game.IsAiTurn) {
-Alert(game, `It's your turn now!${bonus > 0
-? ` You receive ${bonus} extra armies for controling ${continents_controlled.join(", ")}. `
-: " "}Select territories to deploy ${units_to_deploy} new armies.`);
-}
-game.TurnPhase = 0 /* Deploy */;
-game.UnitsDeployed = 0;
-game.UnitsToDeploy = units_to_deploy;
-break;
-}
-case 2 /* DeployUnit */: {
-if (game.UnitsDeployed === game.UnitsToDeploy) {
-return;
-}
-let { territory_id, position } = payload;
-if (position) {
-let territory_entity_id = game.TerritoryEntities[territory_id];
-let territory_name = game.World.Territory[territory_entity_id].Name;
-Logger(game, `${current_player_name} deploys an army to ${territory_name}`);
-let deployed_unit_entity = instantiate(game, blueprint_unit(game, [position[0], -5, position[2]], territory_id, game.CurrentPlayer));
-game.World.NavAgent[deployed_unit_entity].Destination = [
-position[0],
-position[1] + 1,
-position[2],
+return [
+t0 * p0[0] + t1 * p1[0] + t2 * p2[0],
+t0 * p0[1] + t1 * p1[1] + t2 * p2[1],
+t0 * p0[2] + t1 * p1[2] + t2 * p2[2],
 ];
 }
-game.UnitsDeployed++;
-break;
-}
-case 1 /* EndDeployment */: {
-game.TurnPhase = 1 /* Move */;
-game.UnitsDeployed = 0;
-break;
-}
-case 3 /* SetupBattles */: {
-game.TurnPhase = 2 /* Battle */;
-let current_player_territories = territories_controlled_by_team(game, game.CurrentPlayer);
-let current_player_territory_ids = Object.keys(current_player_territories).map((e) => parseInt(e, 10));
-for (let i = 0; i < game.Players.length; i++) {
-if (i === game.CurrentPlayer) {
-continue;
-}
-let enemy_territories = territories_controlled_by_team(game, i);
-let enemy_territory_ids = Object.keys(enemy_territories).map((e) => parseInt(e, 10));
-for (let j = 0; j < enemy_territory_ids.length; j++) {
-if (current_player_territory_ids.includes(enemy_territory_ids[j])) {
-let territory_id = enemy_territory_ids[j];
-let territory_entity = game.TerritoryEntities[territory_id];
-game.Battles.push({
-TerritoryEntity: territory_entity,
-Run: () => {
-let sfx = [
-"battle1.mp3",
-"battle2.mp3",
-"battle3.mp3",
-"battle4.mp3",
-"battle5.mp3",
-"battle6.mp3",
-];
-play_buffer(game.Audio, undefined, game.Sounds[element(sfx)]);
-let territory_name = game.World.Territory[territory_entity].Name;
-let enemy_territory_id = enemy_territory_ids[j];
-Logger(game, `${current_player_name} attacks ${game.Players[i].Name} in ${territory_name} with ${current_player_territories[enemy_territory_id]} armies against ${enemy_territories[enemy_territory_id]} armies.`);
-let battle_result = fight(game, current_player_territories[enemy_territory_id], enemy_territories[enemy_territory_id], !game.IsAiTurn, game.Players[i].Type === 0 /* Human */);
-let loser, winner;
-let winner_units_lost;
-if (battle_result.result === 0 /* AttackWon */) {
-winner_units_lost =
-current_player_territories[enemy_territory_id] -
-battle_result.attacking_units;
-Logger(game, `${current_player_name} ${winner_units_lost === 0
-? "wins"
-: `loses ${winner_units_lost} armies but still manages to win`} the battle!`);
-loser = i;
-winner = game.CurrentPlayer;
-}
-else {
-winner_units_lost =
-enemy_territories[enemy_territory_id] -
-battle_result.defending_units;
-Logger(game, `${game.Players[i].Name} ${winner_units_lost === 0
-? "wins"
-: `loses ${winner_units_lost} armies but still manages to win`} the battle!`);
-loser = game.CurrentPlayer;
-winner = i;
-}
-if (typeof loser !== undefined) {
-remove_defeated_units(game, enemy_territory_id, loser);
-}
-if (typeof winner !== undefined) {
-console.log({ winner, winner_units_lost });
-remove_defeated_units(game, enemy_territory_id, winner, winner_units_lost);
-}
-},
-});
-}
-}
-}
-dispatch(game, 4 /* ResolveBattles */, {});
-break;
-}
-case 4 /* ResolveBattles */: {
-if (game.Battles.length === 0) {
-dispatch(game, 5 /* EndTurn */, {});
-return;
-}
-let battle = game.Battles.pop();
-game.CurrentlyFoughtOverTerritory = battle.TerritoryEntity;
-let scheduled_battle = battle;
-
-setTimeout(() => {
-scheduled_battle.Run();
-setTimeout(() => {
-dispatch(game, 4 /* ResolveBattles */, {});
-}, 1000);
-}, 1000);
-break;
-}
-case 5 /* EndTurn */: {
-game.World.Signature[game.SunEntity] |= 32 /* ControlAlways */;
-game.CurrentlyFoughtOverTerritory = null;
-setTimeout(() => {
-let players_count = game.Players.length;
-let next_player = (players_count + game.CurrentPlayer + 1) % players_count;
-let next_player_units = units_entity_ids(game, next_player);
-for (let i = 0; i < next_player_units.length; i++) {
-game.World.NavAgent[next_player_units[i]].Actions = 1;
-}
-game.IsAiTurn = game.Players[next_player].Type === 1 /* AI */;
-if (game.IsAiTurn) {
-game.AiActiveUnits = next_player_units.slice();
-}
-game.World.Signature[game.SunEntity] &= ~32 /* ControlAlways */;
-game.World.Transform[game.SunEntity].Rotation = game.InitialSunPosition.slice();
-game.World.Transform[game.SunEntity].Dirty = true;
-game.CurrentPlayer = next_player;
-dispatch(game, 0 /* StartDeployment */, {});
-}, 1000);
-break;
-}
-case 6 /* ClearAlert */: {
-game.Audio.resume();
-game.AlertText = null;
-break;
-}
-case 7 /* ClearPopup */: {
-game.Popup = undefined;
-break;
-}
-}
-}
-function fight(game, attacking_units, defending_units, human_player_attacking, human_player_defending) {
-while (attacking_units && defending_units) {
-let attackers = [];
-let defenders = [];
-for (let i = 0; i < attacking_units; i++) {
-attackers.push(integer(1, 6));
-}
-for (let i = 0; i < defending_units; i++) {
-defenders.push(integer(1, 6));
-}
-let n_attackers = attackers.sort((a, b) => b - a).slice(0, Math.min(attacking_units, 3));
-let n_defenders = defenders.sort((a, b) => b - a).slice(0, Math.min(attacking_units, 2));
-for (let i = 0; i < Math.min(n_defenders.length, n_attackers.length); i++) {
-if (n_attackers[i] > n_defenders[i]) {
-defending_units--;
-}
-else if (n_attackers[i] < n_defenders[i]) {
-attacking_units--;
-}
-else {
-if (human_player_attacking) {
-defending_units--;
-}
-else {
-attacking_units--;
-}
-}
-}
-}
-if (attacking_units) {
-return {
-result: 0 /* AttackWon */,
-attacking_units,
-defending_units,
-};
-}
-else {
-return {
-result: 1 /* DefenceWon */,
-attacking_units,
-defending_units,
-};
-}
-}
-function remove_defeated_units(game, territory_id, team_id, qty) {
-let QUERY = 262144 /* Team */ | 4096 /* NavAgent */;
-for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY) === QUERY &&
-game.World.NavAgent[i].TerritoryId === territory_id &&
-game.World.Team[i].Id === team_id) {
-if (qty === 0) {
-return;
-}
-if (qty) {
-qty--;
-}
-let translation = game.World.Transform[i].Translation;
-game.World.Move[i].MoveSpeed += float(-5, 5);
-game.World.Signature[i] &= ~262144 /* Team */;
-delete game.World.Team[i];
-game.World.NavAgent[i].TerritoryId = 0;
-game.World.NavAgent[i].Destination = [
-translation[0],
-translation[1] - 7,
-translation[2],
-];
-setTimeout(() => {
-destroy_entity(game.World, i);
-}, 1000);
-}
-}
+function cross_product(vertices, a, b, c) {
+let edge1 = [0, 0, 0];
+let edge2 = [0, 0, 0];
+subtract(edge1, [vertices[b * 3 + 0], vertices[b * 3 + 1], vertices[b * 3 + 2]], [vertices[a * 3 + 0], vertices[a * 3 + 1], vertices[a * 3 + 2]]);
+subtract(edge2, [vertices[c * 3 + 0], vertices[c * 3 + 1], vertices[c * 3 + 2]], [vertices[b * 3 + 0], vertices[b * 3 + 1], vertices[b * 3 + 2]]);
+return cross([0, 0, 0], edge2, edge1);
 }
 
-function create_depth_target(gl, width, height) {
-let target = {
-Framebuffer: gl.createFramebuffer(),
-Width: width,
-Height: height,
-ColorTexture: resize_texture_rgba(gl, gl.createTexture(), width, height),
-DepthTexture: resize_texture_depth(gl, gl.createTexture(), width, height),
+function territory(continent, index, name = "") {
+return (game, entity) => {
+let id = continent * 10 + index;
+game.TerritoryEntities[id] = entity;
+game.ContinentBonus[continent].Territories.push(id);
+game.World.Signature[entity] |= 65536 /* Territory */;
+game.World.Territory[entity] = {
+Continent: continent,
+Index: index,
+Id: id,
+Name: name,
 };
-gl.bindFramebuffer(GL_FRAMEBUFFER, target.Framebuffer);
-gl.framebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, target.DepthTexture, 0);
-gl.framebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, target.ColorTexture, 0);
-let status = gl.checkFramebufferStatus(GL_FRAMEBUFFER);
-if (status != GL_FRAMEBUFFER_COMPLETE) {
-throw new Error(`Failed to set up the framebuffer (${status}).`);
+};
 }
-return target;
+
+const textures_by_continent = {
+[0 /* Europe */]: "euau.webp",
+[1 /* Africa */]: "afsa.webp",
+[2 /* Australia */]: "euau.webp",
+[4 /* SouthAmerica */]: "afsa.webp",
+[3 /* NorthAmerica */]: "na.webp",
+[5 /* Asia */]: "as.webp",
+};
+function blueprint_territory(game, continent, index, name = "") {
+let mesh = game.TerritoryMeshes[continent][index - 1];
+
+
+let anchor_position = random_point_up(mesh);
+if (!anchor_position) {
+throw new Error("Territory without anchor is illegal. Calling the Goodluck City Police Department");
+}
+return [
+transform(),
+pickable_territory(mesh, [1.2, 1.2, 1.2, 1]),
+render_textured_mapped(game.MaterialTexturedMapped, mesh, game.Textures[textures_by_continent[continent]], game.Textures["Cardboard004_1K_Normal.jpg"], game.Textures["Cardboard004_1K_Roughness.jpg"]),
+territory(continent, index, name),
+children([transform(anchor_position)]),
+];
+}
+function get_coord_by_territory_id(game, territory_id) {
+let destination_territory_entity = game.TerritoryEntities[territory_id];
+let territory = game.World.Territory[destination_territory_entity];
+let territory_mesh = game.TerritoryMeshes[territory.Continent][territory.Index - 1];
+let territory_transform = game.World.Transform[destination_territory_entity];
+return random_point_up_worldspace(territory_mesh, territory_transform.World);
+}
+
+class World {
+constructor() {
+this.Signature = [];
+this.Graveyard = [];
+
+this.AudioListener = [];
+this.AudioSource = [];
+this.Camera = [];
+this.Children = [];
+this.Collide = [];
+this.ControlAlways = [];
+this.ControlCamera = [];
+this.Draw = [];
+this.Highlightable = [];
+this.Light = [];
+this.Mimic = [];
+this.Move = [];
+this.NavAgent = [];
+this.Pickable = [];
+this.Render = [];
+this.Selectable = [];
+this.Territory = [];
+this.Transform = [];
+this.Team = [];
+}
 }
 
 const EPSILON = 0.000001;
@@ -41477,95 +41204,855 @@ out[3] = scale0 * aw + scale1 * bw;
 return out;
 }
 
-function link(gl, vertex, fragment) {
-let program = gl.createProgram();
-gl.attachShader(program, compile(gl, GL_VERTEX_SHADER, vertex));
-gl.attachShader(program, compile(gl, GL_FRAGMENT_SHADER, fragment));
-gl.linkProgram(program);
-if (!gl.getProgramParameter(program, GL_LINK_STATUS)) {
-throw new Error(gl.getProgramInfoLog(program));
+function audio_listener() {
+return (game, entity) => {
+game.World.Signature[entity] |= 1 /* AudioListener */;
+};
 }
-return program;
-}
-function compile(gl, type, source) {
-let shader = gl.createShader(type);
-gl.shaderSource(shader, source);
-gl.compileShader(shader);
-if (!gl.getShaderParameter(shader, GL_COMPILE_STATUS)) {
-throw new Error(gl.getShaderInfoLog(shader));
-}
-return shader;
-}
-function random_point_up_worldspace(mesh, world_space) {
-let point_localspace = random_point_up(mesh);
-if (point_localspace === null) {
-return null;
-}
-return transform_point(point_localspace, point_localspace, world_space);
-}
-function random_point_up(mesh, min_area = 3) {
-let up_face_indices = [];
-let face_count = mesh.IndexCount / 3;
-for (let f = 0; f < face_count; f++) {
-let v0 = mesh.IndexArray[f * 3 + 0];
-let v1 = mesh.IndexArray[f * 3 + 1];
-let v2 = mesh.IndexArray[f * 3 + 2];
-let n = cross_product(mesh.VertexArray, v0, v1, v2);
-let face_area = length(n) * 0.5;
-if (face_area > min_area) {
-normalize(n, n);
-if (n[1] === 1) {
-let times = face_area - min_area + 1;
-for (let i = 0; i < times; i++) {
-up_face_indices.push(f);
-}
-}
-}
-}
-if (up_face_indices.length === 0) {
 
-return null;
+function camera_display_perspective(fovy, near, far, clear_color = [0.9, 0.9, 0.9, 1]) {
+return (game, entity) => {
+game.World.Signature[entity] |= 4 /* Camera */;
+game.World.Camera[entity] = {
+Pv: create(),
+Position: [0, 0, 0],
+Kind: 0 /* Display */,
+FovY: fovy,
+Near: near,
+Far: far,
+View: create(),
+Projection: create(),
+Unprojection: create(),
+ClearColor: clear_color,
+};
+};
 }
-let f = element(up_face_indices);
-let v0 = mesh.IndexArray[f * 3 + 0];
-let v1 = mesh.IndexArray[f * 3 + 1];
-let v2 = mesh.IndexArray[f * 3 + 2];
-let p0 = [
-mesh.VertexArray[v0 * 3 + 0],
-mesh.VertexArray[v0 * 3 + 1],
-mesh.VertexArray[v0 * 3 + 2],
-];
-let p1 = [
-mesh.VertexArray[v1 * 3 + 0],
-mesh.VertexArray[v1 * 3 + 1],
-mesh.VertexArray[v1 * 3 + 2],
-];
-let p2 = [
-mesh.VertexArray[v2 * 3 + 0],
-mesh.VertexArray[v2 * 3 + 1],
-mesh.VertexArray[v2 * 3 + 2],
-];
-
-let t0 = float(0.1, 0.8);
-let t1 = float(0.1, 0.8);
-if (t0 + t1 > 1) {
-t0 = 1 - t0;
-t1 = 1 - t1;
+function camera_framebuffer_ortho(target, radius, near, far, clear_color) {
+return (game, entity) => {
+game.World.Signature[entity] |= 4 /* Camera */;
+game.World.Camera[entity] = {
+Pv: create(),
+Position: [0, 0, 0],
+Kind: 1 /* Framebuffer */,
+Target: target,
+Radius: radius,
+Near: near,
+Far: far,
+View: create(),
+Projection: create(),
+Unprojection: create(),
+ClearColor: clear_color,
+};
+};
 }
-let t2 = 1 - t0 - t1;
 
+function control_camera(move, zoom, yaw, pitch) {
+return (game, entity) => {
+game.World.Signature[entity] |= 64 /* ControlCamera */;
+game.World.ControlCamera[entity] = {
+Move: move,
+Zoom: zoom,
+Yaw: yaw,
+Pitch: pitch,
+};
+};
+}
+
+function mimic(target, stiffness, position, rotation) {
+return (game, entity) => {
+game.World.Signature[entity] |= 1024 /* Mimic */;
+game.World.Mimic[entity] = {
+Target: target,
+Stiffness: stiffness,
+Position: position,
+Rotation: rotation,
+};
+};
+}
+
+function blueprint_camera(game) {
 return [
-t0 * p0[0] + t1 * p1[0] + t2 * p2[0],
-t0 * p0[1] + t1 * p1[1] + t2 * p2[1],
-t0 * p0[2] + t1 * p1[2] + t2 * p2[2],
+control_camera(100, 0, 1, 0),
+mimic(null, 0.1, true, false),
+move(100, 0.5),
+children([
+transform(undefined, from_euler([0, 0, 0, 0], -30, 0, 0)),
+control_camera(0, 0, 0, 1),
+move(0, 0.5),
+children([
+transform([0, 40, 0], from_euler([0, 0, 0, 0], -90, 180, 0)),
+control_camera(0, 200, 0, 0),
+move(200, 0),
+camera_display_perspective(1, 1, 10000),
+audio_listener(),
+]),
+]),
 ];
 }
-function cross_product(vertices, a, b, c) {
-let edge1 = [0, 0, 0];
-let edge2 = [0, 0, 0];
-subtract(edge1, [vertices[b * 3 + 0], vertices[b * 3 + 1], vertices[b * 3 + 2]], [vertices[a * 3 + 0], vertices[a * 3 + 1], vertices[a * 3 + 2]]);
-subtract(edge2, [vertices[c * 3 + 0], vertices[c * 3 + 1], vertices[c * 3 + 2]], [vertices[b * 3 + 0], vertices[b * 3 + 1], vertices[b * 3 + 2]]);
-return cross([0, 0, 0], edge2, edge1);
+
+function callback(fn) {
+return (game, entity) => {
+fn(game, entity);
+};
+}
+
+function control_always(direction, rotation) {
+return (game, entity) => {
+game.World.Signature[entity] |= 32 /* ControlAlways */;
+game.World.ControlAlways[entity] = {
+Direction: direction,
+Rotation: rotation,
+};
+};
+}
+
+function light_directional(color = [1, 1, 1], range = 1) {
+return (game, entity) => {
+game.World.Signature[entity] |= 512 /* Light */;
+game.World.Light[entity] = {
+Kind: 1 /* Directional */,
+Color: color,
+Intensity: range ** 2,
+};
+};
+}
+function light_point(color = [1, 1, 1], range = 1) {
+return (game, entity) => {
+game.World.Signature[entity] |= 512 /* Light */;
+game.World.Light[entity] = {
+Kind: 2 /* Point */,
+Color: color,
+Intensity: range ** 2,
+};
+};
+}
+
+function blueprint_sun(game) {
+return [
+transform(undefined, from_euler([0, 0, 0, 0], -30, 0, 0)),
+children([
+callback((game, entity) => (game.SunEntity = entity)),
+transform(undefined, game.InitialSunPosition.slice()),
+control_always(null, [0, -1, 0, 0]),
+disable(32 /* ControlAlways */),
+move(0, 6.2),
+children(
+
+[
+transform([0, 0, 500]),
+light_directional([1, 1, 1], 1),
+camera_framebuffer_ortho(game.Targets.Sun, 250, 1, 1000, [0, 0, 0, 1]),
+], 
+
+[transform([0, 0, -50]), light_directional([0.5, 0.5, 0.7], 0.8)]),
+]),
+];
+}
+
+function map_earth(game) {
+game.TerritoryGraph = {
+
+1: [2, 3, 4, 7],
+2: [1, 4, 35],
+3: [1, 4, 5, 6, 7],
+4: [1, 2, 3, 6],
+5: [3, 6, 7, 13, 15, 57],
+6: [3, 4, 5, 51, 57, 61],
+7: [1, 3, 5, 15],
+
+11: [12, 15, 16],
+12: [11, 13, 14, 15, 16, 57],
+13: [12, 15, 5, 57],
+14: [12, 16],
+15: [11, 12, 13, 5, 7, 42],
+16: [11, 12, 14],
+
+21: [23, 24],
+22: [23, 24, 59],
+23: [21, 22, 24],
+24: [21, 22, 23],
+
+31: [32, 36, 56],
+32: [31, 36, 37, 39],
+33: [34, 39, 44],
+34: [33, 37, 38, 39],
+35: [36, 37, 38, 2],
+36: [31, 32, 37, 35],
+37: [32, 34, 35, 36, 38, 39],
+38: [34, 35, 37],
+39: [32, 33, 34, 37],
+
+41: [42, 43],
+42: [41, 43, 44, 15],
+43: [41, 42, 44],
+44: [42, 43, 33],
+
+51: [52, 53, 57, 61, 6],
+52: [51, 53, 58, 59, 60, 61],
+53: [51, 52, 57, 59],
+54: [56, 58, 60, 62],
+55: [56, 58],
+56: [54, 55, 58, 62, 31],
+57: [51, 53, 5, 6, 12, 13],
+58: [52, 54, 55, 56, 60],
+59: [52, 53, 22],
+60: [52, 54, 58, 61, 62],
+61: [51, 52, 60, 6],
+62: [54, 56, 60],
+};
+game.ContinentBonus[2 /* Australia */] = {
+Territories: [],
+Bonus: 2,
+Name: "Australia",
+};
+game.ContinentBonus[4 /* SouthAmerica */] = {
+Territories: [],
+Bonus: 2,
+Name: "South America",
+};
+game.ContinentBonus[1 /* Africa */] = {
+Territories: [],
+Bonus: 3,
+Name: "Africa",
+};
+game.ContinentBonus[0 /* Europe */] = {
+Territories: [],
+Bonus: 5,
+Name: "Europe",
+};
+game.ContinentBonus[3 /* NorthAmerica */] = {
+Territories: [],
+Bonus: 5,
+Name: "North America",
+};
+game.ContinentBonus[5 /* Asia */] = {
+Territories: [],
+Bonus: 7,
+Name: "Asia",
+};
+
+instantiate(game, [...blueprint_camera(), transform([0, 0, 0], [0, 1, 0, 0])]);
+
+instantiate(game, blueprint_sun(game));
+
+instantiate(game, [transform([-1, 1, -1]), light_directional([1, 1, 1], 0.2)]);
+
+instantiate(game, [transform([-100, 100, -100]), light_point([1, 1, 0.9], 40)]);
+
+instantiate(game, [
+transform([0, 0, 0], undefined, [332, 1, 220]),
+render_textured_mapped(game.MaterialTexturedMapped, game.MeshPlane, game.Textures["Fabric023_1K_Color.jpg"], game.Textures["Fabric023_1K_Normal.jpg"], game.Textures["Fabric023_1K_Roughness.jpg"]),
+children([
+transform(undefined, [1, 0, 0, 0]),
+render_colored_unlit(game.MaterialColoredUnlit, game.MeshPlane, [0, 0, 0, 1]),
+]),
+]);
+
+let room_scale = 500;
+instantiate(game, [
+transform([0, 0, 0], from_euler([0, 0, 0, 0], 0, -175, 0), [
+room_scale,
+room_scale,
+room_scale,
+]),
+render_colored_unlit(game.MaterialColoredUnlit, game.MeshRoom, [1, 1, 1, 1]),
+]);
+
+instantiate(game, [
+transform(),
+collide(false, 0 /* None */, 0 /* None */, [1000, 0.01, 1000]),
+children(
+
+blueprint_territory(game, 0 /* Europe */, 1, "Great Britain"), blueprint_territory(game, 0 /* Europe */, 2, "Iceland"), blueprint_territory(game, 0 /* Europe */, 3, "North Europe"), blueprint_territory(game, 0 /* Europe */, 4, "Scandinavia"), blueprint_territory(game, 0 /* Europe */, 5, "South Europe"), blueprint_territory(game, 0 /* Europe */, 6, "East Europe"), blueprint_territory(game, 0 /* Europe */, 7, "West Europe"), 
+
+blueprint_territory(game, 1 /* Africa */, 1, "Congo"), blueprint_territory(game, 1 /* Africa */, 2, "East Africa"), blueprint_territory(game, 1 /* Africa */, 3, "Egypt"), blueprint_territory(game, 1 /* Africa */, 4, "Madagascar"), blueprint_territory(game, 1 /* Africa */, 5, "North Africa"), blueprint_territory(game, 1 /* Africa */, 6, "South Africa"), 
+
+blueprint_territory(game, 2 /* Australia */, 1, "Eastern Australia"), blueprint_territory(game, 2 /* Australia */, 2, "Indonesia"), blueprint_territory(game, 2 /* Australia */, 3, "New Guinea"), blueprint_territory(game, 2 /* Australia */, 4, "Western Australia"), 
+
+blueprint_territory(game, 3 /* NorthAmerica */, 1, "Alaska"), blueprint_territory(game, 3 /* NorthAmerica */, 2, "Alberta"), blueprint_territory(game, 3 /* NorthAmerica */, 3, "Central America"), blueprint_territory(game, 3 /* NorthAmerica */, 4, "Eastern United States"), blueprint_territory(game, 3 /* NorthAmerica */, 5, "Greenland"), blueprint_territory(game, 3 /* NorthAmerica */, 6, "Northwest Territory"), blueprint_territory(game, 3 /* NorthAmerica */, 7, "Ontario"), blueprint_territory(game, 3 /* NorthAmerica */, 8, "Quebec"), blueprint_territory(game, 3 /* NorthAmerica */, 9, "Western United States"), 
+
+blueprint_territory(game, 4 /* SouthAmerica */, 1, "Argentina"), blueprint_territory(game, 4 /* SouthAmerica */, 2, "Brazil"), blueprint_territory(game, 4 /* SouthAmerica */, 3, "Peru"), blueprint_territory(game, 4 /* SouthAmerica */, 4, "Venezuela"), 
+
+blueprint_territory(game, 5 /* Asia */, 1, "Afghanistan"), blueprint_territory(game, 5 /* Asia */, 2, "China"), blueprint_territory(game, 5 /* Asia */, 3, "India"), blueprint_territory(game, 5 /* Asia */, 4, "Irkuck"), blueprint_territory(game, 5 /* Asia */, 5, "Japan"), blueprint_territory(game, 5 /* Asia */, 6, "Kamtchatka"), blueprint_territory(game, 5 /* Asia */, 7, "Middle East"), blueprint_territory(game, 5 /* Asia */, 8, "Mongolia"), blueprint_territory(game, 5 /* Asia */, 9, "Siam"), blueprint_territory(game, 5 /* Asia */, 10, "Siberia"), blueprint_territory(game, 5 /* Asia */, 11, "Ural"), blueprint_territory(game, 5 /* Asia */, 12, "Yakutsk")),
+]);
+}
+
+function scene_stage(game) {
+set_seed(Date.now());
+game.World = new World();
+game.ViewportResized = true;
+game.Gl.clearColor(0.9, 0.9, 0.9, 1);
+map_earth(game);
+
+let number_of_players = game.Players.length;
+let territory_entities = Object.keys(game.TerritoryEntities)
+.sort(() => 0.5 - Math.random())
+.map((e) => parseInt(e, 10));
+for (let i = 0; i < territory_entities.length; i++) {
+let team = (number_of_players + i) % number_of_players;
+let territory_entity_id = game.TerritoryEntities[territory_entities[i]];
+let territory = game.World.Territory[territory_entity_id];
+let translation = get_coord_by_territory_id(game, territory.Id);
+if (translation) {
+instantiate(game, blueprint_unit(game, translation, territory.Id, team));
+}
+else {
+console.error(`Cannot find random point on territory ${JSON.stringify(territory, null, 2)}!`);
+}
+}
+dispatch(game, 3 /* StartDeployment */, {});
+play_buffer(game.Audio, undefined, game.Sounds[element(["music1.mp3", "music2.mp3"])]);
+setInterval(() => {
+play_buffer(game.Audio, undefined, game.Sounds[element(["music1.mp3", "music2.mp3"])]);
+}, 30000);
+}
+
+let alertWidth$1 = 300;
+function AlertWindow(game) {
+if (!game.AlertText) {
+return "";
+}
+return html `<div
+class="window"
+style="
+width: ${alertWidth$1}px;
+position: absolute;
+left: ${(window.innerWidth - alertWidth$1) / 2}px;
+"
+onmousedown="event.stopPropagation();"
+onmouseup="event.stopPropagation();"
+>
+<div class="title-bar">
+<div class="title-bar-text">Alert</div>
+<div class="title-bar-controls">
+<button aria-label="Close"></button>
+</div>
+</div>
+<div class="window-body">
+<p>${game.AlertText}</p>
+<div style="text-align: center;">
+<button onclick="$(${9 /* ClearAlert */});">OK</button>
+</div>
+</div>
+</div>`;
+}
+
+let alertWidth = 400;
+function PopupWindow(title, content) {
+return html `<div
+class="window"
+style="
+z-index: 100;
+width: ${alertWidth}px;
+position: absolute;
+left: ${(window.innerWidth - alertWidth) / 2}px;
+"
+onmousedown="event.stopPropagation();"
+onmouseup="event.stopPropagation();"
+>
+<div class="title-bar">
+<div class="title-bar-text">${title}</div>
+<div class="title-bar-controls">
+<button aria-label="Close"></button>
+</div>
+</div>
+<div class="window-body">${content}</div>
+</div>`;
+}
+
+function GameSetup(game) {
+return PopupWindow("Game Setup", html `
+<fieldset style="background: transparent;">
+<legend>Number of players</legend>
+<div class="field-row">
+<label>Fewer</label>
+<input
+id="team_count"
+type="range"
+min="1"
+max="6"
+value="${game.Players.length}"
+onchange="$(${0 /* ChangeNumberOfTeams */}, this.value)"
+/>
+<label>More</label>
+</div>
+<div class="field-row" style="justify-content: center;">
+<label>${game.Players.length} players</label>
+</div>
+</fieldset>
+<fieldset style="background: transparent;">
+<legend>Player details</legend>
+${game.Players.map((team, idx) => html `
+<div class="field-row">
+<input
+id="team${idx}_color"
+type="color"
+value="${vec4_to_hex(team.Color)}"
+onchange="$(${1 /* ChangeTeamDetails */}, [${idx}, this.parentElement])"
+/>
+<input
+id="team${idx}_name"
+type="text"
+value="${team.Name}"
+onchange="$(${1 /* ChangeTeamDetails */}, [${idx}, this.parentElement])"
+/>
+<select
+onchange="$(${1 /* ChangeTeamDetails */}, [${idx}, this.parentElement])"
+>
+<option
+value="${0 /* Human */}"
+${team.Type === 0 /* Human */ && "selected"}
+>
+Human
+</option>
+<option
+value="${1 /* AI */}"
+${team.Type === 1 /* AI */ && "selected"}
+>
+Computer
+</option>
+</select>
+</div>
+`)}
+</fieldset>
+<div style="text-align: center;">
+<button onclick="$(${2 /* StartGame */});">Play</button>
+</div>
+`);
+}
+
+function LogWindow(game) {
+return html `<div
+class="window"
+style="width: 500px; max-height: 300px; margin: 10px; position: absolute; bottom:0; right: 0;"
+>
+<div class="title-bar">
+<div class="title-bar-text">Game log</div>
+<div class="title-bar-controls">
+<button aria-label="Minimize"></button>
+<button aria-label="Maximize"></button>
+<button aria-label="Close"></button>
+</div>
+</div>
+<div class="window-body">
+<pre
+class="pre-log"
+style="white-space: pre-wrap;word-wrap: break-word; overflow-y: scroll;height:150px;"
+>
+Piesku&#10094;R&#10095; Mirrorisk
+&#10094;C&#10095; Copyright Piesku Corp 2001-2021.
+<br/>${game.Logs}
+</pre>
+</div>
+</div>`;
+}
+
+function Toolbar(game) {
+switch (game.TurnPhase) {
+case 0 /* Deploy */: {
+if (game.IsAiTurn) {
+return "";
+}
+return html `<div
+class="window"
+style="
+width: 300px;
+margin: 10px;
+"
+onmousedown="event.stopPropagation();"
+onmouseup="event.stopPropagation();"
+>
+<div class="title-bar">
+<div class="title-bar-text">Deployment Phase</div>
+<div class="title-bar-controls">
+<button aria-label="Close"></button>
+</div>
+</div>
+<div class="window-body">
+<p>
+Click on a territory you control to deploy reinforcements. Armies left to
+deploy: ${game.UnitsToDeploy - game.UnitsDeployed}.
+</p>
+<div class="field-row">
+<progress value="${game.UnitsDeployed}" max="${game.UnitsToDeploy}" />
+</div>
+<div style="text-align: center; margin-top: 10px;">
+<button
+onclick="$(${4 /* EndDeployment */});"
+${game.IsAiTurn && "disabled"}
+>
+End Deployment
+</button>
+</div>
+</div>
+</div>`;
+}
+case 1 /* Move */: {
+return html `<div
+class="window"
+style="
+width: 300px;
+margin: 10px;
+"
+onmousedown="event.stopPropagation();"
+onmouseup="event.stopPropagation();"
+>
+<div class="title-bar">
+<div class="title-bar-text">Movement Phase</div>
+<div class="title-bar-controls">
+<button aria-label="Close"></button>
+</div>
+</div>
+<div class="window-body">
+<p>Current Player: ${game.Players[game.CurrentPlayer].Name}</p>
+<p>Controlled by: ${game.IsAiTurn ? "AI" : "Human"}</p>
+<div style="text-align: center;">
+<button onclick="$(${6 /* SetupBattles */});" ${game.IsAiTurn && "disabled"}>
+End Turn & Resolve Battles
+</button>
+</div>
+</div>
+</div>`;
+}
+}
+}
+
+function App(game) {
+return html `
+${Toolbar(game)} ${LogWindow(game)} ${AlertWindow(game)}
+${game.PlayState === 0 /* Setup */ && GameSetup(game)}
+${game.Popup &&
+PopupWindow(game.Popup.Title, html `
+${game.Popup.Content}
+<div style="text-align: center;">
+<button onclick="$(${10 /* ClearPopup */});">OK</button>
+</div>
+`)}
+`;
+}
+function Logger(game, text) {
+
+game.Logs += `${text}<br/>`;
+}
+function Alert(game, text) {
+game.AlertText = text;
+}
+function Popup(game, text, title) {
+game.Popup = { Title: title, Content: text };
+}
+
+function dispatch(game, action, payload) {
+let current_player_name = game.Players[game.CurrentPlayer].Name;
+switch (action) {
+case 0 /* ChangeNumberOfTeams */: {
+let count = payload;
+if (count < game.Players.length) {
+game.Players.splice(count);
+}
+else if (count > game.Players.length) {
+for (let i = 0; game.Players.length < count; i++) {
+game.Players.push({
+Name: `Player #${game.Players.length + 1}`,
+Color: [1, 1, 1, 1],
+Type: 1 /* AI */,
+});
+}
+}
+break;
+}
+case 1 /* ChangeTeamDetails */: {
+let [idx, form] = payload;
+let team_color = form.querySelector("input[type=color]").value;
+let team_name = form.querySelector("input[type=text]").value;
+let team_type = form.querySelector("select").value;
+game.Players[idx].Name = team_name;
+game.Players[idx].Color = hex_to_vec4(team_color);
+game.Players[idx].Type = parseInt(team_type);
+break;
+}
+case 2 /* StartGame */: {
+requestAnimationFrame(() => {
+game.PlayState = 1 /* Playing */;
+scene_stage(game);
+});
+break;
+}
+case 3 /* StartDeployment */: {
+let game_over = false;
+let most_territories = 0;
+let best_player = 0;
+game.Battles = [];
+for (let i = 0; i < game.Players.length; i++) {
+let territories = territories_controlled_by_team(game, i);
+let territories_qty = Object.keys(territories).length;
+Logger(game, `${game.Players[i].Name} controls ${territories_qty} territories`);
+if (most_territories < territories_qty) {
+most_territories = territories_qty;
+best_player = i;
+}
+if (territories_qty === 0) {
+game_over = true;
+}
+}
+if (game_over) {
+Popup(game, `Game over! ${game.Players[best_player].Name} won!`, `Game over!`);
+game.TurnPhase = 4 /* Endgame */;
+}
+Logger(game, `C:&#92;> ${current_player_name}'s turn`);
+game.CurrentPlayerTerritories = Object.keys(territories_controlled_by_team(game, game.CurrentPlayer)).map((e) => parseInt(e, 10));
+
+let units_to_deploy = Math.max(~~(game.CurrentPlayerTerritories.length / 3), 3);
+let bonus = 0;
+let continents_controlled = [];
+for (let j = 0; j < game.ContinentBonus.length; j++) {
+let continent = game.ContinentBonus[j];
+let territories = continent.Territories.slice().filter((ter_id) => !game.CurrentPlayerTerritories.includes(ter_id));
+if (territories.length === 0 && continent.Territories.length > 0) {
+bonus += continent.Bonus;
+units_to_deploy += continent.Bonus;
+continents_controlled.push(continent.Name);
+}
+}
+if (!game.IsAiTurn) {
+Alert(game, `It's ${current_player_name}'s turn now!${bonus > 0
+? ` You receive ${bonus} extra armies for controling ${continents_controlled.join(", ")}. `
+: " "}Select territories to deploy ${units_to_deploy} new armies.`);
+}
+game.TurnPhase = 0 /* Deploy */;
+game.UnitsDeployed = 0;
+game.UnitsToDeploy = units_to_deploy;
+break;
+}
+case 5 /* DeployUnit */: {
+if (game.UnitsDeployed === game.UnitsToDeploy) {
+return;
+}
+let { territory_id, position } = payload;
+if (position) {
+let territory_entity_id = game.TerritoryEntities[territory_id];
+let territory_name = game.World.Territory[territory_entity_id].Name;
+Logger(game, `${current_player_name} deploys an army to ${territory_name}`);
+let deployed_unit_entity = instantiate(game, blueprint_unit(game, [position[0], -5, position[2]], territory_id, game.CurrentPlayer));
+game.World.NavAgent[deployed_unit_entity].Destination = [
+position[0],
+position[1] + 1,
+position[2],
+];
+}
+game.UnitsDeployed++;
+break;
+}
+case 4 /* EndDeployment */: {
+game.TurnPhase = 1 /* Move */;
+game.UnitsDeployed = 0;
+break;
+}
+case 6 /* SetupBattles */: {
+game.TurnPhase = 2 /* Battle */;
+let current_player_territories = territories_controlled_by_team(game, game.CurrentPlayer);
+let current_player_territory_ids = Object.keys(current_player_territories).map((e) => parseInt(e, 10));
+for (let i = 0; i < game.Players.length; i++) {
+if (i === game.CurrentPlayer) {
+continue;
+}
+let enemy_territories = territories_controlled_by_team(game, i);
+let enemy_territory_ids = Object.keys(enemy_territories).map((e) => parseInt(e, 10));
+for (let j = 0; j < enemy_territory_ids.length; j++) {
+if (current_player_territory_ids.includes(enemy_territory_ids[j])) {
+let territory_id = enemy_territory_ids[j];
+let territory_entity = game.TerritoryEntities[territory_id];
+game.Battles.push({
+TerritoryEntity: territory_entity,
+Run: () => {
+let sfx = [
+"battle1.mp3",
+"battle2.mp3",
+"battle3.mp3",
+"battle4.mp3",
+"battle5.mp3",
+"battle6.mp3",
+];
+play_buffer(game.Audio, undefined, game.Sounds[element(sfx)]);
+let territory_name = game.World.Territory[territory_entity].Name;
+let enemy_territory_id = enemy_territory_ids[j];
+Logger(game, `${current_player_name} attacks ${game.Players[i].Name} in ${territory_name} with ${current_player_territories[enemy_territory_id]} armies against ${enemy_territories[enemy_territory_id]} armies.`);
+let battle_result = fight(game, current_player_territories[enemy_territory_id], enemy_territories[enemy_territory_id], !game.IsAiTurn, game.Players[i].Type === 0 /* Human */);
+let loser, winner;
+let winner_units_lost;
+if (battle_result.result === 0 /* AttackWon */) {
+winner_units_lost =
+current_player_territories[enemy_territory_id] -
+battle_result.attacking_units;
+Logger(game, `${current_player_name} ${winner_units_lost === 0
+? "wins"
+: `loses ${winner_units_lost} armies but still manages to win`} the battle!`);
+loser = i;
+winner = game.CurrentPlayer;
+}
+else {
+winner_units_lost =
+enemy_territories[enemy_territory_id] -
+battle_result.defending_units;
+Logger(game, `${game.Players[i].Name} ${winner_units_lost === 0
+? "wins"
+: `loses ${winner_units_lost} armies but still manages to win`} the battle!`);
+loser = game.CurrentPlayer;
+winner = i;
+}
+if (typeof loser !== undefined) {
+remove_defeated_units(game, enemy_territory_id, loser);
+}
+if (typeof winner !== undefined) {
+console.log({ winner, winner_units_lost });
+remove_defeated_units(game, enemy_territory_id, winner, winner_units_lost);
+}
+},
+});
+}
+}
+}
+dispatch(game, 7 /* ResolveBattles */, {});
+break;
+}
+case 7 /* ResolveBattles */: {
+if (game.Battles.length === 0) {
+dispatch(game, 8 /* EndTurn */, {});
+return;
+}
+let battle = game.Battles.pop();
+game.CurrentlyFoughtOverTerritory = battle.TerritoryEntity;
+let scheduled_battle = battle;
+
+setTimeout(() => {
+scheduled_battle.Run();
+setTimeout(() => {
+dispatch(game, 7 /* ResolveBattles */, {});
+}, 1000);
+}, 1000);
+break;
+}
+case 8 /* EndTurn */: {
+game.World.Signature[game.SunEntity] |= 32 /* ControlAlways */;
+game.CurrentlyFoughtOverTerritory = null;
+setTimeout(() => {
+let players_count = game.Players.length;
+let next_player = (players_count + game.CurrentPlayer + 1) % players_count;
+let next_player_units = units_entity_ids(game, next_player);
+for (let i = 0; i < next_player_units.length; i++) {
+game.World.NavAgent[next_player_units[i]].Actions = 1;
+}
+game.IsAiTurn = game.Players[next_player].Type === 1 /* AI */;
+if (game.IsAiTurn) {
+game.AiActiveUnits = next_player_units.slice();
+}
+game.World.Signature[game.SunEntity] &= ~32 /* ControlAlways */;
+game.World.Transform[game.SunEntity].Rotation = game.InitialSunPosition.slice();
+game.World.Transform[game.SunEntity].Dirty = true;
+game.CurrentPlayer = next_player;
+dispatch(game, 3 /* StartDeployment */, {});
+}, 1000);
+break;
+}
+case 9 /* ClearAlert */: {
+game.Audio.resume();
+game.AlertText = null;
+break;
+}
+case 10 /* ClearPopup */: {
+game.Popup = undefined;
+break;
+}
+}
+}
+function fight(game, attacking_units, defending_units, human_player_attacking, human_player_defending) {
+while (attacking_units && defending_units) {
+let attackers = [];
+let defenders = [];
+for (let i = 0; i < attacking_units; i++) {
+attackers.push(integer(1, 6));
+}
+for (let i = 0; i < defending_units; i++) {
+defenders.push(integer(1, 6));
+}
+let n_attackers = attackers.sort((a, b) => b - a).slice(0, Math.min(attacking_units, 3));
+let n_defenders = defenders.sort((a, b) => b - a).slice(0, Math.min(attacking_units, 2));
+for (let i = 0; i < Math.min(n_defenders.length, n_attackers.length); i++) {
+if (n_attackers[i] > n_defenders[i]) {
+defending_units--;
+}
+else if (n_attackers[i] < n_defenders[i]) {
+attacking_units--;
+}
+else {
+if (human_player_attacking) {
+defending_units--;
+}
+else {
+attacking_units--;
+}
+}
+}
+}
+if (attacking_units) {
+return {
+result: 0 /* AttackWon */,
+attacking_units,
+defending_units,
+};
+}
+else {
+return {
+result: 1 /* DefenceWon */,
+attacking_units,
+defending_units,
+};
+}
+}
+function remove_defeated_units(game, territory_id, team_id, qty) {
+let QUERY = 262144 /* Team */ | 4096 /* NavAgent */;
+for (let i = 0; i < game.World.Signature.length; i++) {
+if ((game.World.Signature[i] & QUERY) === QUERY &&
+game.World.NavAgent[i].TerritoryId === territory_id &&
+game.World.Team[i].Id === team_id) {
+if (qty === 0) {
+return;
+}
+if (qty) {
+qty--;
+}
+let translation = game.World.Transform[i].Translation;
+game.World.Move[i].MoveSpeed += float(-5, 5);
+game.World.Signature[i] &= ~262144 /* Team */;
+delete game.World.Team[i];
+game.World.NavAgent[i].TerritoryId = 0;
+game.World.NavAgent[i].Destination = [
+translation[0],
+translation[1] - 7,
+translation[2],
+];
+setTimeout(() => {
+destroy_entity(game.World, i);
+}, 1000);
+}
+}
+}
+
+function create_depth_target(gl, width, height) {
+let target = {
+Framebuffer: gl.createFramebuffer(),
+Width: width,
+Height: height,
+ColorTexture: resize_texture_rgba(gl, gl.createTexture(), width, height),
+DepthTexture: resize_texture_depth(gl, gl.createTexture(), width, height),
+};
+gl.bindFramebuffer(GL_FRAMEBUFFER, target.Framebuffer);
+gl.framebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, target.DepthTexture, 0);
+gl.framebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, target.ColorTexture, 0);
+let status = gl.checkFramebufferStatus(GL_FRAMEBUFFER);
+if (status != GL_FRAMEBUFFER_COMPLETE) {
+throw new Error(`Failed to set up the framebuffer (${status}).`);
+}
+return target;
 }
 
 let vertex$2 = `
@@ -82409,53 +82896,6 @@ Hit: negate([0, 0, 0], hit),
 }
 }
 
-function territory(continent, index, name = "") {
-return (game, entity) => {
-let id = continent * 10 + index;
-game.TerritoryEntities[id] = entity;
-game.ContinentBonus[continent].Territories.push(id);
-game.World.Signature[entity] |= 65536 /* Territory */;
-game.World.Territory[entity] = {
-Continent: continent,
-Index: index,
-Id: id,
-Name: name,
-};
-};
-}
-
-const textures_by_continent = {
-[0 /* Europe */]: "euau.webp",
-[1 /* Africa */]: "afsa.webp",
-[2 /* Australia */]: "euau.webp",
-[4 /* SouthAmerica */]: "afsa.webp",
-[3 /* NorthAmerica */]: "na.webp",
-[5 /* Asia */]: "as.webp",
-};
-function blueprint_territory(game, continent, index, name = "") {
-let mesh = game.TerritoryMeshes[continent][index - 1];
-
-
-let anchor_position = random_point_up(mesh);
-if (!anchor_position) {
-throw new Error("Territory without anchor is illegal. Calling the Goodluck City Police Department");
-}
-return [
-transform(),
-pickable_territory(mesh, [1.2, 1.2, 1.2, 1]),
-render_textured_mapped(game.MaterialTexturedMapped, mesh, game.Textures[textures_by_continent[continent]], game.Textures["Cardboard004_1K_Normal.jpg"], game.Textures["Cardboard004_1K_Roughness.jpg"]),
-territory(continent, index, name),
-children([transform(anchor_position)]),
-];
-}
-function get_coord_by_territory_id(game, territory_id) {
-let destination_territory_entity = game.TerritoryEntities[territory_id];
-let territory = game.World.Territory[destination_territory_entity];
-let territory_mesh = game.TerritoryMeshes[territory.Continent][territory.Index - 1];
-let territory_transform = game.World.Transform[destination_territory_entity];
-return random_point_up_worldspace(territory_mesh, territory_transform.World);
-}
-
 const QUERY$g = 4096 /* NavAgent */ | 262144 /* Team */;
 function sys_control_ai(game, delta) {
 if (!game.IsAiTurn || game.TurnPhase === 4 /* Endgame */) {
@@ -82480,7 +82920,7 @@ if (units_on_territory < 2) {
 game.AiActiveUnits = game.AiActiveUnits.filter((id) => id !== entity);
 game.CurrentlyMovingAiUnit = null;
 if (game.AiActiveUnits.length === 0) {
-dispatch(game, 3 /* SetupBattles */, {});
+dispatch(game, 6 /* SetupBattles */, {});
 }
 return;
 }
@@ -82737,11 +83177,11 @@ for (let i = 0; i < game.UnitsToDeploy; i++) {
 let deploy_to = element(game.CurrentPlayerTerritories);
 if (deploy_to) {
 let position = get_coord_by_territory_id(game, deploy_to);
-dispatch(game, 2 /* DeployUnit */, { territory_id: deploy_to, position });
+dispatch(game, 5 /* DeployUnit */, { territory_id: deploy_to, position });
 }
 }
 setTimeout(() => {
-dispatch(game, 1 /* EndDeployment */, {});
+dispatch(game, 4 /* EndDeployment */, {});
 }, 1500);
 }
 else {
@@ -82750,7 +83190,7 @@ game.InputState["Mouse0DownTraveled"] < 10 &&
 game.Picked) {
 let territory = game.World.Territory[game.Picked.Entity];
 if (territory && game.CurrentPlayerTerritories.includes(territory.Id)) {
-dispatch(game, 2 /* DeployUnit */, {
+dispatch(game, 5 /* DeployUnit */, {
 territory_id: territory.Id,
 position: game.Picked.Point.slice(),
 });
@@ -83058,7 +83498,7 @@ game.AiActiveUnits = game.AiActiveUnits.filter((id) => id !== entity);
 game.CurrentlyMovingAiUnit = null;
 if (game.AiActiveUnits.length === 0) {
 setTimeout(() => {
-dispatch(game, 3 /* SetupBattles */, {});
+dispatch(game, 6 /* SetupBattles */, {});
 }, 1000);
 }
 }
@@ -83633,33 +84073,6 @@ log.scroll(0, Number.MAX_SAFE_INTEGER);
 }
 }
 
-class World {
-constructor() {
-this.Signature = [];
-this.Graveyard = [];
-
-this.AudioListener = [];
-this.AudioSource = [];
-this.Camera = [];
-this.Children = [];
-this.Collide = [];
-this.ControlAlways = [];
-this.ControlCamera = [];
-this.Draw = [];
-this.Highlightable = [];
-this.Light = [];
-this.Mimic = [];
-this.Move = [];
-this.NavAgent = [];
-this.Pickable = [];
-this.Render = [];
-this.Selectable = [];
-this.Territory = [];
-this.Transform = [];
-this.Team = [];
-}
-}
-
 class Game {
 constructor() {
 this.World = new World();
@@ -83677,6 +84090,7 @@ this.InputDelta = {
 MouseX: 0,
 MouseY: 0,
 };
+this.PlayState = 0 /* Setup */;
 this.Logs = "";
 this.AlertText = null;
 this.CurrentPlayer = 0;
@@ -83819,309 +84233,6 @@ sys_draw(this);
 sys_ui(this);
 sys_framerate(this, delta, performance.now() - now);
 }
-}
-
-function audio_listener() {
-return (game, entity) => {
-game.World.Signature[entity] |= 1 /* AudioListener */;
-};
-}
-
-function camera_display_perspective(fovy, near, far, clear_color = [0.9, 0.9, 0.9, 1]) {
-return (game, entity) => {
-game.World.Signature[entity] |= 4 /* Camera */;
-game.World.Camera[entity] = {
-Pv: create(),
-Position: [0, 0, 0],
-Kind: 0 /* Display */,
-FovY: fovy,
-Near: near,
-Far: far,
-View: create(),
-Projection: create(),
-Unprojection: create(),
-ClearColor: clear_color,
-};
-};
-}
-function camera_framebuffer_ortho(target, radius, near, far, clear_color) {
-return (game, entity) => {
-game.World.Signature[entity] |= 4 /* Camera */;
-game.World.Camera[entity] = {
-Pv: create(),
-Position: [0, 0, 0],
-Kind: 1 /* Framebuffer */,
-Target: target,
-Radius: radius,
-Near: near,
-Far: far,
-View: create(),
-Projection: create(),
-Unprojection: create(),
-ClearColor: clear_color,
-};
-};
-}
-
-function control_camera(move, zoom, yaw, pitch) {
-return (game, entity) => {
-game.World.Signature[entity] |= 64 /* ControlCamera */;
-game.World.ControlCamera[entity] = {
-Move: move,
-Zoom: zoom,
-Yaw: yaw,
-Pitch: pitch,
-};
-};
-}
-
-function mimic(target, stiffness, position, rotation) {
-return (game, entity) => {
-game.World.Signature[entity] |= 1024 /* Mimic */;
-game.World.Mimic[entity] = {
-Target: target,
-Stiffness: stiffness,
-Position: position,
-Rotation: rotation,
-};
-};
-}
-
-function blueprint_camera(game) {
-return [
-control_camera(100, 0, 1, 0),
-mimic(null, 0.1, true, false),
-move(100, 0.5),
-children([
-transform(undefined, from_euler([0, 0, 0, 0], -30, 0, 0)),
-control_camera(0, 0, 0, 1),
-move(0, 0.5),
-children([
-transform([0, 40, 0], from_euler([0, 0, 0, 0], -90, 180, 0)),
-control_camera(0, 200, 0, 0),
-move(200, 0),
-camera_display_perspective(1, 1, 10000),
-audio_listener(),
-]),
-]),
-];
-}
-
-function callback(fn) {
-return (game, entity) => {
-fn(game, entity);
-};
-}
-
-function control_always(direction, rotation) {
-return (game, entity) => {
-game.World.Signature[entity] |= 32 /* ControlAlways */;
-game.World.ControlAlways[entity] = {
-Direction: direction,
-Rotation: rotation,
-};
-};
-}
-
-function light_directional(color = [1, 1, 1], range = 1) {
-return (game, entity) => {
-game.World.Signature[entity] |= 512 /* Light */;
-game.World.Light[entity] = {
-Kind: 1 /* Directional */,
-Color: color,
-Intensity: range ** 2,
-};
-};
-}
-function light_point(color = [1, 1, 1], range = 1) {
-return (game, entity) => {
-game.World.Signature[entity] |= 512 /* Light */;
-game.World.Light[entity] = {
-Kind: 2 /* Point */,
-Color: color,
-Intensity: range ** 2,
-};
-};
-}
-
-function blueprint_sun(game) {
-return [
-transform(undefined, from_euler([0, 0, 0, 0], -30, 0, 0)),
-children([
-callback((game, entity) => (game.SunEntity = entity)),
-transform(undefined, game.InitialSunPosition.slice()),
-control_always(null, [0, -1, 0, 0]),
-disable(32 /* ControlAlways */),
-move(0, 6.2),
-children(
-
-[
-transform([0, 0, 500]),
-light_directional([1, 1, 1], 1),
-camera_framebuffer_ortho(game.Targets.Sun, 250, 1, 1000, [0, 0, 0, 1]),
-], 
-
-[transform([0, 0, -50]), light_directional([0.5, 0.5, 0.7], 0.8)]),
-]),
-];
-}
-
-function map_earth(game) {
-game.TerritoryGraph = {
-
-1: [2, 3, 4, 7],
-2: [1, 4, 35],
-3: [1, 4, 5, 6, 7],
-4: [1, 2, 3, 6],
-5: [3, 6, 7, 13, 15, 57],
-6: [3, 4, 5, 51, 57, 61],
-7: [1, 3, 5, 15],
-
-11: [12, 15, 16],
-12: [11, 13, 14, 15, 16, 57],
-13: [12, 15, 5, 57],
-14: [12, 16],
-15: [11, 12, 13, 5, 7, 42],
-16: [11, 12, 14],
-
-21: [23, 24],
-22: [23, 24, 59],
-23: [21, 22, 24],
-24: [21, 22, 23],
-
-31: [32, 36, 56],
-32: [31, 36, 37, 39],
-33: [34, 39, 44],
-34: [33, 37, 38, 39],
-35: [36, 37, 38, 2],
-36: [31, 32, 37, 35],
-37: [32, 34, 35, 36, 38, 39],
-38: [34, 35, 37],
-39: [32, 33, 34, 37],
-
-41: [42, 43],
-42: [41, 43, 44, 15],
-43: [41, 42, 44],
-44: [42, 43, 33],
-
-51: [52, 53, 57, 61, 6],
-52: [51, 53, 58, 59, 60, 61],
-53: [51, 52, 57, 59],
-54: [56, 58, 60, 62],
-55: [56, 58],
-56: [54, 55, 58, 62, 31],
-57: [51, 53, 5, 6, 12, 13],
-58: [52, 54, 55, 56, 60],
-59: [52, 53, 22],
-60: [52, 54, 58, 61, 62],
-61: [51, 52, 60, 6],
-62: [54, 56, 60],
-};
-game.ContinentBonus[2 /* Australia */] = {
-Territories: [],
-Bonus: 2,
-Name: "Australia",
-};
-game.ContinentBonus[4 /* SouthAmerica */] = {
-Territories: [],
-Bonus: 2,
-Name: "South America",
-};
-game.ContinentBonus[1 /* Africa */] = {
-Territories: [],
-Bonus: 3,
-Name: "Africa",
-};
-game.ContinentBonus[0 /* Europe */] = {
-Territories: [],
-Bonus: 5,
-Name: "Europe",
-};
-game.ContinentBonus[3 /* NorthAmerica */] = {
-Territories: [],
-Bonus: 5,
-Name: "North America",
-};
-game.ContinentBonus[5 /* Asia */] = {
-Territories: [],
-Bonus: 7,
-Name: "Asia",
-};
-
-instantiate(game, [...blueprint_camera(), transform([0, 0, 0], [0, 1, 0, 0])]);
-
-instantiate(game, blueprint_sun(game));
-
-instantiate(game, [transform([-1, 1, -1]), light_directional([1, 1, 1], 0.2)]);
-
-instantiate(game, [transform([-100, 100, -100]), light_point([1, 1, 0.9], 40)]);
-
-instantiate(game, [
-transform([0, 0, 0], undefined, [332, 1, 220]),
-render_textured_mapped(game.MaterialTexturedMapped, game.MeshPlane, game.Textures["Fabric023_1K_Color.jpg"], game.Textures["Fabric023_1K_Normal.jpg"], game.Textures["Fabric023_1K_Roughness.jpg"]),
-children([
-transform(undefined, [1, 0, 0, 0]),
-render_colored_unlit(game.MaterialColoredUnlit, game.MeshPlane, [0, 0, 0, 1]),
-]),
-]);
-
-let room_scale = 500;
-instantiate(game, [
-transform([0, 0, 0], from_euler([0, 0, 0, 0], 0, -175, 0), [
-room_scale,
-room_scale,
-room_scale,
-]),
-render_colored_unlit(game.MaterialColoredUnlit, game.MeshRoom, [1, 1, 1, 1]),
-]);
-
-instantiate(game, [
-transform(),
-collide(false, 0 /* None */, 0 /* None */, [1000, 0.01, 1000]),
-children(
-
-blueprint_territory(game, 0 /* Europe */, 1, "Great Britain"), blueprint_territory(game, 0 /* Europe */, 2, "Iceland"), blueprint_territory(game, 0 /* Europe */, 3, "North Europe"), blueprint_territory(game, 0 /* Europe */, 4, "Scandinavia"), blueprint_territory(game, 0 /* Europe */, 5, "South Europe"), blueprint_territory(game, 0 /* Europe */, 6, "East Europe"), blueprint_territory(game, 0 /* Europe */, 7, "West Europe"), 
-
-blueprint_territory(game, 1 /* Africa */, 1, "Congo"), blueprint_territory(game, 1 /* Africa */, 2, "East Africa"), blueprint_territory(game, 1 /* Africa */, 3, "Egypt"), blueprint_territory(game, 1 /* Africa */, 4, "Madagascar"), blueprint_territory(game, 1 /* Africa */, 5, "North Africa"), blueprint_territory(game, 1 /* Africa */, 6, "South Africa"), 
-
-blueprint_territory(game, 2 /* Australia */, 1, "Eastern Australia"), blueprint_territory(game, 2 /* Australia */, 2, "Indonesia"), blueprint_territory(game, 2 /* Australia */, 3, "New Guinea"), blueprint_territory(game, 2 /* Australia */, 4, "Western Australia"), 
-
-blueprint_territory(game, 3 /* NorthAmerica */, 1, "Alaska"), blueprint_territory(game, 3 /* NorthAmerica */, 2, "Alberta"), blueprint_territory(game, 3 /* NorthAmerica */, 3, "Central America"), blueprint_territory(game, 3 /* NorthAmerica */, 4, "Eastern United States"), blueprint_territory(game, 3 /* NorthAmerica */, 5, "Greenland"), blueprint_territory(game, 3 /* NorthAmerica */, 6, "Northwest Territory"), blueprint_territory(game, 3 /* NorthAmerica */, 7, "Ontario"), blueprint_territory(game, 3 /* NorthAmerica */, 8, "Quebec"), blueprint_territory(game, 3 /* NorthAmerica */, 9, "Western United States"), 
-
-blueprint_territory(game, 4 /* SouthAmerica */, 1, "Argentina"), blueprint_territory(game, 4 /* SouthAmerica */, 2, "Brazil"), blueprint_territory(game, 4 /* SouthAmerica */, 3, "Peru"), blueprint_territory(game, 4 /* SouthAmerica */, 4, "Venezuela"), 
-
-blueprint_territory(game, 5 /* Asia */, 1, "Afghanistan"), blueprint_territory(game, 5 /* Asia */, 2, "China"), blueprint_territory(game, 5 /* Asia */, 3, "India"), blueprint_territory(game, 5 /* Asia */, 4, "Irkuck"), blueprint_territory(game, 5 /* Asia */, 5, "Japan"), blueprint_territory(game, 5 /* Asia */, 6, "Kamtchatka"), blueprint_territory(game, 5 /* Asia */, 7, "Middle East"), blueprint_territory(game, 5 /* Asia */, 8, "Mongolia"), blueprint_territory(game, 5 /* Asia */, 9, "Siam"), blueprint_territory(game, 5 /* Asia */, 10, "Siberia"), blueprint_territory(game, 5 /* Asia */, 11, "Ural"), blueprint_territory(game, 5 /* Asia */, 12, "Yakutsk")),
-]);
-}
-
-function scene_stage(game) {
-set_seed(Date.now());
-game.World = new World();
-game.ViewportResized = true;
-game.Gl.clearColor(0.9, 0.9, 0.9, 1);
-map_earth(game);
-
-let number_of_players = game.Players.length;
-let territory_entities = Object.keys(game.TerritoryEntities)
-.sort(() => 0.5 - Math.random())
-.map((e) => parseInt(e, 10));
-for (let i = 0; i < territory_entities.length; i++) {
-let team = (number_of_players + i) % number_of_players;
-let territory_entity_id = game.TerritoryEntities[territory_entities[i]];
-let territory = game.World.Territory[territory_entity_id];
-let translation = get_coord_by_territory_id(game, territory.Id);
-if (translation) {
-instantiate(game, blueprint_unit(game, translation, territory.Id, team));
-}
-else {
-console.error(`Cannot find random point on territory ${JSON.stringify(territory, null, 2)}!`);
-}
-}
-dispatch(game, 0 /* StartDeployment */, {});
-play_buffer(game.Audio, undefined, game.Sounds[element(["music1.mp3", "music2.mp3"])]);
-setInterval(() => {
-play_buffer(game.Audio, undefined, game.Sounds[element(["music1.mp3", "music2.mp3"])]);
-}, 30000);
 }
 
 let game = new Game();
