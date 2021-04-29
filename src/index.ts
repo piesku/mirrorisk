@@ -1,4 +1,6 @@
+import {play_buffer} from "../common/audio.js";
 import {html} from "../common/html.js";
+import {element} from "../common/random.js";
 import {mesh_af01} from "../meshes/af01.js";
 import {mesh_af02} from "../meshes/af02.js";
 import {mesh_af03} from "../meshes/af03.js";
@@ -187,4 +189,9 @@ Promise.all([
         `,
         "Hello!"
     );
+
+    play_buffer(game.Audio, undefined, game.Sounds[element(["music1.mp3", "music2.mp3"])]);
+    setInterval(() => {
+        play_buffer(game.Audio, undefined, game.Sounds[element(["music1.mp3", "music2.mp3"])]);
+    }, 30000);
 });

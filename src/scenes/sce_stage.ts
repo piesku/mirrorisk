@@ -1,5 +1,4 @@
-import {play_buffer} from "../../common/audio.js";
-import {element, set_seed} from "../../common/random.js";
+import {set_seed} from "../../common/random.js";
 import {Action, dispatch} from "../actions.js";
 import {get_coord_by_territory_id} from "../blueprints/blu_territory.js";
 import {blueprint_unit} from "../blueprints/blu_unit.js";
@@ -38,10 +37,4 @@ export function scene_stage(game: Game) {
     }
 
     dispatch(game, Action.StartDeployment, {});
-
-    play_buffer(game.Audio, undefined, game.Sounds[element(["music1.mp3", "music2.mp3"])]);
-
-    setInterval(() => {
-        play_buffer(game.Audio, undefined, game.Sounds[element(["music1.mp3", "music2.mp3"])]);
-    }, 30000);
 }
