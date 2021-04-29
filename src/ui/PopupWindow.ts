@@ -2,7 +2,7 @@ import {html} from "../../common/html.js";
 
 let alertWidth = 400;
 
-export function PopupWindow(title: string, content: Array<string>) {
+export function PopupWindow(title: string, content: string) {
     return html`<div
         class="window"
         style="

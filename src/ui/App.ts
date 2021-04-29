@@ -10,12 +10,15 @@ export function App(game: Game) {
     return html`
         ${Toolbar(game)} ${LogWindow(game)} ${AlertWindow(game)}
         ${game.Popup &&
-        PopupWindow(game.Popup.Title, [
-            game.Popup.Content,
-            `<div style="text-align: center;">
-                <button onclick="$(${Action.ClearPopup});">OK</button>
-            </div>`,
-        ])}
+        PopupWindow(
+            game.Popup.Title,
+            html`
+                ${game.Popup.Content}
+                <div style="text-align: center;">
+                    <button onclick="$(${Action.ClearPopup});">OK</button>
+                </div>
+            `
+        )}
     `;
 }
 
