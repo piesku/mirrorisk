@@ -15,7 +15,7 @@ export function GameSetup(game: Game) {
                     <input
                         id="team_count"
                         type="range"
-                        min="1"
+                        min="2"
                         max="6"
                         value="${game.Players.length}"
                         onchange="$(${Action.ChangeNumberOfTeams}, this.value)"
