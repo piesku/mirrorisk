@@ -1,10 +1,10 @@
 import {play_buffer} from "../common/audio.js";
 import {hex_to_vec4} from "../common/color.js";
-import {Quat, Vec3} from "../common/math.js";
+import {Quat, Vec3, Vec4} from "../common/math.js";
 import {element, float, integer} from "../common/random.js";
 import {blueprint_unit} from "./blueprints/blu_unit.js";
 import {territories_controlled_by_team, units_entity_ids} from "./components/com_team.js";
-import {ContinentBonus, Game, PlayerType, PlayState, TurnPhase} from "./game.js";
+import {ContinentBonus, Game, Player, PlayerType, PlayState, TurnPhase} from "./game.js";
 import {destroy_entity, instantiate} from "./impl.js";
 import {scene_stage} from "./scenes/sce_stage.js";
 import {Alert, Logger, Popup} from "./ui/App.js";
@@ -23,6 +23,15 @@ export const enum Action {
     ClearPopup,
 }
 
+const default_teams: Array<Player> = [
+    {Name: "Yellow", Color: [1, 1, 0, 1], Type: PlayerType.Human},
+    {Name: "Red", Color: [1, 0, 0, 1], Type: PlayerType.AI},
+    {Name: "Green", Color: [0, 1, 0, 1], Type: PlayerType.AI},
+    {Name: "Magenta", Color: [1, 0, 1, 1], Type: PlayerType.AI},
+    {Name: "Cyan", Color: [0, 1, 1, 1], Type: PlayerType.AI},
+    {Name: "Blue", Color: [0, 0, 1, 1], Type: PlayerType.AI},
+];
+
 export function dispatch(game: Game, action: Action, payload: unknown) {
     let current_player_name = game.Players[game.CurrentPlayer].Name;
     switch (action) {
@@ -32,10 +41,11 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                 game.Players.splice(count);
             } else if (count > game.Players.length) {
                 for (let i = 0; game.Players.length < count; i++) {
+                    let team = default_teams[game.Players.length];
                     game.Players.push({
-                        Name: `Player #${game.Players.length + 1}`,
-                        Color: [1, 1, 1, 1],
-                        Type: PlayerType.AI,
+                        Name: team.Name,
+                        Color: team.Color.slice() as Vec4,
+                        Type: team.Type,
                     });
                 }
             }
