@@ -41274,11 +41274,11 @@ function blueprint_camera(game) {
 return [
 control_camera(100, 0, 1, 0),
 mimic(null, 0.1, true, false),
-move(100, 0.5),
+move(100, 0.2),
 children([
 transform(undefined, from_euler([0, 0, 0, 0], -30, 0, 0)),
 control_camera(0, 0, 0, 1),
-move(0, 0.5),
+move(0, 0.2),
 children([
 transform([0, 40, 0], from_euler([0, 0, 0, 0], -90, 180, 0)),
 control_camera(0, 200, 0, 0),
@@ -41565,7 +41565,7 @@ return PopupWindow("Game Setup", html `
 <input
 id="team_count"
 type="range"
-min="1"
+min="2"
 max="6"
 value="${game.Players.length}"
 onchange="$(${0 /* ChangeNumberOfTeams */}, this.value)"
@@ -83027,11 +83027,11 @@ if (control.Yaw) {
 
 
 let move = game.World.Move[entity];
-if (game.InputState["ArrowLeft"] || game.InputState["KeyA"]) {
+if (game.InputState["ArrowLeft"]) {
 
 move.LocalRotations.push([0, -1, 0, 0]);
 }
-if (game.InputState["ArrowRight"] || game.InputState["KeyD"]) {
+if (game.InputState["ArrowRight"]) {
 
 move.LocalRotations.push([0, 1, 0, 0]);
 }
@@ -83040,11 +83040,11 @@ if (control.Pitch) {
 
 
 let move = game.World.Move[entity];
-if (game.InputState["ArrowUp"] || game.InputState["KeyW"]) {
+if (game.InputState["ArrowUp"]) {
 
 move.SelfRotations.push([-1, 0, 0, 0]);
 }
-if (game.InputState["ArrowDown"] || game.InputState["KeyS"]) {
+if (game.InputState["ArrowDown"]) {
 
 move.SelfRotations.push([1, 0, 0, 0]);
 }
@@ -84343,8 +84343,8 @@ Popup(game, html `
 
 <p>
 West is East and East is West in this virtual cardboard rendition of the 1957's
-<em>Risk</em>. The rules have changed, too: the game ends the first time a player is
-eliminated, so be sure to protect the underdogs when you take the lead!
+<em>Risk</em>. The rules have changed, too: the first time a player is eliminated,
+the game ends immediately. Protect the underdogs before you take the lead!
 </p>
 
 <p>
