@@ -8,11 +8,6 @@ export function LogWindow(game: Game) {
     >
         <div class="title-bar">
             <div class="title-bar-text">Game log</div>
-            <div class="title-bar-controls">
-                <button aria-label="Minimize"></button>
-                <button aria-label="Maximize"></button>
-                <button aria-label="Close"></button>
-            </div>
         </div>
         <div class="window-body">
             <pre

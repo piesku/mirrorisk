@@ -20,9 +20,6 @@ export function Toolbar(game: Game) {
             >
                 <div class="title-bar">
                     <div class="title-bar-text">Deployment Phase</div>
-                    <div class="title-bar-controls">
-                        <button aria-label="Close"></button>
-                    </div>
                 </div>
                 <div class="window-body">
                     <p>
