@@ -174,8 +174,8 @@ Promise.all([
 
             <p>
                 West is East and East is West in this virtual cardboard rendition of the 1957's
-                <em>Risk</em>. The rules have changed, too: the game ends the first time a player is
-                eliminated, so be sure to protect the underdogs when you take the lead!
+                <em>Risk</em>. The rules have changed, too: the first time a player is eliminated,
+                the game ends immediately. Protect the underdogs before you take the lead!
             </p>
 
             <p>
