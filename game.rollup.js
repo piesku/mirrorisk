@@ -41624,11 +41624,6 @@
     >
         <div class="title-bar">
             <div class="title-bar-text">Game log</div>
-            <div class="title-bar-controls">
-                <button aria-label="Minimize"></button>
-                <button aria-label="Maximize"></button>
-                <button aria-label="Close"></button>
-            </div>
         </div>
         <div class="window-body">
             <pre
@@ -41660,9 +41655,6 @@ Piesku&#10094;R&#10095; Mirrorisk
             >
                 <div class="title-bar">
                     <div class="title-bar-text">Deployment Phase</div>
-                    <div class="title-bar-controls">
-                        <button aria-label="Close"></button>
-                    </div>
                 </div>
                 <div class="window-body">
                     <p>
@@ -41737,6 +41729,14 @@ Piesku&#10094;R&#10095; Mirrorisk
         game.Popup = { Title: title, Content: text };
     }
 
+    const default_teams = [
+        { Name: "Yellow", Color: [1, 1, 0, 1], Type: 0 /* Human */ },
+        { Name: "Red", Color: [1, 0, 0, 1], Type: 1 /* AI */ },
+        { Name: "Green", Color: [0, 1, 0, 1], Type: 1 /* AI */ },
+        { Name: "Magenta", Color: [1, 0, 1, 1], Type: 1 /* AI */ },
+        { Name: "Cyan", Color: [0, 1, 1, 1], Type: 1 /* AI */ },
+        { Name: "Blue", Color: [0, 0, 1, 1], Type: 1 /* AI */ },
+    ];
     function dispatch(game, action, payload) {
         let current_player_name = game.Players[game.CurrentPlayer].Name;
         switch (action) {
@@ -41747,10 +41747,11 @@ Piesku&#10094;R&#10095; Mirrorisk
                 }
                 else if (count > game.Players.length) {
                     for (let i = 0; game.Players.length < count; i++) {
+                        let team = default_teams[game.Players.length];
                         game.Players.push({
-                            Name: `Player #${game.Players.length + 1}`,
-                            Color: [1, 1, 1, 1],
-                            Type: 1 /* AI */,
+                            Name: team.Name,
+                            Color: team.Color.slice(),
+                            Type: team.Type,
                         });
                     }
                 }
@@ -84093,7 +84094,7 @@ Piesku&#10094;R&#10095; Mirrorisk
             this.Players = [
                 { Name: "Yellow", Color: [1, 1, 0, 1], Type: 0 /* Human */ },
                 { Name: "Red", Color: [1, 0, 0, 1], Type: 1 /* AI */ },
-                { Name: "Magenta", Color: [1, 0, 1, 1], Type: 1 /* AI */ },
+                { Name: "Green", Color: [0, 1, 0, 1], Type: 1 /* AI */ },
             ];
             this.CurrentPlayerTerritories = [];
             this.InitialSunPosition = from_euler([0, 0, 0, 0], 0, 35, 0);
