@@ -41517,6 +41517,8 @@
         "
         onmousedown="event.stopPropagation();"
         onmouseup="event.stopPropagation();"
+        ontouchstart="event.stopPropagation();"
+        ontouchend="event.stopPropagation();"
     >
         <div class="title-bar">
             <div class="title-bar-text">Alert</div>
@@ -41545,6 +41547,8 @@
         "
         onmousedown="event.stopPropagation();"
         onmouseup="event.stopPropagation();"
+        ontouchstart="event.stopPropagation();"
+        ontouchend="event.stopPropagation();"
     >
         <div class="title-bar">
             <div class="title-bar-text">${title}</div>
@@ -41652,6 +41656,8 @@ Piesku&#10094;R&#10095; Mirrorisk
                 "
                 onmousedown="event.stopPropagation();"
                 onmouseup="event.stopPropagation();"
+                ontouchstart="event.stopPropagation();"
+                ontouchend="event.stopPropagation();"
             >
                 <div class="title-bar">
                     <div class="title-bar-text">Deployment Phase</div>
@@ -41684,6 +41690,8 @@ Piesku&#10094;R&#10095; Mirrorisk
                 "
                 onmousedown="event.stopPropagation();"
                 onmouseup="event.stopPropagation();"
+                ontouchstart="event.stopPropagation();"
+                ontouchend="event.stopPropagation();"
             >
                 <div class="title-bar">
                     <div class="title-bar-text">Movement Phase</div>
@@ -82601,6 +82609,127 @@ Piesku&#10094;R&#10095; Mirrorisk
         2, 1, 0
     ]);
 
+    function input_init(game) {
+        game.Ui.addEventListener("contextmenu", (evt) => evt.preventDefault());
+        game.Ui.addEventListener("mousedown", (evt) => {
+            game.InputState[`Mouse${evt.button}`] = 1;
+            game.InputDelta[`Mouse${evt.button}`] = 1;
+        });
+        game.Ui.addEventListener("mouseup", (evt) => {
+            game.InputState[`Mouse${evt.button}`] = 0;
+            game.InputDelta[`Mouse${evt.button}`] = -1;
+        });
+        game.Ui.addEventListener("mousemove", (evt) => {
+            game.InputState["MouseX"] = evt.clientX;
+            game.InputState["MouseY"] = evt.clientY;
+            game.InputDelta["MouseX"] = evt.movementX;
+            game.InputDelta["MouseY"] = evt.movementY;
+        });
+        game.Ui.addEventListener("wheel", (evt) => {
+            game.InputDelta["WheelY"] = evt.deltaY;
+        });
+        game.Ui.addEventListener("touchstart", (evt) => {
+            for (let i = 0; i < evt.changedTouches.length; i++) {
+                let touch = evt.changedTouches[i];
+                game.InputState[`Touch${touch.identifier}`] = 1;
+                game.InputState[`Touch${touch.identifier}X`] = touch.screenX;
+                game.InputState[`Touch${touch.identifier}Y`] = touch.screenY;
+                game.InputDelta[`Touch${touch.identifier}`] = 1;
+                game.InputDelta[`Touch${touch.identifier}X`] = 0;
+                game.InputDelta[`Touch${touch.identifier}Y`] = 0;
+            }
+        });
+        game.Ui.addEventListener("touchmove", (evt) => {
+            for (let i = 0; i < evt.changedTouches.length; i++) {
+                let touch = evt.changedTouches[i];
+                game.InputDelta[`Touch${touch.identifier}X`] =
+                    touch.screenX - game.InputState[`Touch${touch.identifier}X`];
+                game.InputDelta[`Touch${touch.identifier}Y`] =
+                    touch.screenY - game.InputState[`Touch${touch.identifier}Y`];
+                game.InputState[`Touch${touch.identifier}X`] = touch.screenX;
+                game.InputState[`Touch${touch.identifier}Y`] = touch.screenY;
+            }
+        });
+        game.Ui.addEventListener("touchend", (evt) => {
+            for (let i = 0; i < evt.changedTouches.length; i++) {
+                let touch = evt.changedTouches[i];
+                game.InputState[`Touch${touch.identifier}`] = 0;
+                game.InputDelta[`Touch${touch.identifier}`] = -1;
+            }
+        });
+        game.Ui.addEventListener("touchcancel", (evt) => {
+            for (let i = 0; i < evt.changedTouches.length; i++) {
+                let touch = evt.changedTouches[i];
+                game.InputState[`Touch${touch.identifier}`] = 0;
+                game.InputDelta[`Touch${touch.identifier}`] = -1;
+            }
+        });
+        window.addEventListener("keydown", (evt) => {
+            if (!evt.repeat) {
+                game.InputState[evt.code] = 1;
+                game.InputDelta[evt.code] = 1;
+            }
+        });
+        window.addEventListener("keyup", (evt) => {
+            game.InputState[evt.code] = 0;
+            game.InputDelta[evt.code] = -1;
+        });
+    }
+    function input_frame_setup(game) {
+        let traveled = Math.abs(game.InputDelta["MouseX"] + game.InputDelta["MouseY"]);
+        game.InputDistance["Mouse"] += traveled;
+        if (game.InputState["Mouse0"] === 1) {
+            game.InputDistance["Mouse0"] += traveled;
+        }
+        if (game.InputState["Mouse1"] === 1) {
+            game.InputDistance["Mouse1"] += traveled;
+        }
+        if (game.InputState["Mouse2"] === 1) {
+            game.InputDistance["Mouse2"] += traveled;
+        }
+        if (game.InputState["Touch0"] === 1) {
+            game.InputDistance["Touch0"] += traveled;
+        }
+        if (game.InputState["Touch1"] === 1) {
+            game.InputDistance["Touch1"] += traveled;
+        }
+    }
+    function input_frame_reset(game) {
+        if (game.InputDelta["Mouse0"] === -1) {
+            game.InputDistance["Mouse0"] = 0;
+        }
+        if (game.InputDelta["Mouse1"] === -1) {
+            game.InputDistance["Mouse1"] = 0;
+        }
+        if (game.InputDelta["Mouse2"] === -1) {
+            game.InputDistance["Mouse2"] = 0;
+        }
+        if (game.InputDelta["Touch0"] === -1) {
+            game.InputDistance["Touch0"] = 0;
+        }
+        if (game.InputDelta["Touch1"] === -1) {
+            game.InputDistance["Touch1"] = 0;
+        }
+        for (let name in game.InputDelta) {
+            game.InputDelta[name] = 0;
+        }
+    }
+    function input_clicked(game, mouse_button, touch_id) {
+        return ((game.InputDelta["Mouse" + mouse_button] === -1 &&
+            game.InputDistance["Mouse" + mouse_button] < 10) ||
+            (game.InputDelta["Touch" + touch_id] === -1 && game.InputDistance["Touch" + touch_id] < 10));
+    }
+    function input_pointer_position(game) {
+        if (game.InputState["Touch0"] === 1 || game.InputDelta["Touch0"] === -1) {
+            return [game.InputState["Touch0X"], game.InputState["Touch0Y"]];
+        }
+        if (game.InputDistance["Mouse"] > 0) {
+            return [game.InputState["MouseX"], game.InputState["MouseY"]];
+        }
+        // No mouse, no touch.
+        return null;
+    }
+
     const QUERY$k = 1 /* AudioListener */ | 131072 /* Transform */;
     function sys_audio_listener(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
@@ -83068,7 +83197,7 @@ Piesku&#10094;R&#10095; Mirrorisk
     function update$7(game, entity) {
         let control = game.World.ControlCamera[entity];
         let move = game.World.Move[entity];
-        if (control.Move && game.InputState["Mouse0DownTraveled"] > 10) {
+        if (control.Move && game.InputDistance["Mouse0"] > 10) {
             move.MoveSpeed = control.Move * game.CameraZoom ** ZOOM_FACTOR;
             if (game.InputDelta["MouseX"]) {
                 let amount = game.InputDelta["MouseX"] * MOUSE_SENSITIVITY;
@@ -83083,7 +83212,7 @@ Piesku&#10094;R&#10095; Mirrorisk
             move.MoveSpeed = control.Zoom * game.CameraZoom ** ZOOM_FACTOR;
             move.Directions.push([0, 0, game.InputDelta["WheelY"]]);
         }
-        if (control.Yaw && game.InputState["Mouse2DownTraveled"] > 10 && game.InputDelta["MouseX"]) {
+        if (control.Yaw && game.InputDistance["Mouse2"] > 10 && game.InputDelta["MouseX"]) {
             // Scale the mouse input by the sensitivity.
             let amount = game.InputDelta["MouseX"] * control.Yaw;
             // Treat the pixels traveled by the mouse in this frame as literal Euler
@@ -83098,7 +83227,7 @@ Piesku&#10094;R&#10095; Mirrorisk
             multiply(transform.Rotation, rotation, transform.Rotation);
             transform.Dirty = true;
         }
-        if (control.Pitch && game.InputState["Mouse2DownTraveled"] > 10 && game.InputDelta["MouseY"]) {
+        if (control.Pitch && game.InputDistance["Mouse2"] > 10 && game.InputDelta["MouseY"]) {
             let amount = game.InputDelta["MouseY"] * control.Pitch;
             from_axis(rotation, axis_x, amount * DEG_TO_RAD);
             let transform = game.World.Transform[entity];
@@ -83129,8 +83258,7 @@ Piesku&#10094;R&#10095; Mirrorisk
         let audio_source = game.World.AudioSource[entity];
         if (
         // If the user clicks…
-        game.InputDelta["Mouse2"] === -1 &&
-            game.InputState["Mouse2DownTraveled"] < 10 &&
+        input_clicked(game, 2, 0) &&
             // …over a territory…
             game.Picked &&
             game.World.Signature[game.Picked.Entity] & 65536 /* Territory */ &&
@@ -83182,11 +83310,11 @@ Piesku&#10094;R&#10095; Mirrorisk
             }, 1500);
         }
         else {
-            if (game.InputDelta["Mouse0"] === -1 &&
-                game.InputState["Mouse0DownTraveled"] < 10 &&
-                game.Picked) {
+            if (input_clicked(game, 0, 0) &&
+                game.Picked &&
+                game.World.Signature[game.Picked.Entity] & 65536 /* Territory */) {
                 let territory = game.World.Territory[game.Picked.Entity];
-                if (territory && game.CurrentPlayerTerritories.includes(territory.Id)) {
+                if (game.CurrentPlayerTerritories.includes(territory.Id)) {
                     dispatch(game, 5 /* DeployUnit */, {
                         territory_id: territory.Id,
                         position: game.Picked.Point.slice(),
@@ -83665,9 +83793,14 @@ Piesku&#10094;R&#10095; Mirrorisk
     function update$1(game, entity, pickables) {
         let transform = game.World.Transform[entity];
         let camera = game.World.Camera[entity];
-        let x = (game.InputState["MouseX"] / game.ViewportWidth) * 2 - 1;
+        let pointer_position = input_pointer_position(game);
+        if (pointer_position === null) {
+            // No mouse, no touch.
+            return;
+        }
+        let x = (pointer_position[0] / game.ViewportWidth) * 2 - 1;
         // In the browser, +Y is down. Invert it, so that in NDC it's up.
-        let y = -(game.InputState["MouseY"] / game.ViewportHeight) * 2 + 1;
+        let y = -(pointer_position[1] / game.ViewportHeight) * 2 + 1;
         // The ray's origin is at the camera's world position.
         let origin = get_translation([0, 0, 0], transform.World);
         // The target is the point on the far plane where the mouse click happens;
@@ -84009,7 +84142,7 @@ Piesku&#10094;R&#10095; Mirrorisk
         if (game.TurnPhase !== 1 /* Move */) {
             selectable.Selected = false;
         }
-        else if (game.InputDelta["Mouse0"] === -1 && game.InputState["Mouse0DownTraveled"] < 10) {
+        else if (input_clicked(game, 0, 0)) {
             // When the user clicks…
             if (((_a = game.Picked) === null || _a === void 0 ? void 0 : _a.Entity) === entity) {
                 audio_source.Trigger = game.Sounds[element(select_sfx)];
@@ -84079,13 +84212,18 @@ Piesku&#10094;R&#10095; Mirrorisk
             this.InputState = {
                 MouseX: 0,
                 MouseY: 0,
-                Mouse0DownTraveled: 0,
-                Mouse1DownTraveled: 0,
-                Mouse2DownTraveled: 0,
             };
             this.InputDelta = {
                 MouseX: 0,
                 MouseY: 0,
+            };
+            this.InputDistance = {
+                Mouse: 0,
+                Mouse0: 0,
+                Mouse1: 0,
+                Mouse2: 0,
+                Touch0: 0,
+                Touch1: 0,
             };
             this.PlayState = 0 /* Setup */;
             this.Logs = "";
@@ -84135,34 +84273,7 @@ Piesku&#10094;R&#10095; Mirrorisk
             this.Cameras = [];
             this.CameraZoom = 1;
             document.addEventListener("visibilitychange", () => document.hidden ? loop_stop() : loop_start(this));
-            this.Ui.addEventListener("contextmenu", (evt) => evt.preventDefault());
-            this.Ui.addEventListener("mousedown", (evt) => {
-                this.InputState[`Mouse${evt.button}`] = 1;
-                this.InputDelta[`Mouse${evt.button}`] = 1;
-            });
-            this.Ui.addEventListener("mouseup", (evt) => {
-                this.InputState[`Mouse${evt.button}`] = 0;
-                this.InputDelta[`Mouse${evt.button}`] = -1;
-            });
-            this.Ui.addEventListener("mousemove", (evt) => {
-                this.InputState["MouseX"] = evt.clientX;
-                this.InputState["MouseY"] = evt.clientY;
-                this.InputDelta["MouseX"] = evt.movementX;
-                this.InputDelta["MouseY"] = evt.movementY;
-            });
-            this.Ui.addEventListener("wheel", (evt) => {
-                this.InputDelta["WheelY"] = evt.deltaY;
-            });
-            window.addEventListener("keydown", (evt) => {
-                if (!evt.repeat) {
-                    this.InputState[evt.code] = 1;
-                    this.InputDelta[evt.code] = 1;
-                }
-            });
-            window.addEventListener("keyup", (evt) => {
-                this.InputState[evt.code] = 0;
-                this.InputDelta[evt.code] = -1;
-            });
+            input_init(this);
             this.Gl.getExtension("WEBGL_depth_texture");
             this.Targets = {
                 Sun: create_depth_target(this.Gl, 2048, 2048),
@@ -84171,48 +84282,26 @@ Piesku&#10094;R&#10095; Mirrorisk
             this.Gl.enable(GL_CULL_FACE);
         }
         FrameSetup() {
-            let traveled = Math.abs(this.InputDelta["MouseX"] + this.InputDelta["MouseY"]);
-            if (this.InputState["Mouse0"] === 1) {
-                this.InputState["Mouse0DownTraveled"] += traveled;
-            }
-            if (this.InputState["Mouse1"] === 1) {
-                this.InputState["Mouse1DownTraveled"] += traveled;
-            }
-            if (this.InputState["Mouse2"] === 1) {
-                this.InputState["Mouse2DownTraveled"] += traveled;
-            }
+            input_frame_setup(this);
         }
         FrameReset() {
             this.ViewportResized = false;
-            if (this.InputDelta["Mouse0"] === -1) {
-                this.InputState["Mouse0DownTraveled"] = 0;
-            }
-            if (this.InputDelta["Mouse1"] === -1) {
-                this.InputState["Mouse1DownTraveled"] = 0;
-            }
-            if (this.InputDelta["Mouse2"] === -1) {
-                this.InputState["Mouse2DownTraveled"] = 0;
-            }
-            for (let name in this.InputDelta) {
-                this.InputDelta[name] = 0;
-            }
+            input_frame_reset(this);
         }
         FrameUpdate(delta) {
             let now = performance.now();
-            // Camera controls.
+            // Camera controls and picking.
             sys_control_camera(this);
             sys_control_keyboard(this);
             sys_control_mouse(this);
-            // Picking and selection.
             sys_pick(this);
-            sys_select(this);
-            sys_highlight(this);
-            // Orders.
+            // AI and player orders.
+            sys_control_always(this);
             sys_control_ai(this);
             sys_control_player(this);
             sys_deploy(this);
-            // AI.
-            sys_control_always(this);
+            sys_select(this);
+            sys_highlight(this);
             // Game logic.
             sys_nav(this);
             sys_mimic(this);
@@ -84227,6 +84316,7 @@ Piesku&#10094;R&#10095; Mirrorisk
             sys_render_depth(this);
             sys_render_forward(this);
             sys_draw(this);
+            // UI.
             sys_ui(this);
             sys_framerate(this, delta, performance.now() - now);
         }
