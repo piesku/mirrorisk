@@ -2,6 +2,7 @@ import {element} from "../../common/random.js";
 import {Action, dispatch} from "../actions.js";
 import {get_coord_by_territory_id} from "../blueprints/blu_territory.js";
 import {Game, TurnPhase} from "../game.js";
+import {input_clicked} from "../input.js";
 import {Has} from "../world.js";
 
 export function sys_deploy(game: Game, delta: number) {
@@ -22,10 +23,11 @@ export function sys_deploy(game: Game, delta: number) {
             dispatch(game, Action.EndDeployment, {});
         }, 1500);
     } else {
-        let clicked =
-            (game.InputDelta["Mouse0"] === -1 && game.InputDistance["Mouse0"] < 10) ||
-            (game.InputDelta["Touch0"] === -1 && game.InputDistance["Touch0"] < 10);
-        if (clicked && game.Picked && game.World.Signature[game.Picked.Entity] & Has.Territory) {
+        if (
+            input_clicked(game, 0, 0) &&
+            game.Picked &&
+            game.World.Signature[game.Picked.Entity] & Has.Territory
+        ) {
             let territory = game.World.Territory[game.Picked.Entity];
             if (game.CurrentPlayerTerritories.includes(territory.Id)) {
                 dispatch(game, Action.DeployUnit, {

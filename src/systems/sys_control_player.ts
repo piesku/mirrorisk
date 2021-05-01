@@ -1,5 +1,6 @@
 import {element} from "../../common/random.js";
 import {Entity, Game, PlayerType} from "../game.js";
+import {input_clicked} from "../input.js";
 import {Has} from "../world.js";
 
 const QUERY = Has.Selectable | Has.NavAgent | Has.Team;
@@ -26,13 +27,9 @@ function update(game: Game, entity: Entity) {
     let transform = game.World.Transform[entity];
     let audio_source = game.World.AudioSource[entity];
 
-    let clicked =
-        (game.InputDelta["Mouse2"] === -1 && game.InputDistance["Mouse2"] < 10) ||
-        (game.InputDelta["Touch0"] === -1 && game.InputDistance["Touch0"] < 10);
-
     if (
         // If the user clicks…
-        clicked &&
+        input_clicked(game, 2, 0) &&
         // …over a territory…
         game.Picked &&
         game.World.Signature[game.Picked.Entity] & Has.Territory &&

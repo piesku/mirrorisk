@@ -1,5 +1,6 @@
 import {element} from "../../common/random.js";
 import {Entity, Game, TurnPhase} from "../game.js";
+import {input_clicked} from "../input.js";
 import {Has} from "../world.js";
 
 const QUERY = Has.Transform | Has.Pickable | Has.Selectable | Has.Children;
@@ -29,13 +30,9 @@ function update(game: Game, entity: Entity) {
     let selectable = game.World.Selectable[entity];
     let audio_source = game.World.AudioSource[entity];
 
-    let clicked =
-        (game.InputDelta["Mouse0"] === -1 && game.InputDistance["Mouse0"] < 10) ||
-        (game.InputDelta["Touch0"] === -1 && game.InputDistance["Touch0"] < 10);
-
     if (game.TurnPhase !== TurnPhase.Move) {
         selectable.Selected = false;
-    } else if (clicked) {
+    } else if (input_clicked(game, 0, 0)) {
         // When the user clicks…
 
         if (game.Picked?.Entity === entity) {

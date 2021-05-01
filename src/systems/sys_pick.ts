@@ -7,6 +7,7 @@ import {Collide} from "../components/com_collide.js";
 import {PickableKind} from "../components/com_pickable.js";
 import {territories_controlled_by_team} from "../components/com_team.js";
 import {Entity, Game, TurnPhase} from "../game.js";
+import {input_pointer_position} from "../input.js";
 import {Logger} from "../ui/App.js";
 import {Has} from "../world.js";
 
@@ -38,18 +39,15 @@ function update(game: Game, entity: Entity, pickables: Array<Collide>) {
     let transform = game.World.Transform[entity];
     let camera = game.World.Camera[entity];
 
-    let x, y;
-    if (game.InputState["Touch0"] === 1) {
-        x = game.InputState["Touch0X"];
-        y = game.InputState["Touch0Y"];
-    } else {
-        x = game.InputState["MouseX"];
-        y = game.InputState["MouseY"];
+    let pointer_position = input_pointer_position(game);
+    if (pointer_position === null) {
+        // No mouse, no touch.
+        return;
     }
 
-    x = (x / game.ViewportWidth) * 2 - 1;
+    let x = (pointer_position[0] / game.ViewportWidth) * 2 - 1;
     // In the browser, +Y is down. Invert it, so that in NDC it's up.
-    y = -(y / game.ViewportHeight) * 2 + 1;
+    let y = -(pointer_position[1] / game.ViewportHeight) * 2 + 1;
 
     // The ray's origin is at the camera's world position.
     let origin = get_translation([0, 0, 0], transform.World);

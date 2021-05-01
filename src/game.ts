@@ -12,6 +12,7 @@ import {mesh_plane} from "../meshes/plane.js";
 import {mesh_room07} from "../meshes/room07.js";
 import {mesh_soldier} from "../meshes/soldier.js";
 import {loop_start, loop_stop} from "./impl.js";
+import {input_frame_reset, input_frame_setup, input_init} from "./input.js";
 import {sys_audio_listener} from "./systems/sys_audio_listener.js";
 import {sys_audio_source} from "./systems/sys_audio_source.js";
 import {sys_camera} from "./systems/sys_camera.js";
@@ -74,6 +75,7 @@ export interface ContinentBonus {
     Bonus: number;
     Name: string;
 }
+
 export class Game {
     World = new World();
 
@@ -90,6 +92,7 @@ export class Game {
         MouseY: 0,
     };
     InputDistance: Record<string, number> = {
+        Mouse: 0,
         Mouse0: 0,
         Mouse1: 0,
         Mouse2: 0,
@@ -174,72 +177,7 @@ export class Game {
             document.hidden ? loop_stop() : loop_start(this)
         );
 
-        this.Ui.addEventListener("contextmenu", (evt) => evt.preventDefault());
-        this.Ui.addEventListener("mousedown", (evt) => {
-            this.InputState[`Mouse${evt.button}`] = 1;
-            this.InputDelta[`Mouse${evt.button}`] = 1;
-        });
-        this.Ui.addEventListener("mouseup", (evt) => {
-            this.InputState[`Mouse${evt.button}`] = 0;
-            this.InputDelta[`Mouse${evt.button}`] = -1;
-        });
-        this.Ui.addEventListener("mousemove", (evt) => {
-            this.InputState["MouseX"] = evt.clientX;
-            this.InputState["MouseY"] = evt.clientY;
-            this.InputDelta["MouseX"] = evt.movementX;
-            this.InputDelta["MouseY"] = evt.movementY;
-        });
-        this.Ui.addEventListener("wheel", (evt) => {
-            this.InputDelta["WheelY"] = evt.deltaY;
-        });
-
-        this.Ui.addEventListener("touchstart", (evt) => {
-            for (let i = 0; i < evt.changedTouches.length; i++) {
-                let touch = evt.changedTouches[i];
-                this.InputState[`Touch${touch.identifier}`] = 1;
-                this.InputState[`Touch${touch.identifier}X`] = touch.screenX;
-                this.InputState[`Touch${touch.identifier}Y`] = touch.screenY;
-                this.InputDelta[`Touch${touch.identifier}`] = 1;
-                this.InputDelta[`Touch${touch.identifier}X`] = 0;
-                this.InputDelta[`Touch${touch.identifier}Y`] = 0;
-            }
-        });
-        this.Ui.addEventListener("touchmove", (evt) => {
-            for (let i = 0; i < evt.changedTouches.length; i++) {
-                let touch = evt.changedTouches[i];
-                this.InputDelta[`Touch${touch.identifier}X`] =
-                    touch.screenX - this.InputState[`Touch${touch.identifier}X`];
-                this.InputDelta[`Touch${touch.identifier}Y`] =
-                    touch.screenY - this.InputState[`Touch${touch.identifier}Y`];
-                this.InputState[`Touch${touch.identifier}X`] = touch.screenX;
-                this.InputState[`Touch${touch.identifier}Y`] = touch.screenY;
-            }
-        });
-        this.Ui.addEventListener("touchend", (evt) => {
-            for (let i = 0; i < evt.changedTouches.length; i++) {
-                let touch = evt.changedTouches[i];
-                this.InputState[`Touch${touch.identifier}`] = 0;
-                this.InputDelta[`Touch${touch.identifier}`] = -1;
-            }
-        });
-        this.Ui.addEventListener("touchcancel", (evt) => {
-            for (let i = 0; i < evt.changedTouches.length; i++) {
-                let touch = evt.changedTouches[i];
-                this.InputState[`Touch${touch.identifier}`] = 0;
-                this.InputDelta[`Touch${touch.identifier}`] = -1;
-            }
-        });
-
-        window.addEventListener("keydown", (evt) => {
-            if (!evt.repeat) {
-                this.InputState[evt.code] = 1;
-                this.InputDelta[evt.code] = 1;
-            }
-        });
-        window.addEventListener("keyup", (evt) => {
-            this.InputState[evt.code] = 0;
-            this.InputDelta[evt.code] = -1;
-        });
+        input_init(this);
 
         this.Gl.getExtension("WEBGL_depth_texture");
 
@@ -252,48 +190,12 @@ export class Game {
     }
 
     FrameSetup() {
-        let traveled = Math.abs(this.InputDelta["MouseX"] + this.InputDelta["MouseY"]);
-
-        if (this.InputState["Mouse0"] === 1) {
-            this.InputDistance["Mouse0"] += traveled;
-        }
-        if (this.InputState["Mouse1"] === 1) {
-            this.InputDistance["Mouse1"] += traveled;
-        }
-        if (this.InputState["Mouse2"] === 1) {
-            this.InputDistance["Mouse2"] += traveled;
-        }
-
-        if (this.InputState["Touch0"] === 1) {
-            this.InputDistance["Touch0"] += traveled;
-        }
-        if (this.InputState["Touch1"] === 1) {
-            this.InputDistance["Touch1"] += traveled;
-        }
+        input_frame_setup(this);
     }
 
     FrameReset() {
         this.ViewportResized = false;
-        if (this.InputDelta["Mouse0"] === -1) {
-            this.InputDistance["Mouse0"] = 0;
-        }
-        if (this.InputDelta["Mouse1"] === -1) {
-            this.InputDistance["Mouse1"] = 0;
-        }
-        if (this.InputDelta["Mouse2"] === -1) {
-            this.InputDistance["Mouse2"] = 0;
-        }
-
-        if (this.InputDelta["Touch0"] === -1) {
-            this.InputDistance["Touch0"] = 0;
-        }
-        if (this.InputDelta["Touch1"] === -1) {
-            this.InputDistance["Touch1"] = 0;
-        }
-
-        for (let name in this.InputDelta) {
-            this.InputDelta[name] = 0;
-        }
+        input_frame_reset(this);
     }
 
     FrameUpdate(delta: number) {
@@ -305,15 +207,13 @@ export class Game {
         sys_control_mouse(this, delta);
         sys_pick(this, delta);
 
-        // Orders and selection.
+        // AI and player orders.
+        sys_control_always(this, delta);
         sys_control_ai(this, delta);
         sys_control_player(this, delta);
         sys_deploy(this, delta);
         sys_select(this, delta);
         sys_highlight(this, delta);
-
-        // AI.
-        sys_control_always(this, delta);
 
         // Game logic.
         sys_nav(this, delta);
@@ -331,6 +231,7 @@ export class Game {
         sys_render_forward(this, delta);
         sys_draw(this, delta);
 
+        // UI.
         sys_ui(this, delta);
         sys_framerate(this, delta, performance.now() - now);
     }
