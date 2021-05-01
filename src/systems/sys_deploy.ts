@@ -4,12 +4,11 @@ import {get_coord_by_territory_id} from "../blueprints/blu_territory.js";
 import {Game, TurnPhase} from "../game.js";
 import {Has} from "../world.js";
 
-const QUERY = Has.Territory;
-
 export function sys_deploy(game: Game, delta: number) {
     if (game.TurnPhase !== TurnPhase.Deploy || game.AlertText) {
         return;
     }
+
     if (game.IsAiTurn) {
         for (let i = 0; i < game.UnitsToDeploy; i++) {
             let deploy_to = element(game.CurrentPlayerTerritories);
@@ -26,10 +25,11 @@ export function sys_deploy(game: Game, delta: number) {
         if (
             game.InputDelta["Mouse0"] === -1 &&
             game.InputState["Mouse0DownTraveled"] < 10 &&
-            game.Picked
+            game.Picked &&
+            game.World.Signature[game.Picked.Entity] & Has.Territory
         ) {
             let territory = game.World.Territory[game.Picked.Entity];
-            if (territory && game.CurrentPlayerTerritories.includes(territory.Id)) {
+            if (game.CurrentPlayerTerritories.includes(territory.Id)) {
                 dispatch(game, Action.DeployUnit, {
                     territory_id: territory.Id,
                     position: game.Picked.Point.slice(),
