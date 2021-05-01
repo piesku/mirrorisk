@@ -125,7 +125,7 @@ export function input_clicked(game: Game, mouse_button: number, touch_id: number
 }
 
 export function input_pointer_position(game: Game): Vec2 | null {
-    if (game.InputState["Touch0"] === 1) {
+    if (game.InputState["Touch0"] === 1 || game.InputDelta["Touch0"] === -1) {
         return [game.InputState["Touch0X"], game.InputState["Touch0Y"]];
     }
 
