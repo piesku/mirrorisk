@@ -26,8 +26,8 @@ export function input_init(game: Game) {
         for (let i = 0; i < evt.changedTouches.length; i++) {
             let touch = evt.changedTouches[i];
             game.InputState[`Touch${touch.identifier}`] = 1;
-            game.InputState[`Touch${touch.identifier}X`] = touch.screenX;
-            game.InputState[`Touch${touch.identifier}Y`] = touch.screenY;
+            game.InputState[`Touch${touch.identifier}X`] = touch.clientX;
+            game.InputState[`Touch${touch.identifier}Y`] = touch.clientY;
             game.InputDelta[`Touch${touch.identifier}`] = 1;
             game.InputDelta[`Touch${touch.identifier}X`] = 0;
             game.InputDelta[`Touch${touch.identifier}Y`] = 0;
@@ -37,11 +37,11 @@ export function input_init(game: Game) {
         for (let i = 0; i < evt.changedTouches.length; i++) {
             let touch = evt.changedTouches[i];
             game.InputDelta[`Touch${touch.identifier}X`] =
-                touch.screenX - game.InputState[`Touch${touch.identifier}X`];
+                touch.clientX - game.InputState[`Touch${touch.identifier}X`];
             game.InputDelta[`Touch${touch.identifier}Y`] =
-                touch.screenY - game.InputState[`Touch${touch.identifier}Y`];
-            game.InputState[`Touch${touch.identifier}X`] = touch.screenX;
-            game.InputState[`Touch${touch.identifier}Y`] = touch.screenY;
+                touch.clientY - game.InputState[`Touch${touch.identifier}Y`];
+            game.InputState[`Touch${touch.identifier}X`] = touch.clientX;
+            game.InputState[`Touch${touch.identifier}Y`] = touch.clientY;
         }
     });
     game.Ui.addEventListener("touchend", (evt) => {
