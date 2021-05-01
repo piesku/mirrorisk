@@ -26,10 +26,13 @@ function update(game: Game, entity: Entity) {
     let transform = game.World.Transform[entity];
     let audio_source = game.World.AudioSource[entity];
 
+    let clicked =
+        (game.InputDelta["Mouse2"] === -1 && game.InputDistance["Mouse2"] < 10) ||
+        (game.InputDelta["Touch0"] === -1 && game.InputDistance["Touch0"] < 10);
+
     if (
         // If the user clicks…
-        game.InputDelta["Mouse2"] === -1 &&
-        game.InputDistance["Mouse2"] < 10 &&
+        clicked &&
         // …over a territory…
         game.Picked &&
         game.World.Signature[game.Picked.Entity] & Has.Territory &&

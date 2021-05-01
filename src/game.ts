@@ -93,6 +93,8 @@ export class Game {
         Mouse0: 0,
         Mouse1: 0,
         Mouse2: 0,
+        Touch0: 0,
+        Touch1: 0,
     };
 
     PlayState: PlayState = PlayState.Setup;
@@ -190,6 +192,44 @@ export class Game {
         this.Ui.addEventListener("wheel", (evt) => {
             this.InputDelta["WheelY"] = evt.deltaY;
         });
+
+        this.Ui.addEventListener("touchstart", (evt) => {
+            for (let i = 0; i < evt.changedTouches.length; i++) {
+                let touch = evt.changedTouches[i];
+                this.InputState[`Touch${touch.identifier}`] = 1;
+                this.InputState[`Touch${touch.identifier}X`] = touch.screenX;
+                this.InputState[`Touch${touch.identifier}Y`] = touch.screenY;
+                this.InputDelta[`Touch${touch.identifier}`] = 1;
+                this.InputDelta[`Touch${touch.identifier}X`] = 0;
+                this.InputDelta[`Touch${touch.identifier}Y`] = 0;
+            }
+        });
+        this.Ui.addEventListener("touchmove", (evt) => {
+            for (let i = 0; i < evt.changedTouches.length; i++) {
+                let touch = evt.changedTouches[i];
+                this.InputDelta[`Touch${touch.identifier}X`] =
+                    touch.screenX - this.InputState[`Touch${touch.identifier}X`];
+                this.InputDelta[`Touch${touch.identifier}Y`] =
+                    touch.screenY - this.InputState[`Touch${touch.identifier}Y`];
+                this.InputState[`Touch${touch.identifier}X`] = touch.screenX;
+                this.InputState[`Touch${touch.identifier}Y`] = touch.screenY;
+            }
+        });
+        this.Ui.addEventListener("touchend", (evt) => {
+            for (let i = 0; i < evt.changedTouches.length; i++) {
+                let touch = evt.changedTouches[i];
+                this.InputState[`Touch${touch.identifier}`] = 0;
+                this.InputDelta[`Touch${touch.identifier}`] = -1;
+            }
+        });
+        this.Ui.addEventListener("touchcancel", (evt) => {
+            for (let i = 0; i < evt.changedTouches.length; i++) {
+                let touch = evt.changedTouches[i];
+                this.InputState[`Touch${touch.identifier}`] = 0;
+                this.InputDelta[`Touch${touch.identifier}`] = -1;
+            }
+        });
+
         window.addEventListener("keydown", (evt) => {
             if (!evt.repeat) {
                 this.InputState[evt.code] = 1;
@@ -213,6 +253,7 @@ export class Game {
 
     FrameSetup() {
         let traveled = Math.abs(this.InputDelta["MouseX"] + this.InputDelta["MouseY"]);
+
         if (this.InputState["Mouse0"] === 1) {
             this.InputDistance["Mouse0"] += traveled;
         }
@@ -221,6 +262,13 @@ export class Game {
         }
         if (this.InputState["Mouse2"] === 1) {
             this.InputDistance["Mouse2"] += traveled;
+        }
+
+        if (this.InputState["Touch0"] === 1) {
+            this.InputDistance["Touch0"] += traveled;
+        }
+        if (this.InputState["Touch1"] === 1) {
+            this.InputDistance["Touch1"] += traveled;
         }
     }
 
@@ -236,6 +284,13 @@ export class Game {
             this.InputDistance["Mouse2"] = 0;
         }
 
+        if (this.InputDelta["Touch0"] === -1) {
+            this.InputDistance["Touch0"] = 0;
+        }
+        if (this.InputDelta["Touch1"] === -1) {
+            this.InputDistance["Touch1"] = 0;
+        }
+
         for (let name in this.InputDelta) {
             this.InputDelta[name] = 0;
         }
@@ -244,20 +299,18 @@ export class Game {
     FrameUpdate(delta: number) {
         let now = performance.now();
 
-        // Camera controls.
+        // Camera controls and picking.
         sys_control_camera(this, delta);
         sys_control_keyboard(this, delta);
         sys_control_mouse(this, delta);
-
-        // Picking and selection.
         sys_pick(this, delta);
-        sys_select(this, delta);
-        sys_highlight(this, delta);
 
-        // Orders.
+        // Orders and selection.
         sys_control_ai(this, delta);
         sys_control_player(this, delta);
         sys_deploy(this, delta);
+        sys_select(this, delta);
+        sys_highlight(this, delta);
 
         // AI.
         sys_control_always(this, delta);

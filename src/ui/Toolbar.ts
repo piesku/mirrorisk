@@ -17,6 +17,8 @@ export function Toolbar(game: Game) {
                 "
                 onmousedown="event.stopPropagation();"
                 onmouseup="event.stopPropagation();"
+                ontouchstart="event.stopPropagation();"
+                ontouchend="event.stopPropagation();"
             >
                 <div class="title-bar">
                     <div class="title-bar-text">Deployment Phase</div>
@@ -50,6 +52,8 @@ export function Toolbar(game: Game) {
                 "
                 onmousedown="event.stopPropagation();"
                 onmouseup="event.stopPropagation();"
+                ontouchstart="event.stopPropagation();"
+                ontouchend="event.stopPropagation();"
             >
                 <div class="title-bar">
                     <div class="title-bar-text">Movement Phase</div>

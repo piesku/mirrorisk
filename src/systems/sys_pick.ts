@@ -38,9 +38,18 @@ function update(game: Game, entity: Entity, pickables: Array<Collide>) {
     let transform = game.World.Transform[entity];
     let camera = game.World.Camera[entity];
 
-    let x = (game.InputState["MouseX"] / game.ViewportWidth) * 2 - 1;
+    let x, y;
+    if (game.InputState["Touch0"] === 1) {
+        x = game.InputState["Touch0X"];
+        y = game.InputState["Touch0Y"];
+    } else {
+        x = game.InputState["MouseX"];
+        y = game.InputState["MouseY"];
+    }
+
+    x = (x / game.ViewportWidth) * 2 - 1;
     // In the browser, +Y is down. Invert it, so that in NDC it's up.
-    let y = -(game.InputState["MouseY"] / game.ViewportHeight) * 2 + 1;
+    y = -(y / game.ViewportHeight) * 2 + 1;
 
     // The ray's origin is at the camera's world position.
     let origin = get_translation([0, 0, 0], transform.World);

@@ -29,9 +29,13 @@ function update(game: Game, entity: Entity) {
     let selectable = game.World.Selectable[entity];
     let audio_source = game.World.AudioSource[entity];
 
+    let clicked =
+        (game.InputDelta["Mouse0"] === -1 && game.InputDistance["Mouse0"] < 10) ||
+        (game.InputDelta["Touch0"] === -1 && game.InputDistance["Touch0"] < 10);
+
     if (game.TurnPhase !== TurnPhase.Move) {
         selectable.Selected = false;
-    } else if (game.InputDelta["Mouse0"] === -1 && game.InputDistance["Mouse0"] < 10) {
+    } else if (clicked) {
         // When the user clicks…
 
         if (game.Picked?.Entity === entity) {

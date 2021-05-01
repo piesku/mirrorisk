@@ -17,6 +17,8 @@ export function AlertWindow(game: Game) {
         "
         onmousedown="event.stopPropagation();"
         onmouseup="event.stopPropagation();"
+        ontouchstart="event.stopPropagation();"
+        ontouchend="event.stopPropagation();"
     >
         <div class="title-bar">
             <div class="title-bar-text">Alert</div>

@@ -22,12 +22,10 @@ export function sys_deploy(game: Game, delta: number) {
             dispatch(game, Action.EndDeployment, {});
         }, 1500);
     } else {
-        if (
-            game.InputDelta["Mouse0"] === -1 &&
-            game.InputDistance["Mouse0"] < 10 &&
-            game.Picked &&
-            game.World.Signature[game.Picked.Entity] & Has.Territory
-        ) {
+        let clicked =
+            (game.InputDelta["Mouse0"] === -1 && game.InputDistance["Mouse0"] < 10) ||
+            (game.InputDelta["Touch0"] === -1 && game.InputDistance["Touch0"] < 10);
+        if (clicked && game.Picked && game.World.Signature[game.Picked.Entity] & Has.Territory) {
             let territory = game.World.Territory[game.Picked.Entity];
             if (game.CurrentPlayerTerritories.includes(territory.Id)) {
                 dispatch(game, Action.DeployUnit, {
