@@ -31,7 +31,7 @@ function update(game: Game, entity: Entity) {
 
     if (game.TurnPhase !== TurnPhase.Move) {
         selectable.Selected = false;
-    } else if (game.InputDelta["Mouse0"] === -1 && game.InputState["Mouse0DownTraveled"] < 10) {
+    } else if (game.InputDelta["Mouse0"] === -1 && game.InputDistance["Mouse0"] < 10) {
         // When the user clicks…
 
         if (game.Picked?.Entity === entity) {

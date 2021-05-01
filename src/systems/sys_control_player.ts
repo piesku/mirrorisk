@@ -29,7 +29,7 @@ function update(game: Game, entity: Entity) {
     if (
         // If the user clicks…
         game.InputDelta["Mouse2"] === -1 &&
-        game.InputState["Mouse2DownTraveled"] < 10 &&
+        game.InputDistance["Mouse2"] < 10 &&
         // …over a territory…
         game.Picked &&
         game.World.Signature[game.Picked.Entity] & Has.Territory &&

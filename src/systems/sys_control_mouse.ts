@@ -23,7 +23,7 @@ function update(game: Game, entity: Entity) {
     let control = game.World.ControlCamera[entity];
     let move = game.World.Move[entity];
 
-    if (control.Move && game.InputState["Mouse0DownTraveled"] > 10) {
+    if (control.Move && game.InputDistance["Mouse0"] > 10) {
         move.MoveSpeed = control.Move * game.CameraZoom ** ZOOM_FACTOR;
         if (game.InputDelta["MouseX"]) {
             let amount = game.InputDelta["MouseX"] * MOUSE_SENSITIVITY;
@@ -41,7 +41,7 @@ function update(game: Game, entity: Entity) {
         move.Directions.push([0, 0, game.InputDelta["WheelY"]]);
     }
 
-    if (control.Yaw && game.InputState["Mouse2DownTraveled"] > 10 && game.InputDelta["MouseX"]) {
+    if (control.Yaw && game.InputDistance["Mouse2"] > 10 && game.InputDelta["MouseX"]) {
         // Scale the mouse input by the sensitivity.
         let amount = game.InputDelta["MouseX"] * control.Yaw;
         // Treat the pixels traveled by the mouse in this frame as literal Euler
@@ -58,7 +58,7 @@ function update(game: Game, entity: Entity) {
         transform.Dirty = true;
     }
 
-    if (control.Pitch && game.InputState["Mouse2DownTraveled"] > 10 && game.InputDelta["MouseY"]) {
+    if (control.Pitch && game.InputDistance["Mouse2"] > 10 && game.InputDelta["MouseY"]) {
         let amount = game.InputDelta["MouseY"] * control.Pitch;
         from_axis(rotation, axis_x, amount * DEG_TO_RAD);
 

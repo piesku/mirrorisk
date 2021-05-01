@@ -84,13 +84,15 @@ export class Game {
     InputState: Record<string, number> = {
         MouseX: 0,
         MouseY: 0,
-        Mouse0DownTraveled: 0,
-        Mouse1DownTraveled: 0,
-        Mouse2DownTraveled: 0,
     };
     InputDelta: Record<string, number> = {
         MouseX: 0,
         MouseY: 0,
+    };
+    InputDistance: Record<string, number> = {
+        Mouse0: 0,
+        Mouse1: 0,
+        Mouse2: 0,
     };
 
     PlayState: PlayState = PlayState.Setup;
@@ -212,27 +214,28 @@ export class Game {
     FrameSetup() {
         let traveled = Math.abs(this.InputDelta["MouseX"] + this.InputDelta["MouseY"]);
         if (this.InputState["Mouse0"] === 1) {
-            this.InputState["Mouse0DownTraveled"] += traveled;
+            this.InputDistance["Mouse0"] += traveled;
         }
         if (this.InputState["Mouse1"] === 1) {
-            this.InputState["Mouse1DownTraveled"] += traveled;
+            this.InputDistance["Mouse1"] += traveled;
         }
         if (this.InputState["Mouse2"] === 1) {
-            this.InputState["Mouse2DownTraveled"] += traveled;
+            this.InputDistance["Mouse2"] += traveled;
         }
     }
 
     FrameReset() {
         this.ViewportResized = false;
         if (this.InputDelta["Mouse0"] === -1) {
-            this.InputState["Mouse0DownTraveled"] = 0;
+            this.InputDistance["Mouse0"] = 0;
         }
         if (this.InputDelta["Mouse1"] === -1) {
-            this.InputState["Mouse1DownTraveled"] = 0;
+            this.InputDistance["Mouse1"] = 0;
         }
         if (this.InputDelta["Mouse2"] === -1) {
-            this.InputState["Mouse2DownTraveled"] = 0;
+            this.InputDistance["Mouse2"] = 0;
         }
+
         for (let name in this.InputDelta) {
             this.InputDelta[name] = 0;
         }

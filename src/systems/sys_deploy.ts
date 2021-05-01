@@ -24,7 +24,7 @@ export function sys_deploy(game: Game, delta: number) {
     } else {
         if (
             game.InputDelta["Mouse0"] === -1 &&
-            game.InputState["Mouse0DownTraveled"] < 10 &&
+            game.InputDistance["Mouse0"] < 10 &&
             game.Picked &&
             game.World.Signature[game.Picked.Entity] & Has.Territory
         ) {
