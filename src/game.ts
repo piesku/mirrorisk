@@ -99,6 +99,9 @@ export class Game {
         Touch0: 0,
         Touch1: 0,
     };
+    // Map of touch ids to touch indices. In particular, Firefox assigns high
+    // ints as ids. Chrome usually starts at 0, so id === index.
+    InputTouches: Record<number, number> = {};
 
     PlayState: PlayState = PlayState.Setup;
     Logs: string = "";
