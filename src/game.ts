@@ -23,6 +23,7 @@ import {sys_control_camera} from "./systems/sys_control_camera.js";
 import {sys_control_keyboard} from "./systems/sys_control_keyboard.js";
 import {sys_control_mouse} from "./systems/sys_control_mouse.js";
 import {sys_control_player} from "./systems/sys_control_player.js";
+import {sys_control_touch} from "./systems/sys_control_touch.js";
 import {sys_deploy} from "./systems/sys_deploy.js";
 import {sys_draw} from "./systems/sys_draw.js";
 import {sys_framerate} from "./systems/sys_framerate.js";
@@ -208,6 +209,7 @@ export class Game {
         sys_control_camera(this, delta);
         sys_control_keyboard(this, delta);
         sys_control_mouse(this, delta);
+        sys_control_touch(this, delta);
         sys_pick(this, delta);
 
         // AI and player orders.

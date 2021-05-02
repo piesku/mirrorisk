@@ -86,24 +86,26 @@ export function input_init(game: Game) {
 }
 
 export function input_frame_setup(game: Game) {
-    let traveled = Math.abs(game.InputDelta["MouseX"] + game.InputDelta["MouseY"]);
-    game.InputDistance["Mouse"] += traveled;
+    let mouse_distance = Math.abs(game.InputDelta["MouseX"]) + Math.abs(game.InputDelta["MouseY"]);
+    game.InputDistance["Mouse"] += mouse_distance;
 
     if (game.InputState["Mouse0"] === 1) {
-        game.InputDistance["Mouse0"] += traveled;
+        game.InputDistance["Mouse0"] += mouse_distance;
     }
     if (game.InputState["Mouse1"] === 1) {
-        game.InputDistance["Mouse1"] += traveled;
+        game.InputDistance["Mouse1"] += mouse_distance;
     }
     if (game.InputState["Mouse2"] === 1) {
-        game.InputDistance["Mouse2"] += traveled;
+        game.InputDistance["Mouse2"] += mouse_distance;
     }
 
     if (game.InputState["Touch0"] === 1) {
-        game.InputDistance["Touch0"] += traveled;
+        game.InputDistance["Touch0"] +=
+            Math.abs(game.InputDelta["Touch0X"]) + Math.abs(game.InputDelta["Touch0Y"]);
     }
     if (game.InputState["Touch1"] === 1) {
-        game.InputDistance["Touch1"] += traveled;
+        game.InputDistance["Touch1"] +=
+            Math.abs(game.InputDelta["Touch1X"]) + Math.abs(game.InputDelta["Touch1Y"]);
     }
 }
 
