@@ -37,7 +37,7 @@ function update(game: Game, entity: Entity) {
     }
 
     if (control.Zoom && game.InputDelta["WheelY"]) {
-        move.MoveSpeed = control.Zoom * game.CameraZoom ** ZOOM_FACTOR;
+        move.MoveSpeed = (control.Zoom * game.CameraZoom) ** ZOOM_FACTOR;
         move.Directions.push([0, 0, game.InputDelta["WheelY"]]);
     }
 

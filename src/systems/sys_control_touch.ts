@@ -31,7 +31,7 @@ function update(game: Game, entity: Entity) {
     }
 
     if (control.Zoom && game.InputState["Touch0"] && game.InputState["Touch1"]) {
-        move.MoveSpeed = control.Zoom * game.CameraZoom ** ZOOM_FACTOR;
+        move.MoveSpeed = (control.Zoom * game.CameraZoom) ** ZOOM_FACTOR;
         let hypot_curr = hypot_squared(
             game.InputState["Touch0X"] - game.InputState["Touch1X"],
             game.InputState["Touch0Y"] - game.InputState["Touch1Y"]
