@@ -113,6 +113,8 @@ export class Game {
         {Name: "Yellow", Color: [1, 1, 0, 1], Type: PlayerType.Human},
         {Name: "Red", Color: [1, 0, 0, 1], Type: PlayerType.AI},
         {Name: "Green", Color: [0, 1, 0, 1], Type: PlayerType.AI},
+        {Name: "Magenta", Color: [1, 0, 1, 1], Type: PlayerType.AI},
+        {Name: "Cyan", Color: [0, 1, 1, 1], Type: PlayerType.AI},
     ];
     CurrentPlayerTerritories: Entity[] = [];
 
