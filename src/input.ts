@@ -19,6 +19,7 @@ export function input_init(game: Game) {
         game.InputDelta["MouseY"] = evt.movementY;
     });
     game.Ui.addEventListener("wheel", (evt) => {
+        evt.preventDefault();
         game.InputDelta["WheelY"] = evt.deltaY;
     });
 
