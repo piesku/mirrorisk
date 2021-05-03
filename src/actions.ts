@@ -8,6 +8,7 @@ import {ContinentBonus, Game, Player, PlayerType, PlayState, TurnPhase} from "./
 import {destroy_entity, instantiate} from "./impl.js";
 import {scene_stage} from "./scenes/sce_stage.js";
 import {Alert, Logger, Popup} from "./ui/App.js";
+import * as msg from "./ui/messages.js";
 import {Has} from "./world.js";
 export const enum Action {
     ChangeNumberOfTeams,
@@ -79,7 +80,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                 let territories = territories_controlled_by_team(game, i);
                 let territories_qty = Object.keys(territories).length;
 
-                Logger(game, `${game.Players[i].Name} controls ${territories_qty} territories`);
+                Logger(game, msg.LOG_TEAM_CONTROL_SUMMARY(game.Players[i].Name, territories_qty));
 
                 if (most_territories < territories_qty) {
                     most_territories = territories_qty;
@@ -92,11 +93,15 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             }
 
             if (game_over) {
-                Popup(game, `Game over! ${game.Players[best_player].Name} won!`, `Game over!`);
+                Popup(
+                    game,
+                    msg.DIALOG_GAME_OVER_BODY(game.Players[best_player].Name),
+                    msg.DIALOG_GAME_OVER_TITLE()
+                );
                 game.TurnPhase = TurnPhase.Endgame;
             }
 
-            Logger(game, `C:&#92;> ${current_player_name}'s turn`);
+            Logger(game, msg.LOG_TEAM_TURN_START(current_player_name));
             game.CurrentPlayerTerritories = Object.keys(
                 territories_controlled_by_team(game, game.CurrentPlayer)
             ).map((e) => parseInt(e, 10));
@@ -121,13 +126,14 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             if (!game.IsAiTurn) {
                 Alert(
                     game,
-                    `It's ${current_player_name}'s turn now!${
-                        bonus > 0
-                            ? ` You receive ${bonus} extra armies for controling ${continents_controlled.join(
-                                  ", "
-                              )}. `
-                            : " "
-                    }Select territories to deploy ${units_to_deploy} new armies.`
+                    bonus > 0
+                        ? msg.DIALOG_NEW_TURN_WITH_BONUS(
+                              current_player_name,
+                              units_to_deploy,
+                              bonus,
+                              continents_controlled
+                          )
+                        : msg.DIALOG_NEW_TURN(current_player_name, units_to_deploy)
                 );
             }
 
@@ -146,7 +152,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             if (position) {
                 let territory_entity_id = game.TerritoryEntities[territory_id];
                 let territory_name = game.World.Territory[territory_entity_id].Name;
-                Logger(game, `${current_player_name} deploys an army to ${territory_name}`);
+                Logger(game, msg.LOG_TEAM_DEPLOYS(current_player_name, territory_name));
 
                 let deployed_unit_entity = instantiate(
                     game,
@@ -214,7 +220,13 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                                 let enemy_territory_id = enemy_territory_ids[j];
                                 Logger(
                                     game,
-                                    `${current_player_name} attacks ${game.Players[i].Name} in ${territory_name} with ${current_player_territories[enemy_territory_id]} armies against ${enemy_territories[enemy_territory_id]} armies.`
+                                    msg.LOG_TEAM_ATTACKS(
+                                        territory_name,
+                                        current_player_name,
+                                        current_player_territories[enemy_territory_id],
+                                        game.Players[i].Name,
+                                        enemy_territories[enemy_territory_id]
+                                    )
                                 );
 
                                 let battle_result = fight(
@@ -233,11 +245,12 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                                         battle_result.attacking_units;
                                     Logger(
                                         game,
-                                        `${current_player_name} ${
-                                            winner_units_lost === 0
-                                                ? "wins"
-                                                : `loses ${winner_units_lost} armies but still manages to win`
-                                        } the battle!`
+                                        winner_units_lost === 0
+                                            ? msg.LOG_BATTLE_RESULT_NO_LOSSES(current_player_name)
+                                            : msg.LOG_BATTLE_RESULT_SOME_LOSSES(
+                                                  current_player_name,
+                                                  winner_units_lost
+                                              )
                                     );
                                     loser = i;
                                     winner = game.CurrentPlayer;
@@ -247,11 +260,12 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                                         battle_result.defending_units;
                                     Logger(
                                         game,
-                                        `${game.Players[i].Name} ${
-                                            winner_units_lost === 0
-                                                ? "wins"
-                                                : `loses ${winner_units_lost} armies but still manages to win`
-                                        } the battle!`
+                                        winner_units_lost === 0
+                                            ? msg.LOG_BATTLE_RESULT_NO_LOSSES(game.Players[i].Name)
+                                            : msg.LOG_BATTLE_RESULT_SOME_LOSSES(
+                                                  current_player_name,
+                                                  winner_units_lost
+                                              )
                                     );
 
                                     loser = game.CurrentPlayer;
