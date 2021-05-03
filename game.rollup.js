@@ -41281,7 +41281,7 @@
                 move(0, 0.2),
                 children([
                     transform([0, 40, 0], from_euler([0, 0, 0, 0], -90, 180, 0)),
-                    control_camera(0, 200, 0, 0),
+                    control_camera(0, 100, 0, 0),
                     move(200, 0),
                     camera_display_perspective(1, 1, 10000),
                     audio_listener(),
@@ -41695,9 +41695,6 @@ Piesku&#10094;R&#10095; Mirrorisk
             >
                 <div class="title-bar">
                     <div class="title-bar-text">Movement Phase</div>
-                    <div class="title-bar-controls">
-                        <button aria-label="Close"></button>
-                    </div>
                 </div>
                 <div class="window-body">
                     <p>Current Player: ${game.Players[game.CurrentPlayer].Name}</p>
@@ -82629,39 +82626,53 @@ Piesku&#10094;R&#10095; Mirrorisk
             game.InputDelta["WheelY"] = evt.deltaY;
         });
         game.Ui.addEventListener("touchstart", (evt) => {
+            evt.preventDefault();
+            if (evt.touches.length === 1) {
+                // It's a new gesture.
+                game.InputTouches = {};
+            }
+            for (let i = 0; i < evt.touches.length; i++) {
+                let touch = evt.touches[i];
+                game.InputTouches[touch.identifier] = i;
+            }
             for (let i = 0; i < evt.changedTouches.length; i++) {
                 let touch = evt.changedTouches[i];
-                game.InputState[`Touch${touch.identifier}`] = 1;
-                game.InputState[`Touch${touch.identifier}X`] = touch.screenX;
-                game.InputState[`Touch${touch.identifier}Y`] = touch.screenY;
-                game.InputDelta[`Touch${touch.identifier}`] = 1;
-                game.InputDelta[`Touch${touch.identifier}X`] = 0;
-                game.InputDelta[`Touch${touch.identifier}Y`] = 0;
+                let index = game.InputTouches[touch.identifier];
+                game.InputState[`Touch${index}`] = 1;
+                game.InputState[`Touch${index}X`] = touch.clientX;
+                game.InputState[`Touch${index}Y`] = touch.clientY;
+                game.InputDelta[`Touch${index}`] = 1;
+                game.InputDelta[`Touch${index}X`] = 0;
+                game.InputDelta[`Touch${index}Y`] = 0;
             }
         });
         game.Ui.addEventListener("touchmove", (evt) => {
+            evt.preventDefault();
             for (let i = 0; i < evt.changedTouches.length; i++) {
                 let touch = evt.changedTouches[i];
-                game.InputDelta[`Touch${touch.identifier}X`] =
-                    touch.screenX - game.InputState[`Touch${touch.identifier}X`];
-                game.InputDelta[`Touch${touch.identifier}Y`] =
-                    touch.screenY - game.InputState[`Touch${touch.identifier}Y`];
-                game.InputState[`Touch${touch.identifier}X`] = touch.screenX;
-                game.InputState[`Touch${touch.identifier}Y`] = touch.screenY;
+                let index = game.InputTouches[touch.identifier];
+                game.InputDelta[`Touch${index}X`] = touch.clientX - game.InputState[`Touch${index}X`];
+                game.InputDelta[`Touch${index}Y`] = touch.clientY - game.InputState[`Touch${index}Y`];
+                game.InputState[`Touch${index}X`] = touch.clientX;
+                game.InputState[`Touch${index}Y`] = touch.clientY;
             }
         });
         game.Ui.addEventListener("touchend", (evt) => {
+            evt.preventDefault();
             for (let i = 0; i < evt.changedTouches.length; i++) {
                 let touch = evt.changedTouches[i];
-                game.InputState[`Touch${touch.identifier}`] = 0;
-                game.InputDelta[`Touch${touch.identifier}`] = -1;
+                let index = game.InputTouches[touch.identifier];
+                game.InputState[`Touch${index}`] = 0;
+                game.InputDelta[`Touch${index}`] = -1;
             }
         });
         game.Ui.addEventListener("touchcancel", (evt) => {
+            evt.preventDefault();
             for (let i = 0; i < evt.changedTouches.length; i++) {
                 let touch = evt.changedTouches[i];
-                game.InputState[`Touch${touch.identifier}`] = 0;
-                game.InputDelta[`Touch${touch.identifier}`] = -1;
+                let index = game.InputTouches[touch.identifier];
+                game.InputState[`Touch${index}`] = 0;
+                game.InputDelta[`Touch${index}`] = -1;
             }
         });
         window.addEventListener("keydown", (evt) => {
@@ -82676,22 +82687,24 @@ Piesku&#10094;R&#10095; Mirrorisk
         });
     }
     function input_frame_setup(game) {
-        let traveled = Math.abs(game.InputDelta["MouseX"] + game.InputDelta["MouseY"]);
-        game.InputDistance["Mouse"] += traveled;
+        let mouse_distance = Math.abs(game.InputDelta["MouseX"]) + Math.abs(game.InputDelta["MouseY"]);
+        game.InputDistance["Mouse"] += mouse_distance;
         if (game.InputState["Mouse0"] === 1) {
-            game.InputDistance["Mouse0"] += traveled;
+            game.InputDistance["Mouse0"] += mouse_distance;
         }
         if (game.InputState["Mouse1"] === 1) {
-            game.InputDistance["Mouse1"] += traveled;
+            game.InputDistance["Mouse1"] += mouse_distance;
         }
         if (game.InputState["Mouse2"] === 1) {
-            game.InputDistance["Mouse2"] += traveled;
+            game.InputDistance["Mouse2"] += mouse_distance;
         }
         if (game.InputState["Touch0"] === 1) {
-            game.InputDistance["Touch0"] += traveled;
+            game.InputDistance["Touch0"] +=
+                Math.abs(game.InputDelta["Touch0X"]) + Math.abs(game.InputDelta["Touch0Y"]);
         }
         if (game.InputState["Touch1"] === 1) {
-            game.InputDistance["Touch1"] += traveled;
+            game.InputDistance["Touch1"] +=
+                Math.abs(game.InputDelta["Touch1X"]) + Math.abs(game.InputDelta["Touch1Y"]);
         }
     }
     function input_frame_reset(game) {
@@ -82730,11 +82743,11 @@ Piesku&#10094;R&#10095; Mirrorisk
         return null;
     }
 
-    const QUERY$k = 1 /* AudioListener */ | 131072 /* Transform */;
+    const QUERY$l = 1 /* AudioListener */ | 131072 /* Transform */;
     function sys_audio_listener(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$k) === QUERY$k) {
-                update$d(game, i);
+            if ((game.World.Signature[i] & QUERY$l) === QUERY$l) {
+                update$e(game, i);
             }
         }
     }
@@ -82742,7 +82755,7 @@ Piesku&#10094;R&#10095; Mirrorisk
     const position$1 = [0, 0, 0];
     const forward$1 = [0, 0, 0];
     const up = [0, 0, 0];
-    function update$d(game, entity) {
+    function update$e(game, entity) {
         let transform = game.World.Transform[entity];
         get_translation(position$1, transform.World);
         get_forward(forward$1, transform.World);
@@ -82767,15 +82780,15 @@ Piesku&#10094;R&#10095; Mirrorisk
         }
     }
 
-    const QUERY$j = 2 /* AudioSource */;
+    const QUERY$k = 2 /* AudioSource */;
     function sys_audio_source(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$j) === QUERY$j) {
-                update$c(game, i, delta);
+            if ((game.World.Signature[i] & QUERY$k) === QUERY$k) {
+                update$d(game, i, delta);
             }
         }
     }
-    function update$c(game, entity, delta) {
+    function update$d(game, entity, delta) {
         let audio_source = game.World.AudioSource[entity];
         let transform = game.World.Transform[entity];
         if (audio_source.Current) {
@@ -82822,7 +82835,7 @@ Piesku&#10094;R&#10095; Mirrorisk
         }
     }
 
-    const QUERY$i = 131072 /* Transform */ | 4 /* Camera */;
+    const QUERY$j = 131072 /* Transform */ | 4 /* Camera */;
     function sys_camera(game, delta) {
         if (game.ViewportWidth != window.innerWidth || game.ViewportHeight != window.innerHeight) {
             game.ViewportWidth = game.CanvasScene.width = game.CanvasBillboard.width =
@@ -82833,7 +82846,7 @@ Piesku&#10094;R&#10095; Mirrorisk
         }
         game.Cameras = [];
         for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$i) === QUERY$i) {
+            if ((game.World.Signature[i] & QUERY$j) === QUERY$j) {
                 let camera = game.World.Camera[i];
                 game.Cameras.push(i);
                 if (camera.Kind === 0 /* Display */) {
@@ -82955,13 +82968,13 @@ Piesku&#10094;R&#10095; Mirrorisk
             a.Max[2] > b.Min[2]);
     }
 
-    const QUERY$h = 131072 /* Transform */ | 16 /* Collide */;
+    const QUERY$i = 131072 /* Transform */ | 16 /* Collide */;
     function sys_collide(game, delta) {
         // Collect all colliders.
         let static_colliders = [];
         let dynamic_colliders = [];
         for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$h) === QUERY$h) {
+            if ((game.World.Signature[i] & QUERY$i) === QUERY$i) {
                 let transform = game.World.Transform[i];
                 let collider = game.World.Collide[i];
                 // Prepare the collider for this tick's detection.
@@ -83022,20 +83035,20 @@ Piesku&#10094;R&#10095; Mirrorisk
         }
     }
 
-    const QUERY$g = 4096 /* NavAgent */ | 262144 /* Team */;
+    const QUERY$h = 4096 /* NavAgent */ | 262144 /* Team */;
     function sys_control_ai(game, delta) {
         if (!game.IsAiTurn || game.TurnPhase === 4 /* Endgame */) {
             return;
         }
         for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$g) == QUERY$g &&
+            if ((game.World.Signature[i] & QUERY$h) == QUERY$h &&
                 game.World.Team[i].Id === game.CurrentPlayer &&
                 game.Players[game.World.Team[i].Id].Type === 1 /* AI */) {
-                update$b(game, i);
+                update$c(game, i);
             }
         }
     }
-    function update$b(game, entity) {
+    function update$c(game, entity) {
         if (game.TurnPhase === 1 /* Move */) {
             if (!game.CurrentlyMovingAiUnit && game.AiActiveUnits.includes(entity)) {
                 game.CurrentlyMovingAiUnit = entity;
@@ -83082,15 +83095,15 @@ Piesku&#10094;R&#10095; Mirrorisk
         }
     }
 
-    const QUERY$f = 32 /* ControlAlways */ | 131072 /* Transform */ | 2048 /* Move */;
+    const QUERY$g = 32 /* ControlAlways */ | 131072 /* Transform */ | 2048 /* Move */;
     function sys_control_always(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$f) === QUERY$f) {
-                update$a(game, i);
+            if ((game.World.Signature[i] & QUERY$g) === QUERY$g) {
+                update$b(game, i);
             }
         }
     }
-    function update$a(game, entity) {
+    function update$b(game, entity) {
         let control = game.World.ControlAlways[entity];
         let move = game.World.Move[entity];
         if (control.Direction) {
@@ -83101,16 +83114,16 @@ Piesku&#10094;R&#10095; Mirrorisk
         }
     }
 
-    const QUERY$e = 64 /* ControlCamera */;
+    const QUERY$f = 64 /* ControlCamera */;
     const INITIAL_CAMERA_Y = 40;
     function sys_control_camera(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$e) === QUERY$e) {
-                update$9(game, i);
+            if ((game.World.Signature[i] & QUERY$f) === QUERY$f) {
+                update$a(game, i);
             }
         }
     }
-    function update$9(game, entity) {
+    function update$a(game, entity) {
         let control = game.World.ControlCamera[entity];
         let transform = game.World.Transform[entity];
         if (game.World.Signature[entity] & 1024 /* Mimic */) {
@@ -83143,15 +83156,15 @@ Piesku&#10094;R&#10095; Mirrorisk
         }
     }
 
-    const QUERY$d = 2048 /* Move */ | 64 /* ControlCamera */;
+    const QUERY$e = 2048 /* Move */ | 64 /* ControlCamera */;
     function sys_control_keyboard(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$d) === QUERY$d) {
-                update$8(game, i);
+            if ((game.World.Signature[i] & QUERY$e) === QUERY$e) {
+                update$9(game, i);
             }
         }
     }
-    function update$8(game, entity) {
+    function update$9(game, entity) {
         let control = game.World.ControlCamera[entity];
         if (control.Yaw) {
             // Yaw is applied relative to the entity's local space; the Y axis is
@@ -83181,24 +83194,24 @@ Piesku&#10094;R&#10095; Mirrorisk
         }
     }
 
-    const QUERY$c = 2048 /* Move */ | 64 /* ControlCamera */ | 131072 /* Transform */;
+    const QUERY$d = 2048 /* Move */ | 64 /* ControlCamera */ | 131072 /* Transform */;
     const MOUSE_SENSITIVITY = 0.1;
-    const ZOOM_FACTOR = 1.1;
+    const ZOOM_FACTOR$1 = 1.1;
     function sys_control_mouse(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$c) === QUERY$c) {
-                update$7(game, i);
+            if ((game.World.Signature[i] & QUERY$d) === QUERY$d) {
+                update$8(game, i);
             }
         }
     }
     const axis_x = [1, 0, 0];
     const axis_y = [0, 1, 0];
     const rotation = [0, 0, 0, 0];
-    function update$7(game, entity) {
+    function update$8(game, entity) {
         let control = game.World.ControlCamera[entity];
         let move = game.World.Move[entity];
         if (control.Move && game.InputDistance["Mouse0"] > 10) {
-            move.MoveSpeed = control.Move * game.CameraZoom ** ZOOM_FACTOR;
+            move.MoveSpeed = control.Move * game.CameraZoom ** ZOOM_FACTOR$1;
             if (game.InputDelta["MouseX"]) {
                 let amount = game.InputDelta["MouseX"] * MOUSE_SENSITIVITY;
                 move.Directions.push([amount, 0, 0]);
@@ -83209,7 +83222,7 @@ Piesku&#10094;R&#10095; Mirrorisk
             }
         }
         if (control.Zoom && game.InputDelta["WheelY"]) {
-            move.MoveSpeed = control.Zoom * game.CameraZoom ** ZOOM_FACTOR;
+            move.MoveSpeed = (control.Zoom * game.CameraZoom) ** ZOOM_FACTOR$1;
             move.Directions.push([0, 0, game.InputDelta["WheelY"]]);
         }
         if (control.Yaw && game.InputDistance["Mouse2"] > 10 && game.InputDelta["MouseX"]) {
@@ -83238,21 +83251,21 @@ Piesku&#10094;R&#10095; Mirrorisk
         }
     }
 
-    const QUERY$b = 32768 /* Selectable */ | 4096 /* NavAgent */ | 262144 /* Team */;
+    const QUERY$c = 32768 /* Selectable */ | 4096 /* NavAgent */ | 262144 /* Team */;
     function sys_control_player(game, delta) {
         for (let i = 0; i < game.World.Signature.length; i++) {
             let team = game.World.Team[i];
             let selectable = game.World.Selectable[i];
-            if ((game.World.Signature[i] & QUERY$b) == QUERY$b &&
+            if ((game.World.Signature[i] & QUERY$c) == QUERY$c &&
                 game.Players[team.Id].Type === 0 /* Human */ &&
                 team.Id === game.CurrentPlayer &&
                 selectable.Selected) {
-                update$6(game, i);
+                update$7(game, i);
             }
         }
     }
     const sfx = ["mhm1.mp3", "mhm2.mp3", "mhm3.mp3", "mhm4.mp3"];
-    function update$6(game, entity) {
+    function update$7(game, entity) {
         let agent = game.World.NavAgent[entity];
         let transform = game.World.Transform[entity];
         let audio_source = game.World.AudioSource[entity];
@@ -83291,6 +83304,47 @@ Piesku&#10094;R&#10095; Mirrorisk
             agent.Destination = game.Picked.Point;
             audio_source.Trigger = game.Sounds[element(sfx)];
         }
+    }
+
+    const QUERY$b = 2048 /* Move */ | 64 /* ControlCamera */ | 131072 /* Transform */;
+    const TOUCH_SENSITIVITY = 0.1;
+    const ZOOM_FACTOR = 0.9;
+    function sys_control_touch(game, delta) {
+        for (let i = 0; i < game.World.Signature.length; i++) {
+            if ((game.World.Signature[i] & QUERY$b) === QUERY$b) {
+                update$6(game, i);
+            }
+        }
+    }
+    function update$6(game, entity) {
+        let control = game.World.ControlCamera[entity];
+        let move = game.World.Move[entity];
+        if (control.Move && game.InputDistance["Touch0"] > 10 && !game.InputState["Touch1"]) {
+            move.MoveSpeed = control.Move * game.CameraZoom ** ZOOM_FACTOR;
+            if (game.InputDelta["Touch0X"]) {
+                let amount = game.InputDelta["Touch0X"] * TOUCH_SENSITIVITY;
+                move.Directions.push([amount, 0, 0]);
+            }
+            if (game.InputDelta["Touch0Y"]) {
+                let amount = game.InputDelta["Touch0Y"] * TOUCH_SENSITIVITY;
+                move.Directions.push([0, 0, amount]);
+            }
+        }
+        if (control.Zoom && game.InputState["Touch0"] && game.InputState["Touch1"]) {
+            move.MoveSpeed = (control.Zoom * game.CameraZoom) ** ZOOM_FACTOR;
+            let hypot_curr = hypot_squared(game.InputState["Touch0X"] - game.InputState["Touch1X"], game.InputState["Touch0Y"] - game.InputState["Touch1Y"]);
+            let hypot_last = hypot_squared(game.InputState["Touch0X"] +
+                game.InputDelta["Touch0X"] -
+                game.InputState["Touch1X"] -
+                game.InputDelta["Touch1X"], game.InputState["Touch0Y"] +
+                game.InputDelta["Touch0Y"] -
+                game.InputState["Touch1Y"] -
+                game.InputDelta["Touch1Y"]);
+            move.Directions.push([0, 0, hypot_curr - hypot_last]);
+        }
+    }
+    function hypot_squared(a, b) {
+        return a * a + b * b;
     }
 
     function sys_deploy(game, delta) {
@@ -84225,6 +84279,9 @@ Piesku&#10094;R&#10095; Mirrorisk
                 Touch0: 0,
                 Touch1: 0,
             };
+            // Map of touch ids to touch indices. In particular, Firefox assigns high
+            // ints as ids. Chrome usually starts at 0, so id === index.
+            this.InputTouches = {};
             this.PlayState = 0 /* Setup */;
             this.Logs = "";
             this.AlertText = null;
@@ -84294,6 +84351,7 @@ Piesku&#10094;R&#10095; Mirrorisk
             sys_control_camera(this);
             sys_control_keyboard(this);
             sys_control_mouse(this);
+            sys_control_touch(this);
             sys_pick(this);
             // AI and player orders.
             sys_control_always(this);
