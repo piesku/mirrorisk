@@ -41482,6 +41482,7 @@
         game.World = new World();
         game.ViewportResized = true;
         game.Gl.clearColor(0.9, 0.9, 0.9, 1);
+        game.Logs = "";
         map_earth(game);
         // Evenly distribute player units around the map
         let number_of_players = game.Players.length;

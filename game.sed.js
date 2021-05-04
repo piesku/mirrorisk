@@ -41482,6 +41482,7 @@ set_seed(Date.now());
 game.World = new World();
 game.ViewportResized = true;
 game.Gl.clearColor(0.9, 0.9, 0.9, 1);
+game.Logs = "";
 map_earth(game);
 
 let number_of_players = game.Players.length;
