@@ -82623,6 +82623,7 @@ Piesku&#10094;R&#10095; Mirrorisk
             game.InputDelta["MouseY"] = evt.movementY;
         });
         game.Ui.addEventListener("wheel", (evt) => {
+            evt.preventDefault();
             game.InputDelta["WheelY"] = evt.deltaY;
         });
         game.Ui.addEventListener("touchstart", (evt) => {

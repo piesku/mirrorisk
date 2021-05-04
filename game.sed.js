@@ -82623,6 +82623,7 @@ game.InputDelta["MouseX"] = evt.movementX;
 game.InputDelta["MouseY"] = evt.movementY;
 });
 game.Ui.addEventListener("wheel", (evt) => {
+evt.preventDefault();
 game.InputDelta["WheelY"] = evt.deltaY;
 });
 game.Ui.addEventListener("touchstart", (evt) => {
