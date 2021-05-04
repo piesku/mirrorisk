@@ -41734,6 +41734,18 @@ function Popup(game, text, title) {
 game.Popup = { Title: title, Content: text };
 }
 
+const LOG_TEAM_CONTROL_SUMMARY = (team, count) => `${team} controls ${count === 1 ? "1 territory" : `${count} territories`}`;
+const LOG_TEAM_TURN_START = (team) => `C:&#92;> ${team}'s turn.`;
+const LOG_TEAM_DEPLOYS = (team, territory) => `${team} deploys an army to ${territory}`;
+const LOG_TEAM_ATTACKS = (territory, attacking_team, attacking_count, defending_team, defending_count) => `${attacking_team} attacks ${defending_team} in ${territory} with ${attacking_count === 1 ? "1 army" : `${attacking_count} armies`} against ${defending_count === 1 ? "1 army" : `${defending_count} armies`}.`;
+const LOG_BATTLE_RESULT_NO_LOSSES = (team) => `${team} wins the battle!`;
+const LOG_BATTLE_RESULT_SOME_LOSSES = (team, units_lost) => `${team} loses ${units_lost === 1 ? "1 army" : `${units_lost} armies`} but still manages to win the battle!`;
+const LOG_ERROR_UNIT_CANNOT_LEAVE = () => "This unit cannot move because territories cannot be left empty.";
+const DIALOG_GAME_OVER_TITLE = () => `Game over!`;
+const DIALOG_GAME_OVER_BODY = (name) => `Game over! ${name} has won!`;
+const DIALOG_NEW_TURN = (team, armies) => `It's ${team}'s turn now! Select territories to deploy ${armies} new armies.`;
+const DIALOG_NEW_TURN_WITH_BONUS = (team, armies, bonus, continents) => `It's ${team}'s turn now! You receive ${bonus} extra armies for controlling ${continents.join(", ")}. Select territories to deploy ${armies} new armies.`;
+
 const default_teams = [
 { Name: "Yellow", Color: [1, 1, 0, 1], Type: 0 /* Human */ },
 { Name: "Red", Color: [1, 0, 0, 1], Type: 1 /* AI */ },
@@ -41787,7 +41799,7 @@ game.Battles = [];
 for (let i = 0; i < game.Players.length; i++) {
 let territories = territories_controlled_by_team(game, i);
 let territories_qty = Object.keys(territories).length;
-Logger(game, `${game.Players[i].Name} controls ${territories_qty} territories`);
+Logger(game, LOG_TEAM_CONTROL_SUMMARY(game.Players[i].Name, territories_qty));
 if (most_territories < territories_qty) {
 most_territories = territories_qty;
 best_player = i;
@@ -41797,10 +41809,10 @@ game_over = true;
 }
 }
 if (game_over) {
-Popup(game, `Game over! ${game.Players[best_player].Name} won!`, `Game over!`);
+Popup(game, DIALOG_GAME_OVER_BODY(game.Players[best_player].Name), DIALOG_GAME_OVER_TITLE());
 game.TurnPhase = 4 /* Endgame */;
 }
-Logger(game, `C:&#92;> ${current_player_name}'s turn`);
+Logger(game, LOG_TEAM_TURN_START(current_player_name));
 game.CurrentPlayerTerritories = Object.keys(territories_controlled_by_team(game, game.CurrentPlayer)).map((e) => parseInt(e, 10));
 
 let units_to_deploy = Math.max(~~(game.CurrentPlayerTerritories.length / 3), 3);
@@ -41816,9 +41828,9 @@ continents_controlled.push(continent.Name);
 }
 }
 if (!game.IsAiTurn) {
-Alert(game, `It's ${current_player_name}'s turn now!${bonus > 0
-? ` You receive ${bonus} extra armies for controling ${continents_controlled.join(", ")}. `
-: " "}Select territories to deploy ${units_to_deploy} new armies.`);
+Alert(game, bonus > 0
+? DIALOG_NEW_TURN_WITH_BONUS(current_player_name, units_to_deploy, bonus, continents_controlled)
+: DIALOG_NEW_TURN(current_player_name, units_to_deploy));
 }
 game.TurnPhase = 0 /* Deploy */;
 game.UnitsDeployed = 0;
@@ -41833,7 +41845,7 @@ let { territory_id, position } = payload;
 if (position) {
 let territory_entity_id = game.TerritoryEntities[territory_id];
 let territory_name = game.World.Territory[territory_entity_id].Name;
-Logger(game, `${current_player_name} deploys an army to ${territory_name}`);
+Logger(game, LOG_TEAM_DEPLOYS(current_player_name, territory_name));
 let deployed_unit_entity = instantiate(game, blueprint_unit(game, [position[0], -5, position[2]], territory_id, game.CurrentPlayer));
 game.World.NavAgent[deployed_unit_entity].Destination = [
 position[0],
@@ -41877,7 +41889,7 @@ let sfx = [
 play_buffer(game.Audio, undefined, game.Sounds[element(sfx)]);
 let territory_name = game.World.Territory[territory_entity].Name;
 let enemy_territory_id = enemy_territory_ids[j];
-Logger(game, `${current_player_name} attacks ${game.Players[i].Name} in ${territory_name} with ${current_player_territories[enemy_territory_id]} armies against ${enemy_territories[enemy_territory_id]} armies.`);
+Logger(game, LOG_TEAM_ATTACKS(territory_name, current_player_name, current_player_territories[enemy_territory_id], game.Players[i].Name, enemy_territories[enemy_territory_id]));
 let battle_result = fight(game, current_player_territories[enemy_territory_id], enemy_territories[enemy_territory_id], !game.IsAiTurn, game.Players[i].Type === 0 /* Human */);
 let loser, winner;
 let winner_units_lost;
@@ -41885,9 +41897,9 @@ if (battle_result.result === 0 /* AttackWon */) {
 winner_units_lost =
 current_player_territories[enemy_territory_id] -
 battle_result.attacking_units;
-Logger(game, `${current_player_name} ${winner_units_lost === 0
-? "wins"
-: `loses ${winner_units_lost} armies but still manages to win`} the battle!`);
+Logger(game, winner_units_lost === 0
+? LOG_BATTLE_RESULT_NO_LOSSES(current_player_name)
+: LOG_BATTLE_RESULT_SOME_LOSSES(current_player_name, winner_units_lost));
 loser = i;
 winner = game.CurrentPlayer;
 }
@@ -41895,9 +41907,9 @@ else {
 winner_units_lost =
 enemy_territories[enemy_territory_id] -
 battle_result.defending_units;
-Logger(game, `${game.Players[i].Name} ${winner_units_lost === 0
-? "wins"
-: `loses ${winner_units_lost} armies but still manages to win`} the battle!`);
+Logger(game, winner_units_lost === 0
+? LOG_BATTLE_RESULT_NO_LOSSES(game.Players[i].Name)
+: LOG_BATTLE_RESULT_SOME_LOSSES(current_player_name, winner_units_lost));
 loser = game.CurrentPlayer;
 winner = i;
 }
@@ -83880,7 +83892,7 @@ let current_territory_id = game.World.NavAgent[child].TerritoryId;
 let units_on_territory = territories[current_territory_id];
 if (units_on_territory < 2) {
 if (game.InputDelta["Mouse0"] === 1 && game.TurnPhase === 1 /* Move */) {
-Logger(game, "This unit cannot move because territories cannot be left empty.");
+Logger(game, LOG_ERROR_UNIT_CANNOT_LEAVE());
 }
 return;
 }
@@ -84291,6 +84303,8 @@ this.Players = [
 { Name: "Yellow", Color: [1, 1, 0, 1], Type: 0 /* Human */ },
 { Name: "Red", Color: [1, 0, 0, 1], Type: 1 /* AI */ },
 { Name: "Green", Color: [0, 1, 0, 1], Type: 1 /* AI */ },
+{ Name: "Magenta", Color: [1, 0, 1, 1], Type: 1 /* AI */ },
+{ Name: "Cyan", Color: [0, 1, 1, 1], Type: 1 /* AI */ },
 ];
 this.CurrentPlayerTerritories = [];
 this.InitialSunPosition = from_euler([0, 0, 0, 0], 0, 35, 0);
