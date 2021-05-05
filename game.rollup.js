@@ -41786,6 +41786,7 @@ Piesku&#10094;R&#10095; Mirrorisk
             case 2 /* StartGame */: {
                 requestAnimationFrame(() => {
                     game.PlayState = 1 /* Playing */;
+                    dispatch(game, 9 /* ClearAlert */, {});
                     scene_stage(game);
                 });
                 break;
@@ -41794,6 +41795,14 @@ Piesku&#10094;R&#10095; Mirrorisk
                 let game_over = false;
                 let most_territories = 0;
                 let best_player = 0;
+                let current_player_units = units_entity_ids(game, game.CurrentPlayer);
+                for (let i = 0; i < current_player_units.length; i++) {
+                    game.World.NavAgent[current_player_units[i]].Actions = 1;
+                }
+                game.IsAiTurn = game.Players[game.CurrentPlayer].Type === 1 /* AI */;
+                if (game.IsAiTurn) {
+                    game.AiActiveUnits = current_player_units.slice();
+                }
                 game.Battles = [];
                 for (let i = 0; i < game.Players.length; i++) {
                     let territories = territories_controlled_by_team(game, i);
@@ -41827,6 +41836,7 @@ Piesku&#10094;R&#10095; Mirrorisk
                     }
                 }
                 if (!game.IsAiTurn) {
+                    console.log("no elo cotam");
                     Alert(game, bonus > 0
                         ? DIALOG_NEW_TURN_WITH_BONUS(current_player_name, units_to_deploy, bonus, continents_controlled)
                         : DIALOG_NEW_TURN(current_player_name, units_to_deploy));
@@ -41950,14 +41960,6 @@ Piesku&#10094;R&#10095; Mirrorisk
                 setTimeout(() => {
                     let players_count = game.Players.length;
                     let next_player = (players_count + game.CurrentPlayer + 1) % players_count;
-                    let next_player_units = units_entity_ids(game, next_player);
-                    for (let i = 0; i < next_player_units.length; i++) {
-                        game.World.NavAgent[next_player_units[i]].Actions = 1;
-                    }
-                    game.IsAiTurn = game.Players[next_player].Type === 1 /* AI */;
-                    if (game.IsAiTurn) {
-                        game.AiActiveUnits = next_player_units.slice();
-                    }
                     game.World.Signature[game.SunEntity] &= ~32 /* ControlAlways */;
                     game.World.Transform[game.SunEntity].Rotation = game.InitialSunPosition.slice();
                     game.World.Transform[game.SunEntity].Dirty = true;
@@ -84304,7 +84306,6 @@ Piesku&#10094;R&#10095; Mirrorisk
             this.AiActiveUnits = [];
             this.CurrentlyMovingAiUnit = null;
             this.CurrentlyFoughtOverTerritory = null;
-            // TODO: EndTurn Actions sets this, so it will break if AI moves first
             this.IsAiTurn = false;
             this.Battles = [];
             this.TurnPhase = 0 /* Deploy */;
