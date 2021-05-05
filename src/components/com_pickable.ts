@@ -6,7 +6,6 @@ import {Has} from "../world.js";
 export interface Pickable {
     Kind: PickableKind;
     Mesh?: Mesh;
-    Hover: boolean;
     Color: Vec4;
 }
 
@@ -21,7 +20,6 @@ export function pickable_territory(mesh: Mesh, color: Vec4) {
         game.World.Pickable[entity] = {
             Kind: PickableKind.Territory,
             Mesh: mesh,
-            Hover: false,
             Color: color,
         };
     };
@@ -32,7 +30,6 @@ export function pickable_unit(color: Vec4) {
         game.World.Signature[entity] |= Has.Pickable;
         game.World.Pickable[entity] = {
             Kind: PickableKind.Unit,
-            Hover: false,
             Color: color,
         };
     };

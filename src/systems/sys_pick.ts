@@ -12,20 +12,12 @@ import {Logger} from "../ui/App.js";
 import {LOG_ERROR_UNIT_CANNOT_LEAVE} from "../ui/messages.js";
 import {Has} from "../world.js";
 
-const QUERY = Has.Pickable;
-const TARGET = Has.Transform | Has.Collide;
+const QUERY = Has.Transform | Has.Collide;
 
 export function sys_pick(game: Game, delta: number) {
-    for (let i = 0; i < game.World.Signature.length; i++) {
-        if ((game.World.Signature[i] & QUERY) == QUERY) {
-            let pickable = game.World.Pickable[i];
-            pickable.Hover = false;
-        }
-    }
-
     let pickables: Array<Collide> = [];
     for (let i = 0; i < game.World.Signature.length; i++) {
-        if ((game.World.Signature[i] & TARGET) == TARGET) {
+        if ((game.World.Signature[i] & QUERY) == QUERY) {
             pickables.push(game.World.Collide[i]);
         }
     }
@@ -98,7 +90,6 @@ function update(game: Game, entity: Entity, pickables: Array<Collide>) {
 
                 let hit_mesh = ray_intersect_mesh(pickable.Mesh, origin, direction);
                 if (hit_mesh) {
-                    pickable.Hover = true;
                     // Transform the intersection point back to the world space.
                     transform_point(hit_mesh.Point, hit_mesh.Point, transform.World);
                     game.Picked = {
@@ -108,7 +99,6 @@ function update(game: Game, entity: Entity, pickables: Array<Collide>) {
                     return;
                 }
             } else {
-                pickable.Hover = true;
                 game.Picked = {
                     Entity: child,
                     Point: hit_aabb.Point,

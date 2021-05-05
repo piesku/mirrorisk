@@ -30,7 +30,7 @@ function update_territory(game: Game, entity: Entity) {
     let territory = game.World.Territory[entity];
     let render = game.World.Render[entity] as RenderTexturedMapped;
 
-    if (pickable.Hover || game.CurrentlyFoughtOverTerritory === entity) {
+    if (game.Picked?.Entity === entity || game.CurrentlyFoughtOverTerritory === entity) {
         copy(render.ColorDiffuse, pickable.Color);
         scale(render.ColorDiffuse, render.ColorDiffuse, 1.8);
     } else {
@@ -68,7 +68,7 @@ function update_unit(game: Game, entity: Entity) {
     let mesh_entity = children.Children[1];
     let mesh_render = game.World.Render[mesh_entity] as RenderTexturedMapped;
 
-    if (pickable.Hover) {
+    if (game.Picked?.Entity === entity) {
         copy(mesh_render.ColorDiffuse, pickable.Color);
         scale(mesh_render.ColorDiffuse, mesh_render.ColorDiffuse, 1.5);
     } else {
