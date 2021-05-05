@@ -125,7 +125,7 @@ export class Game {
     AiActiveUnits: Entity[] = [];
     CurrentlyMovingAiUnit: Entity | null = null;
     CurrentlyFoughtOverTerritory: Entity | null = null;
-    // TODO: EndTurn Actions sets this, so it will break if AI moves first
+
     IsAiTurn: boolean = false;
 
     Battles: Array<BattleCallback> = [];
