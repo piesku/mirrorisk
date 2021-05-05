@@ -40383,7 +40383,6 @@
             game.World.Pickable[entity] = {
                 Kind: 0 /* Territory */,
                 Mesh: mesh,
-                Hover: false,
                 Color: color,
             };
         };
@@ -40393,7 +40392,6 @@
             game.World.Signature[entity] |= 8192 /* Pickable */;
             game.World.Pickable[entity] = {
                 Kind: 1 /* Unit */,
-                Hover: false,
                 Color: color,
             };
         };
@@ -83497,10 +83495,11 @@ Piesku&#10094;R&#10095; Mirrorisk
         }
     }
     function update_territory(game, entity) {
+        var _a;
         let pickable = game.World.Pickable[entity];
         let territory = game.World.Territory[entity];
         let render = game.World.Render[entity];
-        if (pickable.Hover || game.CurrentlyFoughtOverTerritory === entity) {
+        if (((_a = game.Picked) === null || _a === void 0 ? void 0 : _a.Entity) === entity || game.CurrentlyFoughtOverTerritory === entity) {
             copy(render.ColorDiffuse, pickable.Color);
             scale(render.ColorDiffuse, render.ColorDiffuse, 1.8);
         }
@@ -83523,6 +83522,7 @@ Piesku&#10094;R&#10095; Mirrorisk
         }
     }
     function update_unit(game, entity) {
+        var _a;
         let pickable = game.World.Pickable[entity];
         let selectable = game.World.Selectable[entity];
         let children = game.World.Children[entity];
@@ -83530,7 +83530,7 @@ Piesku&#10094;R&#10095; Mirrorisk
         let box_draw = game.World.Draw[box_entity];
         let mesh_entity = children.Children[1];
         let mesh_render = game.World.Render[mesh_entity];
-        if (pickable.Hover) {
+        if (((_a = game.Picked) === null || _a === void 0 ? void 0 : _a.Entity) === entity) {
             copy(mesh_render.ColorDiffuse, pickable.Color);
             scale(mesh_render.ColorDiffuse, mesh_render.ColorDiffuse, 1.5);
         }
@@ -83838,18 +83838,11 @@ Piesku&#10094;R&#10095; Mirrorisk
         return null;
     }
 
-    const QUERY$4 = 8192 /* Pickable */;
-    const TARGET = 131072 /* Transform */ | 16 /* Collide */;
+    const QUERY$4 = 131072 /* Transform */ | 16 /* Collide */;
     function sys_pick(game, delta) {
-        for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & QUERY$4) == QUERY$4) {
-                let pickable = game.World.Pickable[i];
-                pickable.Hover = false;
-            }
-        }
         let pickables = [];
         for (let i = 0; i < game.World.Signature.length; i++) {
-            if ((game.World.Signature[i] & TARGET) == TARGET) {
+            if ((game.World.Signature[i] & QUERY$4) == QUERY$4) {
                 pickables.push(game.World.Collide[i]);
             }
         }
@@ -83909,7 +83902,6 @@ Piesku&#10094;R&#10095; Mirrorisk
                     transform_direction(direction_self, direction, transform.Self);
                     let hit_mesh = ray_intersect_mesh(pickable.Mesh, origin, direction);
                     if (hit_mesh) {
-                        pickable.Hover = true;
                         // Transform the intersection point back to the world space.
                         transform_point(hit_mesh.Point, hit_mesh.Point, transform.World);
                         game.Picked = {
@@ -83920,7 +83912,6 @@ Piesku&#10094;R&#10095; Mirrorisk
                     }
                 }
                 else {
-                    pickable.Hover = true;
                     game.Picked = {
                         Entity: child,
                         Point: hit_aabb.Point,
