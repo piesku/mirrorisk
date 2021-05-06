@@ -72,7 +72,6 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
 
                 game.UnitsByTeamTerritory.clear();
                 for (let i = 0; i < game.Players.length; i++) {
-                    game.UnitsByTeamId[i] = [];
                     game.UnitsByTeamTerritory.set(i, new Map());
                 }
             });
@@ -85,9 +84,6 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
 
             let current_player_units = units_entity_ids(game, game.CurrentPlayer);
             if (DEBUG) {
-                let team_units_arr = game.UnitsByTeamId[game.CurrentPlayer];
-                ASSERT_EQUAL(current_player_units.join(), team_units_arr.join());
-
                 let team_units_map = game.UnitsByTeamTerritory.get(game.CurrentPlayer)!;
                 let team_units_flat = [...team_units_map.values()].flat();
                 ASSERT_EQUAL(current_player_units.sort().join(), team_units_flat.sort().join());

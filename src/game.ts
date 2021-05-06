@@ -137,7 +137,6 @@ export class Game implements RulesTally {
     UnitsToDeploy: number = 0;
     UnitsDeployed: number = 0;
 
-    UnitsByTeamId: Record<number, Array<Entity>> = {};
     UnitsByTeamTerritory: Map<number, Map<number, Array<Entity>>> = new Map();
 
     SunEntity: Entity = 0;
@@ -199,7 +198,6 @@ export class Game implements RulesTally {
         this.Gl.enable(GL_CULL_FACE);
 
         for (let i = 0; i < this.Players.length; i++) {
-            this.UnitsByTeamId[i] = [];
             this.UnitsByTeamTerritory.set(i, new Map());
         }
     }

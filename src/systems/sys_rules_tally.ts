@@ -2,7 +2,6 @@ import {Entity, Game} from "../game.js";
 import {Has} from "../world.js";
 
 export interface RulesTally {
-    UnitsByTeamId: Record<number, Array<Entity>>;
     UnitsByTeamTerritory: Map<number, Map<number, Array<Entity>>>;
 }
 
@@ -10,8 +9,6 @@ const QUERY = Has.Team;
 
 export function sys_rules_tally(game: Game, delta: number) {
     for (let team_id = 0; team_id < game.Players.length; team_id++) {
-        game.UnitsByTeamId[team_id] = [];
-
         let team_units = game.UnitsByTeamTerritory.get(team_id);
         if (team_units) {
             // Clear the data about this team's units and occupied territories.
@@ -29,8 +26,6 @@ export function sys_rules_tally(game: Game, delta: number) {
 function update(game: Game, entity: Entity) {
     let team = game.World.Team[entity];
     let nav_agent = game.World.NavAgent[entity];
-
-    game.UnitsByTeamId[team.Id].push(entity);
 
     let team_units = game.UnitsByTeamTerritory.get(team.Id);
     if (!team_units) {
