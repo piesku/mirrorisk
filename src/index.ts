@@ -180,9 +180,9 @@ Promise.all([
 
             <p>
                 Each turn you'll get reinforcements to deploy into the territories you control.
-                Controlling an entire continent will yield a bonus. Select armies with the left
-                click; issue orders with the right click. Pan the camera with your left mouse button
-                pressed, rotate with the right mosue button, and zoom with the mouse wheel.
+                Controlling an entire continent will yield a bonus. Select and move armies with the
+                left click. Pan the camera with your left mouse button pressed, rotate with the
+                right mouse button, and zoom with the mouse wheel.
             </p>
 
             <p>Good luck!</p>

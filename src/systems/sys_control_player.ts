@@ -28,8 +28,8 @@ function update(game: Game, entity: Entity) {
     let audio_source = game.World.AudioSource[entity];
 
     if (
-        // If the user clicks…
-        input_clicked(game, 2, 0) &&
+        // If the user left-clicks…
+        input_clicked(game, 0, 0) &&
         // …over a territory…
         game.Picked &&
         game.World.Signature[game.Picked.Entity] & Has.Territory &&

@@ -33,7 +33,7 @@ function update(game: Game, entity: Entity) {
     if (game.TurnPhase !== TurnPhase.Move) {
         selectable.Selected = false;
     } else if (input_clicked(game, 0, 0)) {
-        // When the user clicks…
+        // When the user left-clicks…
 
         if (game.Picked?.Entity === entity) {
             audio_source.Trigger = game.Sounds[element(select_sfx)];
@@ -43,6 +43,13 @@ function update(game: Game, entity: Entity) {
                 selectable.Selected = true;
             }
         } else if (selectable.Selected) {
+            // …deselect.
+            selectable.Selected = false;
+        }
+    } else if (input_clicked(game, 2, 1)) {
+        // When the user right-clicks…
+
+        if (selectable.Selected) {
             // …deselect.
             selectable.Selected = false;
         }
