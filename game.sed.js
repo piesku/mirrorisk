@@ -83496,11 +83496,12 @@ break;
 }
 }
 function update_territory(game, entity) {
+let pickable = game.World.Pickable[entity];
+let render = game.World.Render[entity];
+
+copy(render.ColorDiffuse, pickable.Color);
 if (game.TurnPhase === 2 /* Battle */) {
 update_territory_battle(game, entity);
-}
-else if (game.TurnPhase === 4 /* Endgame */) {
-update_territory_default(game, entity);
 }
 else if (game.Players[game.CurrentPlayer].Type === 0 /* Human */) {
 if (game.TurnPhase === 0 /* Deploy */) {
@@ -83510,17 +83511,11 @@ else if (game.TurnPhase === 1 /* Move */) {
 update_territory_move(game, entity);
 }
 }
-else {
-update_territory_default(game, entity);
-}
 }
 function update_territory_deploy(game, entity) {
 var _a;
-let pickable = game.World.Pickable[entity];
 let territory = game.World.Territory[entity];
 let render = game.World.Render[entity];
-
-copy(render.ColorDiffuse, pickable.Color);
 if (((_a = game.Picked) === null || _a === void 0 ? void 0 : _a.Entity) === entity && game.CurrentPlayerTerritoryIds.includes(territory.Id)) {
 
 scale(render.ColorDiffuse, render.ColorDiffuse, 1.8);
@@ -83528,11 +83523,8 @@ scale(render.ColorDiffuse, render.ColorDiffuse, 1.8);
 }
 function update_territory_move(game, entity) {
 var _a, _b;
-let pickable = game.World.Pickable[entity];
 let territory = game.World.Territory[entity];
 let render = game.World.Render[entity];
-
-copy(render.ColorDiffuse, pickable.Color);
 if (game.Selected) {
 let nav_agent = game.World.NavAgent[game.Selected];
 if (nav_agent.TerritoryId === territory.Id) {
@@ -83560,20 +83552,11 @@ scale(render.ColorDiffuse, render.ColorDiffuse, 1.8);
 }
 }
 function update_territory_battle(game, entity) {
-let pickable = game.World.Pickable[entity];
 let render = game.World.Render[entity];
-
-copy(render.ColorDiffuse, pickable.Color);
 if (game.CurrentlyFoughtOverTerritory === entity) {
 
 scale(render.ColorDiffuse, render.ColorDiffuse, 1.8);
 }
-}
-function update_territory_default(game, entity) {
-let pickable = game.World.Pickable[entity];
-let render = game.World.Render[entity];
-
-copy(render.ColorDiffuse, pickable.Color);
 }
 function update_unit(game, entity) {
 var _a;
