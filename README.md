@@ -8,7 +8,29 @@ _Mirrorisk_ is a submission to [Gamedev.js 2021 Jam](https://itch.io/jam/gamedev
 
 ## Changelog
 
-- 1.0 — Final jam build submitted on April 26, 2021.
+### v1.1
+
+#### New Features
+
+- Added the UI to configure the game.
+    - You can now choose between 2 and 5 players, pick team colors and names.
+    - It's now possible to play a hot seat game with other people.
+    - It's also possible to host an AI-only game.
+- Added support for touch interfaces. The UI is optimized for tablets; mobile form-factors are not supported.
+- You can now end the deployment phase before deploying all units.
+
+#### Bug fixes and other improvements
+
+- Optimized textures to reduce the size of the game from 24 MB to 10 MB.
+- Optimized spatial audio panners for much better performance in the late game when there are many units on the board.
+- Fixed the freeze that happened when the user misclicked on another unit when giving orders to an army.
+- Fixed issues with the mouse wheel which zoomed the game and scrolled the [parent itch.io page](http://piesku.itch.io/mirrorisk) at the same time.
+- Fixed a bug which caused accidental deploys when the user clicked buttons in the UI.
+- Fixed the singular forms of nouns like _army_ and _territory_, when the count is 1.
+
+### v1.0 (The jam version)
+
+- Submitted to [Gamedev.js 2021 Jam](https://itch.io/jam/gamedevjs-2021/) on April 26, 2021.
 
 ## Credits
 
