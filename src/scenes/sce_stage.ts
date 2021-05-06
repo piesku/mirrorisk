@@ -4,6 +4,7 @@ import {get_coord_by_territory_id} from "../blueprints/blu_territory.js";
 import {blueprint_unit} from "../blueprints/blu_unit.js";
 import {Game} from "../game.js";
 import {instantiate} from "../impl.js";
+import {sys_rules_tally} from "../systems/sys_rules_tally.js";
 import {World} from "../world.js";
 import {map_earth} from "./map_earth.js";
 
@@ -37,5 +38,6 @@ export function scene_stage(game: Game) {
         }
     }
 
+    sys_rules_tally(game, 0);
     dispatch(game, Action.StartDeployment, {});
 }

@@ -1,3 +1,4 @@
+import {ASSERT_EQUAL} from "../common/assert.js";
 import {play_buffer} from "../common/audio.js";
 import {hex_to_vec4} from "../common/color.js";
 import {Quat, Vec3, Vec4} from "../common/math.js";
@@ -68,6 +69,12 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                 game.PlayState = PlayState.Playing;
                 dispatch(game, Action.ClearAlert, {});
                 scene_stage(game);
+
+                game.UnitsByTeamTerritory.clear();
+                for (let i = 0; i < game.Players.length; i++) {
+                    game.UnitsByTeamId[i] = [];
+                    game.UnitsByTeamTerritory.set(i, new Map());
+                }
             });
             break;
         }
@@ -77,6 +84,14 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             let best_player = 0;
 
             let current_player_units = units_entity_ids(game, game.CurrentPlayer);
+            if (DEBUG) {
+                let team_units_arr = game.UnitsByTeamId[game.CurrentPlayer];
+                ASSERT_EQUAL(current_player_units.join(), team_units_arr.join());
+
+                let team_units_map = game.UnitsByTeamTerritory.get(game.CurrentPlayer)!;
+                let team_units_flat = [...team_units_map.values()].flat();
+                ASSERT_EQUAL(current_player_units.sort().join(), team_units_flat.sort().join());
+            }
 
             for (let i = 0; i < current_player_units.length; i++) {
                 game.World.NavAgent[current_player_units[i]].Actions = 1;
@@ -92,6 +107,15 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             for (let i = 0; i < game.Players.length; i++) {
                 let territories = territories_controlled_by_team(game, i);
                 let territories_qty = Object.keys(territories).length;
+
+                if (DEBUG) {
+                    let team_units = game.UnitsByTeamTerritory.get(i)!;
+                    ASSERT_EQUAL(team_units.size, territories_qty);
+                    for (let [territory_id, unit_count] of Object.entries(territories)) {
+                        let territory_units = team_units.get(parseInt(territory_id));
+                        ASSERT_EQUAL(territory_units?.length, unit_count);
+                    }
+                }
 
                 Logger(game, msg.LOG_TEAM_CONTROL_SUMMARY(game.Players[i].Name, territories_qty));
 
@@ -118,6 +142,15 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             game.CurrentPlayerTerritoryIds = Object.keys(
                 territories_controlled_by_team(game, game.CurrentPlayer)
             ).map((e) => parseInt(e, 10));
+
+            if (DEBUG) {
+                let team_units = game.UnitsByTeamTerritory.get(game.CurrentPlayer)!;
+                let team_territories = [...team_units.keys()];
+                ASSERT_EQUAL(
+                    team_territories.sort().join(),
+                    game.CurrentPlayerTerritoryIds.sort().join()
+                );
+            }
 
             // XXX: Add continent bonus here
             let units_to_deploy = Math.max(~~(game.CurrentPlayerTerritoryIds.length / 3), 3);
@@ -206,6 +239,16 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             let current_player_territory_ids = Object.keys(current_player_territories).map((e) =>
                 parseInt(e, 10)
             );
+
+            if (DEBUG) {
+                let team_units = game.UnitsByTeamTerritory.get(game.CurrentPlayer)!;
+                let team_territories = [...team_units.keys()];
+                ASSERT_EQUAL(
+                    team_territories.sort().join(),
+                    current_player_territory_ids.sort().join()
+                );
+            }
+
             for (let i = 0; i < game.Players.length; i++) {
                 if (i === game.CurrentPlayer) {
                     continue;
@@ -214,6 +257,12 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                 let enemy_territory_ids = Object.keys(enemy_territories).map((e) =>
                     parseInt(e, 10)
                 );
+
+                if (DEBUG) {
+                    let team_units = game.UnitsByTeamTerritory.get(i)!;
+                    let team_territories = [...team_units.keys()];
+                    ASSERT_EQUAL(team_territories.sort().join(), enemy_territory_ids.sort().join());
+                }
 
                 for (let j = 0; j < enemy_territory_ids.length; j++) {
                     if (current_player_territory_ids.includes(enemy_territory_ids[j])) {

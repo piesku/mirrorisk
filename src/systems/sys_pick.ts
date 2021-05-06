@@ -1,3 +1,4 @@
+import {ASSERT_EQUAL} from "../../common/assert.js";
 import {get_translation} from "../../common/mat4.js";
 import {Vec3} from "../../common/math.js";
 import {ray_intersect_aabb, ray_intersect_mesh} from "../../common/raycast.js";
@@ -63,6 +64,14 @@ function update(game: Game, entity: Entity, pickables: Array<Collide>) {
 
         // Player can only move if there's at least one unit left on the territory
         let territories = territories_controlled_by_team(game, game.CurrentPlayer);
+        if (DEBUG) {
+            let team_units = game.UnitsByTeamTerritory.get(game.CurrentPlayer)!;
+            ASSERT_EQUAL(team_units.size, Object.keys(territories).length);
+            for (let [territory_id, unit_count] of Object.entries(territories)) {
+                let territory_units = team_units.get(parseInt(territory_id));
+                ASSERT_EQUAL(territory_units?.length, unit_count);
+            }
+        }
 
         for (let child of query_all(game.World, entity, Has.Pickable)) {
             let pickable = game.World.Pickable[child];

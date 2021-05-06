@@ -35,6 +35,7 @@ import {sys_nav} from "./systems/sys_nav.js";
 import {Picked, sys_pick} from "./systems/sys_pick.js";
 import {sys_render_depth} from "./systems/sys_render1_depth.js";
 import {sys_render_forward} from "./systems/sys_render1_forward.js";
+import {RulesTally, sys_rules_tally} from "./systems/sys_rules_tally.js";
 import {sys_select} from "./systems/sys_select.js";
 import {sys_transform} from "./systems/sys_transform.js";
 import {sys_ui} from "./systems/sys_ui.js";
@@ -77,7 +78,7 @@ export interface ContinentBonus {
     Name: string;
 }
 
-export class Game {
+export class Game implements RulesTally {
     World = new World();
 
     ViewportWidth = 0;
@@ -136,6 +137,9 @@ export class Game {
     UnitsToDeploy: number = 0;
     UnitsDeployed: number = 0;
 
+    UnitsByTeamId: Record<number, Array<Entity>> = {};
+    UnitsByTeamTerritory: Map<number, Map<number, Array<Entity>>> = new Map();
+
     SunEntity: Entity = 0;
 
     Ui = document.querySelector("main")!;
@@ -193,6 +197,11 @@ export class Game {
 
         this.Gl.enable(GL_DEPTH_TEST);
         this.Gl.enable(GL_CULL_FACE);
+
+        for (let i = 0; i < this.Players.length; i++) {
+            this.UnitsByTeamId[i] = [];
+            this.UnitsByTeamTerritory.set(i, new Map());
+        }
     }
 
     FrameSetup() {
@@ -206,6 +215,9 @@ export class Game {
 
     FrameUpdate(delta: number) {
         let now = performance.now();
+
+        // Game rules.
+        sys_rules_tally(this, delta);
 
         // Camera controls and picking.
         sys_control_camera(this, delta);
