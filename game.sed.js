@@ -40354,7 +40354,7 @@ Size: 0,
 */
 function move(move_speed, rotation_speed) {
 return (game, entity) => {
-game.World.Signature[entity] |= 2048 /* Move */;
+game.World.Signature[entity] |= 1024 /* Move */;
 game.World.Move[entity] = {
 MoveSpeed: move_speed,
 RotationSpeed: rotation_speed,
@@ -40367,7 +40367,7 @@ SelfRotations: [],
 
 function nav_agent(territory_id) {
 return (game, entity) => {
-game.World.Signature[entity] |= 4096 /* NavAgent */;
+game.World.Signature[entity] |= 2048 /* NavAgent */;
 game.World.NavAgent[entity] = {
 TerritoryId: territory_id,
 Destination: null,
@@ -40379,7 +40379,7 @@ Actions: 1,
 
 function pickable_territory(mesh, color) {
 return (game, entity) => {
-game.World.Signature[entity] |= 8192 /* Pickable */;
+game.World.Signature[entity] |= 4096 /* Pickable */;
 game.World.Pickable[entity] = {
 Kind: 0 /* Territory */,
 Mesh: mesh,
@@ -40389,7 +40389,7 @@ Color: color,
 }
 function pickable_unit(color) {
 return (game, entity) => {
-game.World.Signature[entity] |= 8192 /* Pickable */;
+game.World.Signature[entity] |= 4096 /* Pickable */;
 game.World.Pickable[entity] = {
 Kind: 1 /* Unit */,
 Color: color,
@@ -40765,7 +40765,7 @@ game.Gl.bindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.IndexBuffer);
 game.ExtVao.bindVertexArrayOES(null);
 colored_unlit_vaos.set(mesh, vao);
 }
-game.World.Signature[entity] |= 16384 /* Render */;
+game.World.Signature[entity] |= 8192 /* Render */;
 game.World.Render[entity] = {
 Kind: 0 /* ColoredUnlit */,
 Material: material,
@@ -40853,7 +40853,7 @@ game.Gl.vertexAttribPointer(material.Locations.VertexBitangent, 3, GL_FLOAT, fal
 game.ExtVao.bindVertexArrayOES(null);
 textured_mapped_vaos.set(mesh, vao);
 }
-game.World.Signature[entity] |= 16384 /* Render */;
+game.World.Signature[entity] |= 8192 /* Render */;
 game.World.Render[entity] = {
 Kind: 6 /* TexturedMapped */,
 Material: material,
@@ -40870,7 +40870,7 @@ ColorDiffuse: diffuse_color,
 
 function selectable() {
 return (game, entity) => {
-game.World.Signature[entity] |= 32768 /* Selectable */;
+game.World.Signature[entity] |= 16384 /* Selectable */;
 game.World.Selectable[entity] = {
 Selected: false,
 };
@@ -40879,7 +40879,7 @@ Selected: false,
 
 function team(Id) {
 return (game, entity) => {
-game.World.Signature[entity] |= 262144 /* Team */;
+game.World.Signature[entity] |= 131072 /* Team */;
 game.World.Team[entity] = {
 Id,
 };
@@ -40897,7 +40897,7 @@ territories[territory_id]++;
 return territories;
 }
 function units_entity_ids(game, team_id) {
-let QUERY = 262144 /* Team */ | 4096 /* NavAgent */;
+let QUERY = 131072 /* Team */ | 2048 /* NavAgent */;
 let units_entity_ids = [];
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY) === QUERY && game.World.Team[i].Id === team_id) {
@@ -40909,7 +40909,7 @@ return units_entity_ids;
 
 function transform(translation = [0, 0, 0], rotation = [0, 0, 0, 1], scale = [1, 1, 1]) {
 return (game, entity) => {
-game.World.Signature[entity] |= 131072 /* Transform */;
+game.World.Signature[entity] |= 65536 /* Transform */;
 game.World.Transform[entity] = {
 World: create(),
 Self: create(),
@@ -41041,7 +41041,7 @@ return (game, entity) => {
 let id = continent * 10 + index;
 game.TerritoryEntities[id] = entity;
 game.ContinentBonus[continent].Territories.push(id);
-game.World.Signature[entity] |= 65536 /* Territory */;
+game.World.Signature[entity] |= 32768 /* Territory */;
 game.World.Territory[entity] = {
 Continent: continent,
 Index: index,
@@ -41096,7 +41096,6 @@ this.Collide = [];
 this.ControlAlways = [];
 this.ControlCamera = [];
 this.Draw = [];
-this.Highlightable = [];
 this.Light = [];
 this.Mimic = [];
 this.Move = [];
@@ -41258,7 +41257,7 @@ Pitch: pitch,
 
 function mimic(target, stiffness, position, rotation) {
 return (game, entity) => {
-game.World.Signature[entity] |= 1024 /* Mimic */;
+game.World.Signature[entity] |= 512 /* Mimic */;
 game.World.Mimic[entity] = {
 Target: target,
 Stiffness: stiffness,
@@ -41306,7 +41305,7 @@ Rotation: rotation,
 
 function light_directional(color = [1, 1, 1], range = 1) {
 return (game, entity) => {
-game.World.Signature[entity] |= 512 /* Light */;
+game.World.Signature[entity] |= 256 /* Light */;
 game.World.Light[entity] = {
 Kind: 1 /* Directional */,
 Color: color,
@@ -41316,7 +41315,7 @@ Intensity: range ** 2,
 }
 function light_point(color = [1, 1, 1], range = 1) {
 return (game, entity) => {
-game.World.Signature[entity] |= 512 /* Light */;
+game.World.Signature[entity] |= 256 /* Light */;
 game.World.Light[entity] = {
 Kind: 2 /* Point */,
 Color: color,
@@ -41821,14 +41820,14 @@ Popup(game, DIALOG_GAME_OVER_BODY(game.Players[best_player].Name), DIALOG_GAME_O
 game.TurnPhase = 4 /* Endgame */;
 }
 Logger(game, LOG_TEAM_TURN_START(current_player_name));
-game.CurrentPlayerTerritories = Object.keys(territories_controlled_by_team(game, game.CurrentPlayer)).map((e) => parseInt(e, 10));
+game.CurrentPlayerTerritoryIds = Object.keys(territories_controlled_by_team(game, game.CurrentPlayer)).map((e) => parseInt(e, 10));
 
-let units_to_deploy = Math.max(~~(game.CurrentPlayerTerritories.length / 3), 3);
+let units_to_deploy = Math.max(~~(game.CurrentPlayerTerritoryIds.length / 3), 3);
 let bonus = 0;
 let continents_controlled = [];
 for (let j = 0; j < game.ContinentBonus.length; j++) {
 let continent = game.ContinentBonus[j];
-let territories = continent.Territories.slice().filter((ter_id) => !game.CurrentPlayerTerritories.includes(ter_id));
+let territories = continent.Territories.slice().filter((ter_id) => !game.CurrentPlayerTerritoryIds.includes(ter_id));
 if (territories.length === 0 && continent.Territories.length > 0) {
 bonus += continent.Bonus;
 units_to_deploy += continent.Bonus;
@@ -42024,7 +42023,7 @@ defending_units,
 }
 }
 function remove_defeated_units(game, territory_id, team_id, qty) {
-let QUERY = 262144 /* Team */ | 4096 /* NavAgent */;
+let QUERY = 131072 /* Team */ | 2048 /* NavAgent */;
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY) === QUERY &&
 game.World.NavAgent[i].TerritoryId === territory_id &&
@@ -42037,7 +42036,7 @@ qty--;
 }
 let translation = game.World.Transform[i].Translation;
 game.World.Move[i].MoveSpeed += float(-5, 5);
-game.World.Signature[i] &= ~262144 /* Team */;
+game.World.Signature[i] &= ~131072 /* Team */;
 delete game.World.Team[i];
 game.World.NavAgent[i].TerritoryId = 0;
 game.World.NavAgent[i].Destination = [
@@ -82757,7 +82756,7 @@ return [game.InputState["MouseX"], game.InputState["MouseY"]];
 return null;
 }
 
-const QUERY$l = 1 /* AudioListener */ | 131072 /* Transform */;
+const QUERY$l = 1 /* AudioListener */ | 65536 /* Transform */;
 function sys_audio_listener(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$l) === QUERY$l) {
@@ -82849,7 +82848,7 @@ panner.setOrientation(...forward);
 }
 }
 
-const QUERY$j = 131072 /* Transform */ | 4 /* Camera */;
+const QUERY$j = 65536 /* Transform */ | 4 /* Camera */;
 function sys_camera(game, delta) {
 if (game.ViewportWidth != window.innerWidth || game.ViewportHeight != window.innerHeight) {
 game.ViewportWidth = game.CanvasScene.width = game.CanvasBillboard.width =
@@ -82982,7 +82981,7 @@ a.Min[2] < b.Max[2] &&
 a.Max[2] > b.Min[2]);
 }
 
-const QUERY$i = 131072 /* Transform */ | 16 /* Collide */;
+const QUERY$i = 65536 /* Transform */ | 16 /* Collide */;
 function sys_collide(game, delta) {
 
 let static_colliders = [];
@@ -83049,7 +83048,7 @@ Hit: negate([0, 0, 0], hit),
 }
 }
 
-const QUERY$h = 4096 /* NavAgent */ | 262144 /* Team */;
+const QUERY$h = 2048 /* NavAgent */ | 131072 /* Team */;
 function sys_control_ai(game, delta) {
 if (!game.IsAiTurn || game.TurnPhase === 4 /* Endgame */) {
 return;
@@ -83109,7 +83108,7 @@ agent.Destination = destination_worldspace;
 }
 }
 
-const QUERY$g = 32 /* ControlAlways */ | 131072 /* Transform */ | 2048 /* Move */;
+const QUERY$g = 32 /* ControlAlways */ | 65536 /* Transform */ | 1024 /* Move */;
 function sys_control_always(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$g) === QUERY$g) {
@@ -83140,7 +83139,7 @@ update$a(game, i);
 function update$a(game, entity) {
 let control = game.World.ControlCamera[entity];
 let transform = game.World.Transform[entity];
-if (game.World.Signature[entity] & 1024 /* Mimic */) {
+if (game.World.Signature[entity] & 512 /* Mimic */) {
 let mimic = game.World.Mimic[entity];
 let current_team_type = game.Players[game.CurrentPlayer].Type;
 switch (game.TurnPhase) {
@@ -83170,7 +83169,7 @@ game.CameraZoom = transform.Translation[1] / INITIAL_CAMERA_Y;
 }
 }
 
-const QUERY$e = 2048 /* Move */ | 64 /* ControlCamera */;
+const QUERY$e = 1024 /* Move */ | 64 /* ControlCamera */;
 function sys_control_keyboard(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$e) === QUERY$e) {
@@ -83208,7 +83207,7 @@ move.SelfRotations.push([1, 0, 0, 0]);
 }
 }
 
-const QUERY$d = 2048 /* Move */ | 64 /* ControlCamera */ | 131072 /* Transform */;
+const QUERY$d = 1024 /* Move */ | 64 /* ControlCamera */ | 65536 /* Transform */;
 const MOUSE_SENSITIVITY = 0.1;
 const ZOOM_FACTOR$1 = 1.1;
 function sys_control_mouse(game, delta) {
@@ -83265,7 +83264,7 @@ transform.Dirty = true;
 }
 }
 
-const QUERY$c = 32768 /* Selectable */ | 4096 /* NavAgent */ | 262144 /* Team */;
+const QUERY$c = 16384 /* Selectable */ | 2048 /* NavAgent */ | 131072 /* Team */;
 function sys_control_player(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 let team = game.World.Team[i];
@@ -83285,10 +83284,10 @@ let transform = game.World.Transform[entity];
 let audio_source = game.World.AudioSource[entity];
 if (
 
-input_clicked(game, 2, 0) &&
+input_clicked(game, 0, 0) &&
 
 game.Picked &&
-game.World.Signature[game.Picked.Entity] & 65536 /* Territory */ &&
+game.World.Signature[game.Picked.Entity] & 32768 /* Territory */ &&
 
 agent.Actions > 0) {
 let territory_entity = game.Picked.Entity;
@@ -83320,7 +83319,7 @@ audio_source.Trigger = game.Sounds[element(sfx)];
 }
 }
 
-const QUERY$b = 2048 /* Move */ | 64 /* ControlCamera */ | 131072 /* Transform */;
+const QUERY$b = 1024 /* Move */ | 64 /* ControlCamera */ | 65536 /* Transform */;
 const TOUCH_SENSITIVITY = 0.1;
 const ZOOM_FACTOR = 0.9;
 function sys_control_touch(game, delta) {
@@ -83367,7 +83366,7 @@ return;
 }
 if (game.IsAiTurn) {
 for (let i = 0; i < game.UnitsToDeploy; i++) {
-let deploy_to = element(game.CurrentPlayerTerritories);
+let deploy_to = element(game.CurrentPlayerTerritoryIds);
 if (deploy_to) {
 let position = get_coord_by_territory_id(game, deploy_to);
 dispatch(game, 5 /* DeployUnit */, { territory_id: deploy_to, position });
@@ -83380,9 +83379,9 @@ dispatch(game, 4 /* EndDeployment */, {});
 else {
 if (input_clicked(game, 0, 0) &&
 game.Picked &&
-game.World.Signature[game.Picked.Entity] & 65536 /* Territory */) {
+game.World.Signature[game.Picked.Entity] & 32768 /* Territory */) {
 let territory = game.World.Territory[game.Picked.Entity];
-if (game.CurrentPlayerTerritories.includes(territory.Id)) {
+if (game.CurrentPlayerTerritoryIds.includes(territory.Id)) {
 dispatch(game, 5 /* DeployUnit */, {
 territory_id: territory.Id,
 position: game.Picked.Point.slice(),
@@ -83392,7 +83391,7 @@ position: game.Picked.Point.slice(),
 }
 }
 
-const QUERY$a = 131072 /* Transform */ | 128 /* Draw */;
+const QUERY$a = 65536 /* Transform */ | 128 /* Draw */;
 function sys_draw(game, delta) {
 game.Context2D.resetTransform();
 game.Context2D.clearRect(0, 0, game.ViewportWidth, game.ViewportHeight);
@@ -83478,7 +83477,7 @@ out[3] = a[3] * b;
 return out;
 }
 
-const QUERY$9 = 8192 /* Pickable */;
+const QUERY$9 = 4096 /* Pickable */;
 function sys_highlight(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$9) == QUERY$9) {
@@ -83497,31 +83496,84 @@ break;
 }
 }
 function update_territory(game, entity) {
+if (game.TurnPhase === 2 /* Battle */) {
+update_territory_battle(game, entity);
+}
+else if (game.TurnPhase === 4 /* Endgame */) {
+update_territory_default(game, entity);
+}
+else if (game.Players[game.CurrentPlayer].Type === 0 /* Human */) {
+if (game.TurnPhase === 0 /* Deploy */) {
+update_territory_deploy(game, entity);
+}
+else if (game.TurnPhase === 1 /* Move */) {
+update_territory_move(game, entity);
+}
+}
+else {
+update_territory_default(game, entity);
+}
+}
+function update_territory_deploy(game, entity) {
 var _a;
 let pickable = game.World.Pickable[entity];
 let territory = game.World.Territory[entity];
 let render = game.World.Render[entity];
-if (((_a = game.Picked) === null || _a === void 0 ? void 0 : _a.Entity) === entity || game.CurrentlyFoughtOverTerritory === entity) {
+
 copy(render.ColorDiffuse, pickable.Color);
+if (((_a = game.Picked) === null || _a === void 0 ? void 0 : _a.Entity) === entity && game.CurrentPlayerTerritoryIds.includes(territory.Id)) {
+
 scale(render.ColorDiffuse, render.ColorDiffuse, 1.8);
 }
-else {
-copy(render.ColorDiffuse, pickable.Color);
 }
+function update_territory_move(game, entity) {
+var _a, _b;
+let pickable = game.World.Pickable[entity];
+let territory = game.World.Territory[entity];
+let render = game.World.Render[entity];
+
+copy(render.ColorDiffuse, pickable.Color);
 if (game.Selected) {
 let nav_agent = game.World.NavAgent[game.Selected];
 if (nav_agent.TerritoryId === territory.Id) {
 
-copy(render.ColorDiffuse, pickable.Color);
 scale(render.ColorDiffuse, render.ColorDiffuse, 1.8);
 }
 else if (nav_agent.Actions > 0 &&
-game.TerritoryGraph[territory.Id].includes(nav_agent.TerritoryId)) ;
+game.TerritoryGraph[territory.Id].includes(nav_agent.TerritoryId)) {
+
+
+
+if (((_a = game.Picked) === null || _a === void 0 ? void 0 : _a.Entity) === entity) {
+
+scale(render.ColorDiffuse, render.ColorDiffuse, 1.8);
+}
+}
 else {
-copy(render.ColorDiffuse, pickable.Color);
+
 scale(render.ColorDiffuse, render.ColorDiffuse, 0.5);
 }
 }
+else if (((_b = game.Picked) === null || _b === void 0 ? void 0 : _b.Entity) === entity) {
+
+scale(render.ColorDiffuse, render.ColorDiffuse, 1.8);
+}
+}
+function update_territory_battle(game, entity) {
+let pickable = game.World.Pickable[entity];
+let render = game.World.Render[entity];
+
+copy(render.ColorDiffuse, pickable.Color);
+if (game.CurrentlyFoughtOverTerritory === entity) {
+
+scale(render.ColorDiffuse, render.ColorDiffuse, 1.8);
+}
+}
+function update_territory_default(game, entity) {
+let pickable = game.World.Pickable[entity];
+let render = game.World.Render[entity];
+
+copy(render.ColorDiffuse, pickable.Color);
 }
 function update_unit(game, entity) {
 var _a;
@@ -83548,7 +83600,7 @@ game.World.Signature[box_entity] &= ~128 /* Draw */;
 }
 }
 
-const QUERY$8 = 131072 /* Transform */ | 512 /* Light */;
+const QUERY$8 = 65536 /* Transform */ | 256 /* Light */;
 function sys_light(game, delta) {
 game.LightPositions.fill(0);
 game.LightDetails.fill(0);
@@ -83579,7 +83631,7 @@ game.LightDetails[4 * idx + 2] = light.Color[2];
 game.LightDetails[4 * idx + 3] = light.Intensity;
 }
 
-const QUERY$7 = 131072 /* Transform */ | 1024 /* Mimic */;
+const QUERY$7 = 65536 /* Transform */ | 512 /* Mimic */;
 function sys_mimic(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$7) === QUERY$7) {
@@ -83606,7 +83658,7 @@ follower_transform.Dirty = true;
 }
 }
 
-const QUERY$6 = 131072 /* Transform */ | 2048 /* Move */;
+const QUERY$6 = 65536 /* Transform */ | 1024 /* Move */;
 const NO_ROTATION = [0, 0, 0, 1];
 function sys_move(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
@@ -83668,7 +83720,7 @@ function multiply_rotations(acc, cur) {
 return multiply(acc, acc, cur);
 }
 
-const QUERY$5 = 131072 /* Transform */ | 4096 /* NavAgent */ | 2048 /* Move */;
+const QUERY$5 = 65536 /* Transform */ | 2048 /* NavAgent */ | 1024 /* Move */;
 function sys_nav(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$5) == QUERY$5) {
@@ -83840,7 +83892,7 @@ return { TriIndex: tri, Point: intersection };
 return null;
 }
 
-const QUERY$4 = 131072 /* Transform */ | 16 /* Collide */;
+const QUERY$4 = 65536 /* Transform */ | 16 /* Collide */;
 function sys_pick(game, delta) {
 let pickables = [];
 for (let i = 0; i < game.World.Signature.length; i++) {
@@ -83881,7 +83933,7 @@ let collider = hit_aabb.Collider;
 let entity = collider.Entity;
 
 let territories = territories_controlled_by_team(game, game.CurrentPlayer);
-for (let child of query_all(game.World, entity, 8192 /* Pickable */)) {
+for (let child of query_all(game.World, entity, 4096 /* Pickable */)) {
 let pickable = game.World.Pickable[child];
 if (pickable.Kind === 1 /* Unit */) {
 let current_territory_id = game.World.NavAgent[child].TerritoryId;
@@ -83924,7 +83976,7 @@ return;
 }
 }
 
-const QUERY$3 = 131072 /* Transform */ | 16384 /* Render */;
+const QUERY$3 = 65536 /* Transform */ | 8192 /* Render */;
 function sys_render_depth(game, delta) {
 for (let camera_entity of game.Cameras) {
 let camera = game.World.Camera[camera_entity];
@@ -83962,7 +84014,7 @@ game.Gl.drawElements(game.MaterialDepth.Mode, render.Mesh.IndexCount, GL_UNSIGNE
 game.ExtVao.bindVertexArrayOES(null);
 }
 
-const QUERY$2 = 131072 /* Transform */ | 16384 /* Render */;
+const QUERY$2 = 65536 /* Transform */ | 8192 /* Render */;
 function sys_render_forward(game, delta) {
 for (let camera_entity of game.Cameras) {
 let camera = game.World.Camera[camera_entity];
@@ -84177,7 +84229,7 @@ game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_S
 game.ExtVao.bindVertexArrayOES(null);
 }
 
-const QUERY$1 = 131072 /* Transform */ | 8192 /* Pickable */ | 32768 /* Selectable */ | 8 /* Children */;
+const QUERY$1 = 65536 /* Transform */ | 4096 /* Pickable */ | 16384 /* Selectable */ | 8 /* Children */;
 function sys_select(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY$1) == QUERY$1) {
@@ -84217,9 +84269,16 @@ else if (selectable.Selected) {
 selectable.Selected = false;
 }
 }
+else if (input_clicked(game, 2, 1)) {
+
+if (selectable.Selected) {
+
+selectable.Selected = false;
+}
+}
 }
 
-const QUERY = 131072 /* Transform */;
+const QUERY = 65536 /* Transform */;
 function sys_transform(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
 if ((game.World.Signature[i] & QUERY) === QUERY) {
@@ -84241,7 +84300,7 @@ invert(transform.Self, transform.World);
 if (world.Signature[entity] & 8 /* Children */) {
 let children = world.Children[entity];
 for (let child of children.Children) {
-if (world.Signature[child] & 131072 /* Transform */) {
+if (world.Signature[child] & 65536 /* Transform */) {
 let child_transform = world.Transform[child];
 child_transform.Parent = entity;
 update_transform(world, child, child_transform);
@@ -84300,7 +84359,7 @@ this.Players = [
 { Name: "Magenta", Color: [1, 0, 1, 1], Type: 1 /* AI */ },
 { Name: "Cyan", Color: [0, 1, 1, 1], Type: 1 /* AI */ },
 ];
-this.CurrentPlayerTerritories = [];
+this.CurrentPlayerTerritoryIds = [];
 this.InitialSunPosition = from_euler([0, 0, 0, 0], 0, 35, 0);
 this.ContinentBonus = [];
 this.AiActiveUnits = [];
@@ -84506,9 +84565,9 @@ the game ends immediately. Protect the underdogs before you take the lead!
 
 <p>
 Each turn you'll get reinforcements to deploy into the territories you control.
-Controlling an entire continent will yield a bonus. Select armies with the left
-click; issue orders with the right click. Pan the camera with your left mouse button
-pressed, rotate with the right mosue button, and zoom with the mouse wheel.
+Controlling an entire continent will yield a bonus. Select and move armies with the
+left click. Pan the camera with your left mouse button pressed, rotate with the
+right mouse button, and zoom with the mouse wheel.
 </p>
 
 <p>Good luck!</p>
