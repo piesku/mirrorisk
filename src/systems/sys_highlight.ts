@@ -2,7 +2,7 @@ import {copy, scale} from "../../common/vec4.js";
 import {DrawSelection} from "../components/com_draw.js";
 import {PickableKind} from "../components/com_pickable.js";
 import {RenderTexturedMapped} from "../components/com_render1.js";
-import {Entity, Game} from "../game.js";
+import {Entity, Game, PlayerType, TurnPhase} from "../game.js";
 import {Has} from "../world.js";
 
 const QUERY = Has.Pickable;
@@ -26,15 +26,54 @@ export function sys_highlight(game: Game, delta: number) {
 }
 
 function update_territory(game: Game, entity: Entity) {
+    if (game.TurnPhase === TurnPhase.Battle) {
+        update_territory_battle(game, entity);
+    } else if (game.TurnPhase === TurnPhase.Endgame) {
+        update_territory_default(game, entity);
+    } else if (game.Players[game.CurrentPlayer].Type === PlayerType.Human) {
+        if (game.TurnPhase === TurnPhase.Deploy) {
+            update_territory_deploy(game, entity);
+        } else if (game.TurnPhase === TurnPhase.Move) {
+            update_territory_move(game, entity);
+        }
+    }
+}
+
+function update_territory_deploy(game: Game, entity: Entity) {
     let pickable = game.World.Pickable[entity];
     let territory = game.World.Territory[entity];
     let render = game.World.Render[entity] as RenderTexturedMapped;
 
-    if (game.CurrentlyFoughtOverTerritory === entity) {
+    if (game.Picked) {
+        let picked_entity = game.Picked.Entity;
+        if (picked_entity === entity) {
+            // Mouse over this territory.
+            copy(render.ColorDiffuse, pickable.Color);
+            scale(render.ColorDiffuse, render.ColorDiffuse, 1.8);
+        } else if (game.World.Signature[picked_entity] & Has.Territory) {
+            let picked_territory = game.World.Territory[picked_entity];
+            if (game.TerritoryGraph[picked_territory.Id].includes(territory.Id)) {
+                // Mouse over a neighboring territory.
+                copy(render.ColorDiffuse, pickable.Color);
+                scale(render.ColorDiffuse, render.ColorDiffuse, 1.5);
+            } else {
+                // Mouse over a distant territory.
+                copy(render.ColorDiffuse, pickable.Color);
+            }
+        } else {
+            // Mouse not over any territory.
+            copy(render.ColorDiffuse, pickable.Color);
+        }
+    } else {
+        // Mouse not over any pickable.
         copy(render.ColorDiffuse, pickable.Color);
-        scale(render.ColorDiffuse, render.ColorDiffuse, 1.8);
-        return;
     }
+}
+
+function update_territory_move(game: Game, entity: Entity) {
+    let pickable = game.World.Pickable[entity];
+    let territory = game.World.Territory[entity];
+    let render = game.World.Render[entity] as RenderTexturedMapped;
 
     if (game.Selected) {
         let nav_agent = game.World.NavAgent[game.Selected];
@@ -82,6 +121,23 @@ function update_territory(game: Game, entity: Entity) {
         // Mouse not over any pickable.
         copy(render.ColorDiffuse, pickable.Color);
     }
+}
+
+function update_territory_battle(game: Game, entity: Entity) {
+    let pickable = game.World.Pickable[entity];
+    let render = game.World.Render[entity] as RenderTexturedMapped;
+
+    copy(render.ColorDiffuse, pickable.Color);
+    if (game.CurrentlyFoughtOverTerritory === entity) {
+        scale(render.ColorDiffuse, render.ColorDiffuse, 1.8);
+    }
+}
+
+function update_territory_default(game: Game, entity: Entity) {
+    let pickable = game.World.Pickable[entity];
+    let render = game.World.Render[entity] as RenderTexturedMapped;
+
+    copy(render.ColorDiffuse, pickable.Color);
 }
 
 function update_unit(game: Game, entity: Entity) {
