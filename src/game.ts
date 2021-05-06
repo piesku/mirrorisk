@@ -116,7 +116,7 @@ export class Game {
         {Name: "Magenta", Color: [1, 0, 1, 1], Type: PlayerType.AI},
         {Name: "Cyan", Color: [0, 1, 1, 1], Type: PlayerType.AI},
     ];
-    CurrentPlayerTerritories: Entity[] = [];
+    CurrentPlayerTerritoryIds: Array<number> = [];
 
     InitialSunPosition: Quat = from_euler([0, 0, 0, 0], 0, 35, 0);
 

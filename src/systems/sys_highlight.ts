@@ -44,29 +44,12 @@ function update_territory_deploy(game: Game, entity: Entity) {
     let territory = game.World.Territory[entity];
     let render = game.World.Render[entity] as RenderTexturedMapped;
 
-    if (game.Picked) {
-        let picked_entity = game.Picked.Entity;
-        if (picked_entity === entity) {
-            // Mouse over this territory.
-            copy(render.ColorDiffuse, pickable.Color);
-            scale(render.ColorDiffuse, render.ColorDiffuse, 1.8);
-        } else if (game.World.Signature[picked_entity] & Has.Territory) {
-            let picked_territory = game.World.Territory[picked_entity];
-            if (game.TerritoryGraph[picked_territory.Id].includes(territory.Id)) {
-                // Mouse over a neighboring territory.
-                copy(render.ColorDiffuse, pickable.Color);
-                scale(render.ColorDiffuse, render.ColorDiffuse, 1.5);
-            } else {
-                // Mouse over a distant territory.
-                copy(render.ColorDiffuse, pickable.Color);
-            }
-        } else {
-            // Mouse not over any territory.
-            copy(render.ColorDiffuse, pickable.Color);
-        }
-    } else {
-        // Mouse not over any pickable.
-        copy(render.ColorDiffuse, pickable.Color);
+    // Reset the color.
+    copy(render.ColorDiffuse, pickable.Color);
+
+    if (game.Picked?.Entity === entity && game.CurrentPlayerTerritoryIds.includes(territory.Id)) {
+        // Mouse over this territory.
+        scale(render.ColorDiffuse, render.ColorDiffuse, 1.8);
     }
 }
 

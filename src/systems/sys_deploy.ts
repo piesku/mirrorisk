@@ -12,7 +12,7 @@ export function sys_deploy(game: Game, delta: number) {
 
     if (game.IsAiTurn) {
         for (let i = 0; i < game.UnitsToDeploy; i++) {
-            let deploy_to = element(game.CurrentPlayerTerritories);
+            let deploy_to = element(game.CurrentPlayerTerritoryIds);
             if (deploy_to) {
                 let position = get_coord_by_territory_id(game, deploy_to);
                 dispatch(game, Action.DeployUnit, {territory_id: deploy_to, position});
@@ -29,7 +29,7 @@ export function sys_deploy(game: Game, delta: number) {
             game.World.Signature[game.Picked.Entity] & Has.Territory
         ) {
             let territory = game.World.Territory[game.Picked.Entity];
-            if (game.CurrentPlayerTerritories.includes(territory.Id)) {
+            if (game.CurrentPlayerTerritoryIds.includes(territory.Id)) {
                 dispatch(game, Action.DeployUnit, {
                     territory_id: territory.Id,
                     position: game.Picked.Point.slice(),

@@ -115,19 +115,19 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             }
 
             Logger(game, msg.LOG_TEAM_TURN_START(current_player_name));
-            game.CurrentPlayerTerritories = Object.keys(
+            game.CurrentPlayerTerritoryIds = Object.keys(
                 territories_controlled_by_team(game, game.CurrentPlayer)
             ).map((e) => parseInt(e, 10));
 
             // XXX: Add continent bonus here
-            let units_to_deploy = Math.max(~~(game.CurrentPlayerTerritories.length / 3), 3);
+            let units_to_deploy = Math.max(~~(game.CurrentPlayerTerritoryIds.length / 3), 3);
             let bonus = 0;
             let continents_controlled = [];
 
             for (let j = 0; j < (game.ContinentBonus as Array<ContinentBonus>).length; j++) {
                 let continent = game.ContinentBonus[j];
                 let territories = continent.Territories.slice().filter(
-                    (ter_id) => !game.CurrentPlayerTerritories.includes(ter_id)
+                    (ter_id) => !game.CurrentPlayerTerritoryIds.includes(ter_id)
                 );
 
                 if (territories.length === 0 && continent.Territories.length > 0) {
