@@ -30,11 +30,10 @@ function update_territory(game: Game, entity: Entity) {
     let territory = game.World.Territory[entity];
     let render = game.World.Render[entity] as RenderTexturedMapped;
 
-    if (game.Picked?.Entity === entity || game.CurrentlyFoughtOverTerritory === entity) {
+    if (game.CurrentlyFoughtOverTerritory === entity) {
         copy(render.ColorDiffuse, pickable.Color);
         scale(render.ColorDiffuse, render.ColorDiffuse, 1.8);
-    } else {
-        copy(render.ColorDiffuse, pickable.Color);
+        return;
     }
 
     if (game.Selected) {
@@ -49,11 +48,39 @@ function update_territory(game: Game, entity: Entity) {
             game.TerritoryGraph[territory.Id].includes(nav_agent.TerritoryId)
         ) {
             // The selected unit is on a neighboring tile. The current tile is a
-            // possible movement and attach target.
+            // possible movement and attack target.
+            copy(render.ColorDiffuse, pickable.Color);
+            if (game.Picked?.Entity === entity) {
+                // Mouse over this territory.
+                scale(render.ColorDiffuse, render.ColorDiffuse, 1.8);
+            }
         } else {
             copy(render.ColorDiffuse, pickable.Color);
             scale(render.ColorDiffuse, render.ColorDiffuse, 0.5);
         }
+    } else if (game.Picked) {
+        let picked_entity = game.Picked.Entity;
+        if (picked_entity === entity) {
+            // Mouse over this territory.
+            copy(render.ColorDiffuse, pickable.Color);
+            scale(render.ColorDiffuse, render.ColorDiffuse, 1.8);
+        } else if (game.World.Signature[picked_entity] & Has.Territory) {
+            let picked_territory = game.World.Territory[picked_entity];
+            if (game.TerritoryGraph[picked_territory.Id].includes(territory.Id)) {
+                // Mouse over a neighboring territory.
+                copy(render.ColorDiffuse, pickable.Color);
+                scale(render.ColorDiffuse, render.ColorDiffuse, 1.5);
+            } else {
+                // Mouse over a distant territory.
+                copy(render.ColorDiffuse, pickable.Color);
+            }
+        } else {
+            // Mouse not over any territory.
+            copy(render.ColorDiffuse, pickable.Color);
+        }
+    } else {
+        // Mouse not over any pickable.
+        copy(render.ColorDiffuse, pickable.Color);
     }
 }
 
