@@ -31,7 +31,7 @@ function update(game: Game, entity: Entity) {
             let agent = game.World.NavAgent[entity];
             let territories = territories_controlled_by_team(game, game.CurrentPlayer);
             if (DEBUG) {
-                let team_units = game.UnitsByTeamTerritory.get(game.CurrentPlayer)!;
+                let team_units = game.UnitsByTeamTerritory[game.CurrentPlayer];
                 ASSERT_EQUAL(team_units.size, Object.keys(territories).length);
                 for (let [territory_id, unit_count] of Object.entries(territories)) {
                     let territory_units = team_units.get(parseInt(territory_id));

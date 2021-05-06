@@ -70,9 +70,8 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                 dispatch(game, Action.ClearAlert, {});
                 scene_stage(game);
 
-                game.UnitsByTeamTerritory.clear();
                 for (let i = 0; i < game.Players.length; i++) {
-                    game.UnitsByTeamTerritory.set(i, new Map());
+                    game.UnitsByTeamTerritory[i] = new Map();
                 }
             });
             break;
@@ -84,7 +83,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
 
             let current_player_units = units_entity_ids(game, game.CurrentPlayer);
             if (DEBUG) {
-                let team_units_map = game.UnitsByTeamTerritory.get(game.CurrentPlayer)!;
+                let team_units_map = game.UnitsByTeamTerritory[game.CurrentPlayer];
                 let team_units_flat = [...team_units_map.values()].flat();
                 ASSERT_EQUAL(current_player_units.sort().join(), team_units_flat.sort().join());
             }
@@ -105,7 +104,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                 let territories_qty = Object.keys(territories).length;
 
                 if (DEBUG) {
-                    let team_units = game.UnitsByTeamTerritory.get(i)!;
+                    let team_units = game.UnitsByTeamTerritory[i];
                     ASSERT_EQUAL(team_units.size, territories_qty);
                     for (let [territory_id, unit_count] of Object.entries(territories)) {
                         let territory_units = team_units.get(parseInt(territory_id));
@@ -140,7 +139,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             ).map((e) => parseInt(e, 10));
 
             if (DEBUG) {
-                let team_units = game.UnitsByTeamTerritory.get(game.CurrentPlayer)!;
+                let team_units = game.UnitsByTeamTerritory[game.CurrentPlayer];
                 let team_territories = [...team_units.keys()];
                 ASSERT_EQUAL(
                     team_territories.sort().join(),
@@ -237,7 +236,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             );
 
             if (DEBUG) {
-                let team_units = game.UnitsByTeamTerritory.get(game.CurrentPlayer)!;
+                let team_units = game.UnitsByTeamTerritory[game.CurrentPlayer];
                 let team_territories = [...team_units.keys()];
                 ASSERT_EQUAL(
                     team_territories.sort().join(),
@@ -255,7 +254,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                 );
 
                 if (DEBUG) {
-                    let team_units = game.UnitsByTeamTerritory.get(i)!;
+                    let team_units = game.UnitsByTeamTerritory[i];
                     let team_territories = [...team_units.keys()];
                     ASSERT_EQUAL(team_territories.sort().join(), enemy_territory_ids.sort().join());
                 }
