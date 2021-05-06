@@ -5,7 +5,6 @@ import {Collide} from "./components/com_collide.js";
 import {ControlAlways} from "./components/com_control_always.js";
 import {ControlCamera} from "./components/com_control_camera.js";
 import {Draw} from "./components/com_draw.js";
-import {Highlightable} from "./components/com_highlightable.js";
 import {Light} from "./components/com_light.js";
 import {Mimic} from "./components/com_mimic.js";
 import {Move} from "./components/com_move.js";
@@ -27,7 +26,6 @@ const enum Component {
     ControlAlways,
     ControlCamera,
     Draw,
-    Highlightable,
     Light,
     Mimic,
     Move,
@@ -49,7 +47,6 @@ export const enum Has {
     ControlAlways = 1 << Component.ControlAlways,
     ControlCamera = 1 << Component.ControlCamera,
     Draw = 1 << Component.Draw,
-    Highlightable = 1 << Component.Highlightable,
     Light = 1 << Component.Light,
     Mimic = 1 << Component.Mimic,
     Move = 1 << Component.Move,
@@ -75,7 +72,6 @@ export class World {
     ControlAlways: Array<ControlAlways> = [];
     ControlCamera: Array<ControlCamera> = [];
     Draw: Array<Draw> = [];
-    Highlightable: Array<Highlightable> = [];
     Light: Array<Light> = [];
     Mimic: Array<Mimic> = [];
     Move: Array<Move> = [];
