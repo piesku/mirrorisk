@@ -26,28 +26,26 @@ export function sys_highlight(game: Game, delta: number) {
 }
 
 function update_territory(game: Game, entity: Entity) {
+    let pickable = game.World.Pickable[entity];
+    let render = game.World.Render[entity] as RenderTexturedMapped;
+
+    // Reset the color.
+    copy(render.ColorDiffuse, pickable.Color);
+
     if (game.TurnPhase === TurnPhase.Battle) {
         update_territory_battle(game, entity);
-    } else if (game.TurnPhase === TurnPhase.Endgame) {
-        update_territory_default(game, entity);
     } else if (game.Players[game.CurrentPlayer].Type === PlayerType.Human) {
         if (game.TurnPhase === TurnPhase.Deploy) {
             update_territory_deploy(game, entity);
         } else if (game.TurnPhase === TurnPhase.Move) {
             update_territory_move(game, entity);
         }
-    } else {
-        update_territory_default(game, entity);
     }
 }
 
 function update_territory_deploy(game: Game, entity: Entity) {
-    let pickable = game.World.Pickable[entity];
     let territory = game.World.Territory[entity];
     let render = game.World.Render[entity] as RenderTexturedMapped;
-
-    // Reset the color.
-    copy(render.ColorDiffuse, pickable.Color);
 
     if (game.Picked?.Entity === entity && game.CurrentPlayerTerritoryIds.includes(territory.Id)) {
         // Mouse over this territory.
@@ -56,12 +54,8 @@ function update_territory_deploy(game: Game, entity: Entity) {
 }
 
 function update_territory_move(game: Game, entity: Entity) {
-    let pickable = game.World.Pickable[entity];
     let territory = game.World.Territory[entity];
     let render = game.World.Render[entity] as RenderTexturedMapped;
-
-    // Reset the color.
-    copy(render.ColorDiffuse, pickable.Color);
 
     if (game.Selected) {
         let nav_agent = game.World.NavAgent[game.Selected];
@@ -91,24 +85,12 @@ function update_territory_move(game: Game, entity: Entity) {
 }
 
 function update_territory_battle(game: Game, entity: Entity) {
-    let pickable = game.World.Pickable[entity];
     let render = game.World.Render[entity] as RenderTexturedMapped;
-
-    // Reset the color.
-    copy(render.ColorDiffuse, pickable.Color);
 
     if (game.CurrentlyFoughtOverTerritory === entity) {
         // A battle is taking place on this territory.
         scale(render.ColorDiffuse, render.ColorDiffuse, 1.8);
     }
-}
-
-function update_territory_default(game: Game, entity: Entity) {
-    let pickable = game.World.Pickable[entity];
-    let render = game.World.Render[entity] as RenderTexturedMapped;
-
-    // Reset the color.
-    copy(render.ColorDiffuse, pickable.Color);
 }
 
 function update_unit(game: Game, entity: Entity) {
