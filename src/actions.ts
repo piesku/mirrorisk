@@ -82,10 +82,6 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             let current_team_units = game.UnitsByTeamTerritory[game.CurrentPlayer];
             let current_team_units_flat = [...current_team_units.values()].flat();
 
-            for (let i = 0; i < current_team_units_flat.length; i++) {
-                game.World.NavAgent[current_team_units_flat[i]].Actions = 1;
-            }
-
             game.IsAiTurn = game.Players[game.CurrentPlayer].Type === PlayerType.AI;
 
             if (game.IsAiTurn) {

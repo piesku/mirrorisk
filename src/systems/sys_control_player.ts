@@ -24,6 +24,7 @@ const sfx = ["mhm1.mp3", "mhm2.mp3", "mhm3.mp3", "mhm4.mp3"];
 
 function update(game: Game, entity: Entity) {
     let agent = game.World.NavAgent[entity];
+    let team = game.World.Team[entity];
     let transform = game.World.Transform[entity];
     let audio_source = game.World.AudioSource[entity];
 
@@ -34,7 +35,7 @@ function update(game: Game, entity: Entity) {
         game.Picked &&
         game.World.Signature[game.Picked.Entity] & Has.Territory &&
         // …and the army can move.
-        agent.Actions > 0
+        team.Actions > 0
     ) {
         let territory_entity = game.Picked.Entity;
         let territory = game.World.Territory[territory_entity];
@@ -46,7 +47,7 @@ function update(game: Game, entity: Entity) {
 
         if (agent.TerritoryId !== territory.Id) {
             // Use the action up only when moving to another territory.
-            agent.Actions -= 1;
+            team.Actions -= 1;
         }
 
         let Alaska = 31;

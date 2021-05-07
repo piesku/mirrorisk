@@ -59,12 +59,13 @@ function update_territory_move(game: Game, entity: Entity) {
 
     if (game.Selected) {
         let nav_agent = game.World.NavAgent[game.Selected];
+        let team = game.World.Team[game.Selected];
 
         if (nav_agent.TerritoryId === territory.Id) {
             // The selected unit is on this terrain tile.
             scale(render.ColorDiffuse, render.ColorDiffuse, 1.8);
         } else if (
-            nav_agent.Actions > 0 &&
+            team.Actions > 0 &&
             game.TerritoryGraph[territory.Id].includes(nav_agent.TerritoryId)
         ) {
             // The selected unit is on a neighboring tile. The current tile is a

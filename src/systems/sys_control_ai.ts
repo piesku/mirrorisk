@@ -27,6 +27,7 @@ function update(game: Game, entity: Entity) {
         if (!game.CurrentlyMovingAiUnit && game.AiActiveUnits.includes(entity)) {
             game.CurrentlyMovingAiUnit = entity;
             let agent = game.World.NavAgent[entity];
+            let team = game.World.Team[entity];
             let territories = game.UnitsByTeamTerritory[game.CurrentPlayer];
 
             let units_on_territory = territories.get(agent.TerritoryId)!;
@@ -38,7 +39,7 @@ function update(game: Game, entity: Entity) {
                 }
                 return;
             }
-            if (agent.Actions > 0) {
+            if (team.Actions > 0) {
                 // TODO: those are random moves right now
                 let current_territory_neighbors = game.TerritoryGraph[agent.TerritoryId];
                 let destination_territory_id = element(current_territory_neighbors);
@@ -47,7 +48,7 @@ function update(game: Game, entity: Entity) {
 
                 if (agent.TerritoryId !== territory.Id) {
                     // Use the action up only when moving to another territory.
-                    agent.Actions -= 1;
+                    team.Actions -= 1;
                 }
 
                 let Alaska = 31;
