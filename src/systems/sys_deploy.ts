@@ -18,10 +18,6 @@ export function sys_deploy(game: Game, delta: number) {
                 dispatch(game, Action.DeployUnit, {territory_id: deploy_to, position});
             }
         }
-
-        setTimeout(() => {
-            dispatch(game, Action.EndDeployment, {});
-        }, 1500);
     } else {
         if (
             input_clicked(game, 0, 0) &&

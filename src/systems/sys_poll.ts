@@ -31,5 +31,14 @@ function update(game: Game, entity: Entity, delta: number) {
             }
             break;
         }
+        case TaskKind.Timeout: {
+            task.Remaining -= delta;
+            if (task.Remaining < 0) {
+                // The task has completed.
+                game.World.Signature[entity] &= ~Has.Task;
+            }
+
+            break;
+        }
     }
 }
