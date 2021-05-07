@@ -1,4 +1,5 @@
 import {element} from "../../common/random.js";
+import {SelectedState} from "../components/com_selectable.js";
 import {Entity, Game, TurnPhase} from "../game.js";
 import {input_clicked} from "../input.js";
 import {Has} from "../world.js";
@@ -31,27 +32,34 @@ function update(game: Game, entity: Entity) {
     let audio_source = game.World.AudioSource[entity];
 
     if (game.TurnPhase !== TurnPhase.Move) {
-        selectable.Selected = false;
-    } else if (input_clicked(game, 0, 0)) {
+        selectable.Selected = SelectedState.None;
+        return;
+    }
+
+    if (selectable.Selected === SelectedState.ThisFrame) {
+        selectable.Selected = SelectedState.Currently;
+    }
+
+    if (input_clicked(game, 0, 0)) {
         // When the user left-clicks…
 
         if (game.Picked?.Entity === entity) {
             audio_source.Trigger = game.Sounds[element(select_sfx)];
 
-            if (!selectable.Selected) {
+            if (selectable.Selected === SelectedState.None) {
                 // …select.
-                selectable.Selected = true;
+                selectable.Selected = SelectedState.ThisFrame;
             }
-        } else if (selectable.Selected) {
+        } else if (selectable.Selected > SelectedState.None) {
             // …deselect.
-            selectable.Selected = false;
+            selectable.Selected = SelectedState.None;
         }
     } else if (input_clicked(game, 2, 1)) {
         // When the user right-clicks…
 
-        if (selectable.Selected) {
+        if (selectable.Selected > SelectedState.None) {
             // …deselect.
-            selectable.Selected = false;
+            selectable.Selected = SelectedState.None;
         }
     }
 }

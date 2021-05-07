@@ -1,6 +1,9 @@
 import {element} from "../../common/random.js";
+import {SelectedState} from "../components/com_selectable.js";
 import {Entity, Game, PlayerType} from "../game.js";
 import {input_clicked} from "../input.js";
+import {Logger} from "../ui/App.js";
+import {LOG_ERROR_UNIT_ALREADY_MOVED, LOG_ERROR_UNIT_CANNOT_LEAVE} from "../ui/messages.js";
 import {Has} from "../world.js";
 
 const QUERY = Has.Selectable | Has.NavAgent | Has.Team;
@@ -27,6 +30,18 @@ function update(game: Game, entity: Entity) {
     let team = game.World.Team[entity];
     let transform = game.World.Transform[entity];
     let audio_source = game.World.AudioSource[entity];
+    let selectable = game.World.Selectable[entity];
+
+    if (selectable.Selected === SelectedState.ThisFrame) {
+        switch (team.Actions) {
+            case 0:
+                Logger(game, LOG_ERROR_UNIT_ALREADY_MOVED());
+                break;
+            case -1:
+                Logger(game, LOG_ERROR_UNIT_CANNOT_LEAVE());
+                break;
+        }
+    }
 
     if (
         // If the user left-clicks…
