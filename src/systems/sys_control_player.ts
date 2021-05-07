@@ -31,40 +31,44 @@ function update(game: Game, entity: Entity) {
     if (
         // If the user left-clicks…
         input_clicked(game, 0, 0) &&
-        // …over a territory…
+        // …over a territory.
         game.Picked &&
-        game.World.Signature[game.Picked.Entity] & Has.Territory &&
-        // …and the army can move.
-        team.Actions > 0
+        game.World.Signature[game.Picked.Entity] & Has.Territory
     ) {
         let territory_entity = game.Picked.Entity;
         let territory = game.World.Territory[territory_entity];
 
-        if (!game.TerritoryGraph[agent.TerritoryId].includes(territory.Id)) {
-            // This aint adjacent territory
+        if (agent.TerritoryId === territory.Id) {
+            // Allow free movement inside the current territory.
+            agent.TerritoryId = territory.Id;
+            agent.Destination = game.Picked.Point;
+
             return;
         }
 
-        if (agent.TerritoryId !== territory.Id) {
-            // Use the action up only when moving to another territory.
+        if (
+            // If the user clicked on a neighboring territory…
+            game.TerritoryGraph[agent.TerritoryId].includes(territory.Id) &&
+            // …and the unit can move.
+            team.Actions > 0
+        ) {
             team.Actions -= 1;
-        }
 
-        let Alaska = 31;
-        let Kamchatka = 56;
-        // Kamchatka -> Alaska & Alaska -> Kamchatka
-        if (agent.TerritoryId === Kamchatka && territory.Id === Alaska) {
-            transform.Translation[0] = 140;
-            transform.Translation[2] = -64.29;
-            transform.Dirty = true;
-        } else if (agent.TerritoryId === Alaska && territory.Id === Kamchatka) {
-            transform.Translation[0] = -160;
-            transform.Translation[2] = -64.58;
-            transform.Dirty = true;
+            let Alaska = 31;
+            let Kamchatka = 56;
+            // Kamchatka -> Alaska & Alaska -> Kamchatka
+            if (agent.TerritoryId === Kamchatka && territory.Id === Alaska) {
+                transform.Translation[0] = 140;
+                transform.Translation[2] = -64.29;
+                transform.Dirty = true;
+            } else if (agent.TerritoryId === Alaska && territory.Id === Kamchatka) {
+                transform.Translation[0] = -160;
+                transform.Translation[2] = -64.58;
+                transform.Dirty = true;
+            }
+            agent.TerritoryId = territory.Id;
+            agent.Destination = game.Picked.Point;
+            audio_source.Trigger = game.Sounds[element(sfx)];
         }
-        agent.TerritoryId = territory.Id;
-        agent.Destination = game.Picked.Point;
-
-        audio_source.Trigger = game.Sounds[element(sfx)];
     }
 }
