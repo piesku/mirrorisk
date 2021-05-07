@@ -1,11 +1,9 @@
 import {play_buffer} from "../common/audio.js";
 import {hex_to_vec4} from "../common/color.js";
-import {Quat, Vec3, Vec4} from "../common/math.js";
+import {Quat, Vec4} from "../common/math.js";
 import {element, float, integer} from "../common/random.js";
-import {blueprint_unit} from "./blueprints/blu_unit.js";
-import {task_timeout} from "./components/com_task.js";
 import {ContinentBonus, Game, Player, PlayerType, PlayState, TurnPhase} from "./game.js";
-import {destroy_entity, instantiate} from "./impl.js";
+import {destroy_entity} from "./impl.js";
 import {scene_stage} from "./scenes/sce_stage.js";
 import {Alert, Logger, Popup} from "./ui/App.js";
 import * as msg from "./ui/messages.js";
@@ -16,7 +14,6 @@ export const enum Action {
     StartGame,
     StartDeployment,
     EndDeployment,
-    DeployUnit,
     SetupBattles,
     ResolveBattles,
     EndTurn,
@@ -147,39 +144,6 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             game.TurnPhase = TurnPhase.Deploy;
             game.UnitsDeployed = 0;
             game.UnitsToDeploy = units_to_deploy;
-            break;
-        }
-
-        case Action.DeployUnit: {
-            if (game.UnitsDeployed === game.UnitsToDeploy) {
-                return;
-            }
-
-            let {territory_id, position} = payload as {territory_id: number; position: Vec3};
-            if (position) {
-                let territory_entity_id = game.TerritoryEntities[territory_id];
-                let territory_name = game.World.Territory[territory_entity_id].Name;
-                Logger(game, msg.LOG_TEAM_DEPLOYS(current_player_name, territory_name));
-
-                let deployed_unit_entity = instantiate(game, [
-                    ...blueprint_unit(
-                        game,
-                        [position[0], -5, position[2]],
-                        territory_id,
-                        game.CurrentPlayer
-                    ),
-                    task_timeout(1.5),
-                ]);
-
-                game.World.NavAgent[deployed_unit_entity].Destination = [
-                    position[0],
-                    position[1] + 1,
-                    position[2],
-                ];
-            }
-
-            game.UnitsDeployed++;
-
             break;
         }
 
