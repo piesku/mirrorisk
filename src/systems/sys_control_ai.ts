@@ -1,8 +1,6 @@
-import {ASSERT_EQUAL} from "../../common/assert.js";
 import {element} from "../../common/random.js";
 import {Action, dispatch} from "../actions.js";
 import {get_coord_by_territory_id} from "../blueprints/blu_territory.js";
-import {territories_controlled_by_team} from "../components/com_team.js";
 import {Entity, Game, PlayerType, TurnPhase} from "../game.js";
 import {Has} from "../world.js";
 
@@ -29,18 +27,10 @@ function update(game: Game, entity: Entity) {
         if (!game.CurrentlyMovingAiUnit && game.AiActiveUnits.includes(entity)) {
             game.CurrentlyMovingAiUnit = entity;
             let agent = game.World.NavAgent[entity];
-            let territories = territories_controlled_by_team(game, game.CurrentPlayer);
-            if (DEBUG) {
-                let team_units = game.UnitsByTeamTerritory[game.CurrentPlayer];
-                ASSERT_EQUAL(team_units.size, Object.keys(territories).length);
-                for (let [territory_id, unit_count] of Object.entries(territories)) {
-                    let territory_units = team_units.get(parseInt(territory_id));
-                    ASSERT_EQUAL(territory_units?.length, unit_count);
-                }
-            }
+            let territories = game.UnitsByTeamTerritory[game.CurrentPlayer];
 
-            let units_on_territory = territories[agent.TerritoryId];
-            if (units_on_territory < 2) {
+            let units_on_territory = territories.get(agent.TerritoryId)!;
+            if (units_on_territory.length < 2) {
                 game.AiActiveUnits = game.AiActiveUnits.filter((id) => id !== entity);
                 game.CurrentlyMovingAiUnit = null;
                 if (game.AiActiveUnits.length === 0) {

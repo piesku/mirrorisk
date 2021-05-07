@@ -1,4 +1,3 @@
-import {ASSERT_EQUAL} from "../../common/assert.js";
 import {get_translation} from "../../common/mat4.js";
 import {Vec3} from "../../common/math.js";
 import {ray_intersect_aabb, ray_intersect_mesh} from "../../common/raycast.js";
@@ -6,7 +5,6 @@ import {normalize, subtract, transform_direction, transform_point} from "../../c
 import {query_all} from "../components/com_children.js";
 import {Collide} from "../components/com_collide.js";
 import {PickableKind} from "../components/com_pickable.js";
-import {territories_controlled_by_team} from "../components/com_team.js";
 import {Entity, Game, TurnPhase} from "../game.js";
 import {input_pointer_position} from "../input.js";
 import {Logger} from "../ui/App.js";
@@ -63,22 +61,14 @@ function update(game: Game, entity: Entity, pickables: Array<Collide>) {
         let entity = collider.Entity;
 
         // Player can only move if there's at least one unit left on the territory
-        let territories = territories_controlled_by_team(game, game.CurrentPlayer);
-        if (DEBUG) {
-            let team_units = game.UnitsByTeamTerritory[game.CurrentPlayer];
-            ASSERT_EQUAL(team_units.size, Object.keys(territories).length);
-            for (let [territory_id, unit_count] of Object.entries(territories)) {
-                let territory_units = team_units.get(parseInt(territory_id));
-                ASSERT_EQUAL(territory_units?.length, unit_count);
-            }
-        }
+        let team_units = game.UnitsByTeamTerritory[game.CurrentPlayer];
 
         for (let child of query_all(game.World, entity, Has.Pickable)) {
             let pickable = game.World.Pickable[child];
             if (pickable.Kind === PickableKind.Unit) {
                 let current_territory_id = game.World.NavAgent[child].TerritoryId;
-                let units_on_territory = territories[current_territory_id];
-                if (units_on_territory < 2) {
+                let units_on_territory = team_units.get(current_territory_id);
+                if (units_on_territory && units_on_territory.length < 2) {
                     if (game.InputDelta["Mouse0"] === 1 && game.TurnPhase === TurnPhase.Move) {
                         Logger(game, LOG_ERROR_UNIT_CANNOT_LEAVE());
                     }

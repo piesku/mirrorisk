@@ -1,10 +1,8 @@
-import {ASSERT_EQUAL} from "../common/assert.js";
 import {play_buffer} from "../common/audio.js";
 import {hex_to_vec4} from "../common/color.js";
 import {Quat, Vec3, Vec4} from "../common/math.js";
 import {element, float, integer} from "../common/random.js";
 import {blueprint_unit} from "./blueprints/blu_unit.js";
-import {territories_controlled_by_team, units_entity_ids} from "./components/com_team.js";
 import {ContinentBonus, Game, Player, PlayerType, PlayState, TurnPhase} from "./game.js";
 import {destroy_entity, instantiate} from "./impl.js";
 import {scene_stage} from "./scenes/sce_stage.js";
@@ -81,45 +79,30 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             let most_territories = 0;
             let best_player = 0;
 
-            let current_player_units = units_entity_ids(game, game.CurrentPlayer);
-            if (DEBUG) {
-                let team_units_map = game.UnitsByTeamTerritory[game.CurrentPlayer];
-                let team_units_flat = [...team_units_map.values()].flat();
-                ASSERT_EQUAL(current_player_units.sort().join(), team_units_flat.sort().join());
-            }
+            let current_team_units = game.UnitsByTeamTerritory[game.CurrentPlayer];
+            let current_team_units_flat = [...current_team_units.values()].flat();
 
-            for (let i = 0; i < current_player_units.length; i++) {
-                game.World.NavAgent[current_player_units[i]].Actions = 1;
+            for (let i = 0; i < current_team_units_flat.length; i++) {
+                game.World.NavAgent[current_team_units_flat[i]].Actions = 1;
             }
 
             game.IsAiTurn = game.Players[game.CurrentPlayer].Type === PlayerType.AI;
 
             if (game.IsAiTurn) {
-                game.AiActiveUnits = current_player_units.slice();
+                game.AiActiveUnits = current_team_units_flat.slice();
             }
 
             game.Battles = [];
             for (let i = 0; i < game.Players.length; i++) {
-                let territories = territories_controlled_by_team(game, i);
-                let territories_qty = Object.keys(territories).length;
+                let territories = game.UnitsByTeamTerritory[i];
+                Logger(game, msg.LOG_TEAM_CONTROL_SUMMARY(game.Players[i].Name, territories.size));
 
-                if (DEBUG) {
-                    let team_units = game.UnitsByTeamTerritory[i];
-                    ASSERT_EQUAL(team_units.size, territories_qty);
-                    for (let [territory_id, unit_count] of Object.entries(territories)) {
-                        let territory_units = team_units.get(parseInt(territory_id));
-                        ASSERT_EQUAL(territory_units?.length, unit_count);
-                    }
-                }
-
-                Logger(game, msg.LOG_TEAM_CONTROL_SUMMARY(game.Players[i].Name, territories_qty));
-
-                if (most_territories < territories_qty) {
-                    most_territories = territories_qty;
+                if (most_territories < territories.size) {
+                    most_territories = territories.size;
                     best_player = i;
                 }
 
-                if (territories_qty === 0) {
+                if (territories.size === 0) {
                     game_over = true;
                 }
             }
@@ -134,18 +117,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             }
 
             Logger(game, msg.LOG_TEAM_TURN_START(current_player_name));
-            game.CurrentPlayerTerritoryIds = Object.keys(
-                territories_controlled_by_team(game, game.CurrentPlayer)
-            ).map((e) => parseInt(e, 10));
-
-            if (DEBUG) {
-                let team_units = game.UnitsByTeamTerritory[game.CurrentPlayer];
-                let team_territories = [...team_units.keys()];
-                ASSERT_EQUAL(
-                    team_territories.sort().join(),
-                    game.CurrentPlayerTerritoryIds.sort().join()
-                );
-            }
+            game.CurrentPlayerTerritoryIds = [...current_team_units.keys()];
 
             // XXX: Add continent bonus here
             let units_to_deploy = Math.max(~~(game.CurrentPlayerTerritoryIds.length / 3), 3);
@@ -227,41 +199,20 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
 
         case Action.SetupBattles: {
             game.TurnPhase = TurnPhase.Battle;
-            let current_player_territories = territories_controlled_by_team(
-                game,
-                game.CurrentPlayer
-            );
-            let current_player_territory_ids = Object.keys(current_player_territories).map((e) =>
-                parseInt(e, 10)
-            );
-
-            if (DEBUG) {
-                let team_units = game.UnitsByTeamTerritory[game.CurrentPlayer];
-                let team_territories = [...team_units.keys()];
-                ASSERT_EQUAL(
-                    team_territories.sort().join(),
-                    current_player_territory_ids.sort().join()
-                );
-            }
+            let current_team_units = game.UnitsByTeamTerritory[game.CurrentPlayer];
+            let current_team_territory_ids = [...current_team_units.keys()];
 
             for (let i = 0; i < game.Players.length; i++) {
                 if (i === game.CurrentPlayer) {
                     continue;
                 }
-                let enemy_territories = territories_controlled_by_team(game, i);
-                let enemy_territory_ids = Object.keys(enemy_territories).map((e) =>
-                    parseInt(e, 10)
-                );
 
-                if (DEBUG) {
-                    let team_units = game.UnitsByTeamTerritory[i];
-                    let team_territories = [...team_units.keys()];
-                    ASSERT_EQUAL(team_territories.sort().join(), enemy_territory_ids.sort().join());
-                }
+                let enemy_team_units = game.UnitsByTeamTerritory[i];
+                let enemy_team_territory_ids = [...enemy_team_units.keys()];
 
-                for (let j = 0; j < enemy_territory_ids.length; j++) {
-                    if (current_player_territory_ids.includes(enemy_territory_ids[j])) {
-                        let territory_id = enemy_territory_ids[j];
+                for (let j = 0; j < enemy_team_territory_ids.length; j++) {
+                    if (current_team_territory_ids.includes(enemy_team_territory_ids[j])) {
+                        let territory_id = enemy_team_territory_ids[j];
                         let territory_entity = game.TerritoryEntities[territory_id];
                         game.Battles.push({
                             TerritoryEntity: territory_entity,
@@ -276,22 +227,22 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                                 ];
                                 play_buffer(game.Audio, undefined, game.Sounds[element(sfx)]);
                                 let territory_name = game.World.Territory[territory_entity].Name;
-                                let enemy_territory_id = enemy_territory_ids[j];
+                                let enemy_territory_id = enemy_team_territory_ids[j];
                                 Logger(
                                     game,
                                     msg.LOG_TEAM_ATTACKS(
                                         territory_name,
                                         current_player_name,
-                                        current_player_territories[enemy_territory_id],
+                                        current_team_units.get(enemy_territory_id)!.length,
                                         game.Players[i].Name,
-                                        enemy_territories[enemy_territory_id]
+                                        enemy_team_units.get(enemy_territory_id)!.length
                                     )
                                 );
 
                                 let battle_result = fight(
                                     game,
-                                    current_player_territories[enemy_territory_id],
-                                    enemy_territories[enemy_territory_id],
+                                    current_team_units.get(enemy_territory_id)!.length,
+                                    enemy_team_units.get(enemy_territory_id)!.length,
                                     !game.IsAiTurn,
                                     game.Players[i].Type === PlayerType.Human
                                 );
@@ -300,7 +251,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                                 let winner_units_lost: number | undefined;
                                 if (battle_result.result === BattleResult.AttackWon) {
                                     winner_units_lost =
-                                        current_player_territories[enemy_territory_id] -
+                                        current_team_units.get(enemy_territory_id)!.length -
                                         battle_result.attacking_units;
                                     Logger(
                                         game,
@@ -315,7 +266,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                                     winner = game.CurrentPlayer;
                                 } else {
                                     winner_units_lost =
-                                        enemy_territories[enemy_territory_id] -
+                                        enemy_team_units.get(enemy_territory_id)!.length -
                                         battle_result.defending_units;
                                     Logger(
                                         game,
