@@ -79,16 +79,9 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             let most_territories = 0;
             let best_player = 0;
 
-            let current_team_units = game.UnitsByTeamTerritory[game.CurrentPlayer];
-            let current_team_units_flat = [...current_team_units.values()].flat();
-
             game.IsAiTurn = game.Players[game.CurrentPlayer].Type === PlayerType.AI;
-
-            if (game.IsAiTurn) {
-                game.AiActiveUnits = current_team_units_flat.slice();
-            }
-
             game.Battles = [];
+
             for (let i = 0; i < game.Players.length; i++) {
                 let territories = game.UnitsByTeamTerritory[i];
                 Logger(game, msg.LOG_TEAM_CONTROL_SUMMARY(game.Players[i].Name, territories.size));
@@ -113,6 +106,8 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             }
 
             Logger(game, msg.LOG_TEAM_TURN_START(current_player_name));
+
+            let current_team_units = game.UnitsByTeamTerritory[game.CurrentPlayer];
             game.CurrentPlayerTerritoryIds = [...current_team_units.keys()];
 
             // XXX: Add continent bonus here

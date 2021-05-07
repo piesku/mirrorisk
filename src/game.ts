@@ -33,8 +33,10 @@ import {sys_mimic} from "./systems/sys_mimic.js";
 import {sys_move} from "./systems/sys_move.js";
 import {sys_nav} from "./systems/sys_nav.js";
 import {Picked, sys_pick} from "./systems/sys_pick.js";
+import {sys_poll} from "./systems/sys_poll.js";
 import {sys_render_depth} from "./systems/sys_render1_depth.js";
 import {sys_render_forward} from "./systems/sys_render1_forward.js";
+import {sys_rules_phase} from "./systems/sys_rules_phase.js";
 import {RulesTally, sys_rules_tally} from "./systems/sys_rules_tally.js";
 import {sys_select} from "./systems/sys_select.js";
 import {sys_transform} from "./systems/sys_transform.js";
@@ -63,7 +65,6 @@ export const enum TurnPhase {
     Deploy,
     Move,
     Battle,
-    Regroup,
     Endgame,
 }
 
@@ -130,8 +131,6 @@ export class Game implements RulesTally {
     IsAiTurn: boolean = false;
 
     Battles: Array<BattleCallback> = [];
-
-    ForceHover: Entity | undefined;
 
     TurnPhase: TurnPhase = TurnPhase.Deploy;
     UnitsToDeploy: number = 0;
@@ -214,8 +213,8 @@ export class Game implements RulesTally {
     FrameUpdate(delta: number) {
         let now = performance.now();
 
-        // Game rules.
-        sys_rules_tally(this, delta);
+        // Event loop.
+        sys_poll(this, delta);
 
         // Camera controls and picking.
         sys_control_camera(this, delta);
@@ -231,6 +230,10 @@ export class Game implements RulesTally {
         sys_deploy(this, delta);
         sys_select(this, delta);
         sys_highlight(this, delta);
+
+        // Game rules.
+        sys_rules_tally(this, delta);
+        sys_rules_phase(this, delta);
 
         // Game logic.
         sys_nav(this, delta);

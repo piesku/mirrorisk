@@ -1,8 +1,7 @@
 import {get_translation} from "../../common/mat4.js";
 import {Vec3} from "../../common/math.js";
 import {copy, distance_squared, normalize, transform_point} from "../../common/vec3.js";
-import {Action, dispatch} from "../actions.js";
-import {Entity, Game, TurnPhase} from "../game.js";
+import {Entity, Game} from "../game.js";
 import {Has} from "../world.js";
 
 const QUERY = Has.Transform | Has.NavAgent | Has.Move;
@@ -30,17 +29,6 @@ function update(game: Game, entity: Entity) {
         let distance_to_destination = distance_squared(position, agent.Destination);
         if (distance_to_destination < 1) {
             agent.Destination = null;
-
-            // TODO: Should this check this unit's TEAM component?
-            if (game.IsAiTurn && game.TurnPhase === TurnPhase.Move) {
-                game.AiActiveUnits = game.AiActiveUnits.filter((id) => id !== entity);
-                game.CurrentlyMovingAiUnit = null;
-                if (game.AiActiveUnits.length === 0) {
-                    setTimeout(() => {
-                        dispatch(game, Action.SetupBattles, {});
-                    }, 1000);
-                }
-            }
         }
 
         // Transform the destination into the agent's self space for sys_move.
