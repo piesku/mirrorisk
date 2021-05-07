@@ -40,16 +40,13 @@ function update(game: Game, entity: Entity) {
                 return;
             }
             if (team.Actions > 0) {
+                team.Actions -= 1;
+
                 // TODO: those are random moves right now
                 let current_territory_neighbors = game.TerritoryGraph[agent.TerritoryId];
                 let destination_territory_id = element(current_territory_neighbors);
                 let destination_territory_entity = game.TerritoryEntities[destination_territory_id];
                 let territory = game.World.Territory[destination_territory_entity];
-
-                if (agent.TerritoryId !== territory.Id) {
-                    // Use the action up only when moving to another territory.
-                    team.Actions -= 1;
-                }
 
                 let Alaska = 31;
                 let Kamchatka = 56;
