@@ -65,6 +65,7 @@ export const enum TurnPhase {
     Deploy,
     Move,
     Battle,
+    EndTurn,
     Endgame,
 }
 

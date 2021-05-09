@@ -1,6 +1,6 @@
 import {play_buffer} from "../common/audio.js";
 import {hex_to_vec4} from "../common/color.js";
-import {Quat, Vec4} from "../common/math.js";
+import {Vec4} from "../common/math.js";
 import {element, float, integer} from "../common/random.js";
 import {ContinentBonus, Game, Player, PlayerType, PlayState, TurnPhase} from "./game.js";
 import {destroy_entity} from "./impl.js";
@@ -8,6 +8,7 @@ import {scene_stage} from "./scenes/sce_stage.js";
 import {Alert, Logger, Popup} from "./ui/App.js";
 import * as msg from "./ui/messages.js";
 import {Has} from "./world.js";
+
 export const enum Action {
     ChangeNumberOfTeams,
     ChangeTeamDetails,
@@ -16,7 +17,6 @@ export const enum Action {
     EndDeployment,
     SetupBattles,
     ResolveBattles,
-    EndTurn,
     ClearAlert,
     ClearPopup,
 }
@@ -73,6 +73,8 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             break;
         }
         case Action.StartDeployment: {
+            game.TurnPhase = TurnPhase.Deploy;
+
             let game_over = false;
             let most_territories = 0;
             let best_player = 0;
@@ -262,7 +264,8 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
 
         case Action.ResolveBattles: {
             if (game.Battles.length === 0) {
-                dispatch(game, Action.EndTurn, {});
+                // TODO Replace this with battle tasks.
+                game.CurrentlyFoughtOverTerritory = null;
                 return;
             }
 
@@ -276,24 +279,6 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
                 setTimeout(() => {
                     dispatch(game, Action.ResolveBattles, {});
                 }, 1000);
-            }, 1000);
-            break;
-        }
-        case Action.EndTurn: {
-            game.World.Signature[game.SunEntity] |= Has.ControlAlways;
-            game.CurrentlyFoughtOverTerritory = null;
-
-            setTimeout(() => {
-                let players_count = game.Players.length;
-                let next_player = (players_count + game.CurrentPlayer + 1) % players_count;
-
-                game.World.Signature[game.SunEntity] &= ~Has.ControlAlways;
-                game.World.Transform[
-                    game.SunEntity
-                ].Rotation = game.InitialSunPosition.slice() as Quat;
-                game.World.Transform[game.SunEntity].Dirty = true;
-                game.CurrentPlayer = next_player;
-                dispatch(game, Action.StartDeployment, {});
             }, 1000);
             break;
         }
