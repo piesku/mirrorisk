@@ -9,16 +9,20 @@ export const enum TaskKind {
     Timeout,
 }
 
+type Callback = () => void;
+
 export interface TaskProximity {
     Kind: TaskKind.Proximity;
     Target: Vec3;
+    OnDone?: Callback;
 }
 
-export function task_proximity(target: Vec3) {
+export function task_proximity(target: Vec3, on_done?: Callback) {
     return (game: Game, entity: Entity) => {
         game.World.Signature[entity] |= Has.Task;
         game.World.Task[entity] = {
             Kind: TaskKind.Proximity,
+            OnDone: on_done,
             Target: target,
         };
     };
@@ -27,13 +31,15 @@ export function task_proximity(target: Vec3) {
 export interface TaskTimeout {
     Kind: TaskKind.Timeout;
     Remaining: number;
+    OnDone?: Callback;
 }
 
-export function task_timeout(duration: number) {
+export function task_timeout(duration: number, on_done?: Callback) {
     return (game: Game, entity: Entity) => {
         game.World.Signature[entity] |= Has.Task;
         game.World.Task[entity] = {
             Kind: TaskKind.Timeout,
+            OnDone: on_done,
             Remaining: duration,
         };
     };

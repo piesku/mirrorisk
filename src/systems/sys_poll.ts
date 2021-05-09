@@ -28,6 +28,9 @@ function update(game: Game, entity: Entity, delta: number) {
             if (distance_squared(world_position, task.Target) < CLOSE_ENOUGH_SQUARED) {
                 // The task has completed.
                 game.World.Signature[entity] &= ~Has.Task;
+                if (task.OnDone) {
+                    task.OnDone();
+                }
             }
             break;
         }
@@ -36,6 +39,9 @@ function update(game: Game, entity: Entity, delta: number) {
             if (task.Remaining < 0) {
                 // The task has completed.
                 game.World.Signature[entity] &= ~Has.Task;
+                if (task.OnDone) {
+                    task.OnDone();
+                }
             }
 
             break;

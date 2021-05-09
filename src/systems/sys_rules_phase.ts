@@ -17,13 +17,9 @@ export function sys_rules_phase(game: Game, delta: number) {
                 break;
             }
             case TurnPhase.Move: {
-                if (game.CurrentlyMovingAiUnit) {
-                    game.CurrentlyMovingAiUnit = null;
-                } else {
-                    requestAnimationFrame(() => {
-                        dispatch(game, Action.SetupBattles, null);
-                    });
-                }
+                requestAnimationFrame(() => {
+                    dispatch(game, Action.SetupBattles, null);
+                });
                 break;
             }
         }

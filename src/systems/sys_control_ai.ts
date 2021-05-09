@@ -58,7 +58,9 @@ function update(game: Game, entity: Entity) {
             agent.TerritoryId = territory.Id;
             agent.Destination = destination_worldspace;
 
-            task_proximity(destination_worldspace)(game, entity);
+            task_proximity(destination_worldspace, () => {
+                game.CurrentlyMovingAiUnit = null;
+            })(game, entity);
         }
     }
 }
