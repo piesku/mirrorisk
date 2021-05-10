@@ -8,6 +8,10 @@ import {Has} from "../world.js";
 const QUERY = Has.Pickable;
 
 export function sys_highlight(game: Game, delta: number) {
+    if (game.CurrentPlayer < 0) {
+        return;
+    }
+
     for (let i = 0; i < game.World.Signature.length; i++) {
         if ((game.World.Signature[i] & QUERY) == QUERY) {
             let pickable = game.World.Pickable[i];

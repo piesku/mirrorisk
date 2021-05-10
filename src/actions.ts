@@ -2,10 +2,10 @@ import {play_buffer} from "../common/audio.js";
 import {hex_to_vec4} from "../common/color.js";
 import {Vec4} from "../common/math.js";
 import {element, float, integer} from "../common/random.js";
-import {ContinentBonus, Game, Player, PlayerType, PlayState, TurnPhase} from "./game.js";
+import {Game, Player, PlayerType, PlayState, TurnPhase} from "./game.js";
 import {destroy_entity} from "./impl.js";
 import {scene_stage} from "./scenes/sce_stage.js";
-import {Alert, Logger, Popup} from "./ui/App.js";
+import {Logger} from "./ui/App.js";
 import * as msg from "./ui/messages.js";
 import {Has} from "./world.js";
 
@@ -13,7 +13,6 @@ export const enum Action {
     ChangeNumberOfTeams,
     ChangeTeamDetails,
     StartGame,
-    StartDeployment,
     EndDeployment,
     SetupBattles,
     ResolveBattles,
@@ -31,7 +30,6 @@ const default_teams: Array<Player> = [
 ];
 
 export function dispatch(game: Game, action: Action, payload: unknown) {
-    let current_player_name = game.Players[game.CurrentPlayer].Name;
     switch (action) {
         case Action.ChangeNumberOfTeams: {
             let count = payload as number;
@@ -62,6 +60,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
         }
         case Action.StartGame: {
             requestAnimationFrame(() => {
+                game.CurrentPlayer = -1;
                 game.PlayState = PlayState.Playing;
                 dispatch(game, Action.ClearAlert, {});
                 scene_stage(game);
@@ -72,82 +71,6 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
             });
             break;
         }
-        case Action.StartDeployment: {
-            game.TurnPhase = TurnPhase.Deploy;
-
-            let game_over = false;
-            let most_territories = 0;
-            let best_player = 0;
-
-            game.IsAiTurn = game.Players[game.CurrentPlayer].Type === PlayerType.AI;
-            game.Battles = [];
-
-            for (let i = 0; i < game.Players.length; i++) {
-                let territories = game.UnitsByTeamTerritory[i];
-                Logger(game, msg.LOG_TEAM_CONTROL_SUMMARY(game.Players[i].Name, territories.size));
-
-                if (most_territories < territories.size) {
-                    most_territories = territories.size;
-                    best_player = i;
-                }
-
-                if (territories.size === 0) {
-                    game_over = true;
-                }
-            }
-
-            if (game_over) {
-                Popup(
-                    game,
-                    msg.DIALOG_GAME_OVER_BODY(game.Players[best_player].Name),
-                    msg.DIALOG_GAME_OVER_TITLE()
-                );
-                game.TurnPhase = TurnPhase.Endgame;
-            }
-
-            Logger(game, msg.LOG_TEAM_TURN_START(current_player_name));
-
-            let current_team_units = game.UnitsByTeamTerritory[game.CurrentPlayer];
-            game.CurrentPlayerTerritoryIds = [...current_team_units.keys()];
-
-            // XXX: Add continent bonus here
-            let units_to_deploy = Math.max(~~(game.CurrentPlayerTerritoryIds.length / 3), 3);
-            let bonus = 0;
-            let continents_controlled = [];
-
-            for (let j = 0; j < (game.ContinentBonus as Array<ContinentBonus>).length; j++) {
-                let continent = game.ContinentBonus[j];
-                let territories = continent.Territories.slice().filter(
-                    (ter_id) => !game.CurrentPlayerTerritoryIds.includes(ter_id)
-                );
-
-                if (territories.length === 0 && continent.Territories.length > 0) {
-                    bonus += continent.Bonus;
-                    units_to_deploy += continent.Bonus;
-                    continents_controlled.push(continent.Name);
-                }
-            }
-
-            if (!game.IsAiTurn) {
-                console.log("no elo cotam");
-                Alert(
-                    game,
-                    bonus > 0
-                        ? msg.DIALOG_NEW_TURN_WITH_BONUS(
-                              current_player_name,
-                              units_to_deploy,
-                              bonus,
-                              continents_controlled
-                          )
-                        : msg.DIALOG_NEW_TURN(current_player_name, units_to_deploy)
-                );
-            }
-
-            game.TurnPhase = TurnPhase.Deploy;
-            game.UnitsDeployed = 0;
-            game.UnitsToDeploy = units_to_deploy;
-            break;
-        }
 
         case Action.EndDeployment: {
             game.TurnPhase = TurnPhase.Move;
@@ -156,6 +79,7 @@ export function dispatch(game: Game, action: Action, payload: unknown) {
 
         case Action.SetupBattles: {
             game.TurnPhase = TurnPhase.Battle;
+            let current_player_name = game.Players[game.CurrentPlayer].Name;
             let current_team_units = game.UnitsByTeamTerritory[game.CurrentPlayer];
             let current_team_territory_ids = [...current_team_units.keys()];
 

@@ -111,7 +111,8 @@ export class Game implements RulesTally {
     Logs: string = "";
     AlertText: string | null = null;
     Popup?: {Title: string; Content: string};
-    CurrentPlayer = 0;
+    // We start in the EndTurn phase which makes sys_rules_phase increment this to 0.
+    CurrentPlayer = -1;
     Players: Player[] = [
         {Name: "Yellow", Color: [1, 1, 0, 1], Type: PlayerType.Human},
         {Name: "Red", Color: [1, 0, 0, 1], Type: PlayerType.AI},

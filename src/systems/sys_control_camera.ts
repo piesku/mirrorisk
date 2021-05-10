@@ -5,6 +5,10 @@ const QUERY = Has.ControlCamera;
 const INITIAL_CAMERA_Y = 40;
 
 export function sys_control_camera(game: Game, delta: number) {
+    if (game.CurrentPlayer < 0) {
+        return;
+    }
+
     for (let i = 0; i < game.World.Signature.length; i++) {
         if ((game.World.Signature[i] & QUERY) === QUERY) {
             update(game, i);
