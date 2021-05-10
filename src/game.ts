@@ -1,7 +1,6 @@
 import {create_depth_target, DepthTarget} from "../common/framebuffer.js";
 import {Mesh} from "../common/material.js";
-import {Quat, Vec4} from "../common/math.js";
-import {from_euler} from "../common/quat.js";
+import {Vec4} from "../common/math.js";
 import {GL_CULL_FACE, GL_DEPTH_TEST} from "../common/webgl.js";
 import {mat1_colored_unlit_triangles} from "../materials/mat1_colored_unlit_triangles.js";
 import {mat1_depth} from "../materials/mat1_depth.js";
@@ -121,8 +120,6 @@ export class Game implements RulesTally {
         {Name: "Cyan", Color: [0, 1, 1, 1], Type: PlayerType.AI},
     ];
     CurrentPlayerTerritoryIds: Array<number> = [];
-
-    InitialSunPosition: Quat = from_euler([0, 0, 0, 0], 0, 35, 0);
 
     ContinentBonus: Record<number, ContinentBonus> = [];
 

@@ -12,12 +12,14 @@ import {Game} from "../game.js";
 import {Blueprint} from "../impl.js";
 import {Has} from "../world.js";
 
+export const initial_sun_rotation: Quat = from_euler([0, 0, 0, 0], 0, 35, 0);
+
 export function blueprint_sun(game: Game): Blueprint {
     return [
         transform(undefined, from_euler([0, 0, 0, 0], -30, 0, 0)),
         children([
             callback((game, entity) => (game.SunEntity = entity)),
-            transform(undefined, game.InitialSunPosition.slice() as Quat),
+            transform(undefined, initial_sun_rotation.slice() as Quat),
             control_always(null, [0, -1, 0, 0]),
             disable(Has.ControlAlways),
             move(0, 6.2),

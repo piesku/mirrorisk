@@ -1,5 +1,6 @@
 import {Quat} from "../../common/math.js";
 import {Action, dispatch} from "../actions.js";
+import {initial_sun_rotation} from "../blueprints/blu_sun.js";
 import {task_timeout} from "../components/com_task.js";
 import {ContinentBonus, Game, PlayerType, TurnPhase} from "../game.js";
 import {instantiate} from "../impl.js";
@@ -47,7 +48,7 @@ export function sys_rules_phase(game: Game, delta: number) {
             // Stop the sun.
             game.World.Signature[game.SunEntity] &= ~Has.ControlAlways;
             let sun_transform = game.World.Transform[game.SunEntity];
-            sun_transform.Rotation = game.InitialSunPosition.slice() as Quat;
+            sun_transform.Rotation = initial_sun_rotation.slice() as Quat;
             sun_transform.Dirty = true;
 
             // Start the next team's turn.
