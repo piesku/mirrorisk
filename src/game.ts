@@ -107,36 +107,6 @@ export class Game {
     // ints as ids. Chrome usually starts at 0, so id === index.
     InputTouches: Record<number, number> = {};
 
-    PlayState: PlayState = PlayState.Setup;
-    Logs: string = "";
-    AlertText: string | null = null;
-    Popup?: {Title: string; Content: string};
-    // We start in the EndTurn phase which makes sys_rules_phase increment this to 0.
-    CurrentPlayer = -1;
-    Players: Player[] = [
-        {Name: "Yellow", Color: [1, 1, 0, 1], Type: PlayerType.Human},
-        {Name: "Red", Color: [1, 0, 0, 1], Type: PlayerType.AI},
-        {Name: "Green", Color: [0, 1, 0, 1], Type: PlayerType.AI},
-        {Name: "Magenta", Color: [1, 0, 1, 1], Type: PlayerType.AI},
-        {Name: "Cyan", Color: [0, 1, 1, 1], Type: PlayerType.AI},
-    ];
-    CurrentPlayerTerritoryIds: Array<number> = [];
-
-    ContinentBonus: Record<number, ContinentBonus> = [];
-
-    CurrentlyMovingAiUnit: Entity | null = null;
-    CurrentlyFoughtOverTerritory: Entity | null = null;
-
-    IsAiTurn: boolean = false;
-
-    TurnPhase: TurnPhase = TurnPhase.Deploy;
-    UnitsToDeploy: number = 0;
-    UnitsDeployed: number = 0;
-
-    UnitsByTeamTerritory: Record<number, Map<number, Array<Entity>>> = {};
-
-    SunEntity: Entity = 0;
-
     Ui = document.querySelector("main")!;
 
     CanvasScene = document.querySelector("canvas#scene")! as HTMLCanvasElement;
@@ -176,6 +146,37 @@ export class Game {
     CameraZoom: number = 1;
     Picked?: Picked;
     Selected?: Entity;
+
+    Players: Player[] = [
+        {Name: "Yellow", Color: [1, 1, 0, 1], Type: PlayerType.Human},
+        {Name: "Red", Color: [1, 0, 0, 1], Type: PlayerType.AI},
+        {Name: "Green", Color: [0, 1, 0, 1], Type: PlayerType.AI},
+        {Name: "Magenta", Color: [1, 0, 1, 1], Type: PlayerType.AI},
+        {Name: "Cyan", Color: [0, 1, 1, 1], Type: PlayerType.AI},
+    ];
+
+    PlayState: PlayState = PlayState.Setup;
+    TurnPhase: TurnPhase = TurnPhase.EndTurn;
+    IsAiTurn: boolean = false;
+
+    // We start in the EndTurn phase which makes sys_rules_phase increment this to 0.
+    CurrentPlayer = -1;
+    CurrentPlayerTerritoryIds: Array<number> = [];
+    // Map teams to territories and units occupying them.
+    UnitsByTeamTerritory: Record<number, Map<number, Array<Entity>>> = {};
+
+    CurrentlyMovingAiUnit: Entity | null = null;
+    CurrentlyFoughtOverTerritory: Entity | null = null;
+
+    UnitsToDeploy: number = 0;
+    UnitsDeployed: number = 0;
+
+    ContinentBonus: Record<number, ContinentBonus> = [];
+    SunEntity: Entity = 0;
+
+    Logs: string = "";
+    AlertText: string | null = null;
+    Popup?: {Title: string; Content: string};
 
     constructor() {
         document.addEventListener("visibilitychange", () =>
