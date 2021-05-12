@@ -1,10 +1,14 @@
+import {get_translation} from "../../common/mat4.js";
+import {Vec3} from "../../common/math.js";
 import {element} from "../../common/random.js";
+import {distance_squared} from "../../common/vec3.js";
 import {get_coord_by_territory_id} from "../blueprints/blu_territory.js";
-import {task_proximity} from "../components/com_task.js";
+import {task_until} from "../components/com_task.js";
 import {Entity, Game, TurnPhase} from "../game.js";
 import {Has} from "../world.js";
 
 const QUERY = Has.NavAgent | Has.Team;
+const CLOSE_ENOUGH_SQUARED = 1;
 
 export function sys_control_ai(game: Game, delta: number) {
     if (game.IsAiTurn && game.TurnPhase === TurnPhase.Move) {
@@ -53,14 +57,24 @@ function update(game: Game, entity: Entity) {
             transform.Dirty = true;
         }
 
-        let destination_worldspace = get_coord_by_territory_id(game, territory.Id);
-        if (destination_worldspace) {
+        let world_destination = get_coord_by_territory_id(game, territory.Id);
+        if (world_destination) {
             agent.TerritoryId = territory.Id;
-            agent.Destination = destination_worldspace;
+            agent.Destination = world_destination;
 
-            task_proximity(destination_worldspace, () => {
-                game.CurrentlyMovingAiUnit = null;
-            })(game, entity);
+            // A non-null copy for the closure.
+            let dest = world_destination;
+            task_until(
+                () => {
+                    let transform = game.World.Transform[entity];
+                    let world_position: Vec3 = [0, 0, 0];
+                    get_translation(world_position, transform.World);
+                    return distance_squared(world_position, dest) < CLOSE_ENOUGH_SQUARED;
+                },
+                () => {
+                    game.CurrentlyMovingAiUnit = null;
+                }
+            )(game, entity);
         }
     }
 }

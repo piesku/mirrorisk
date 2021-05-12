@@ -1,29 +1,29 @@
-import {Vec3} from "../../common/math.js";
 import {Entity, Game} from "../game.js";
 import {Has} from "../world.js";
 
-export type Task = TaskProximity | TaskTimeout;
+export type Task = TaskUntil | TaskTimeout;
 
 export const enum TaskKind {
-    Proximity,
+    Until,
     Timeout,
 }
 
+type Predicate = () => boolean;
 type Callback = () => void;
 
-export interface TaskProximity {
-    Kind: TaskKind.Proximity;
-    Target: Vec3;
+export interface TaskUntil {
+    Kind: TaskKind.Until;
+    Predicate: Predicate;
     OnDone?: Callback;
 }
 
-export function task_proximity(target: Vec3, on_done?: Callback) {
+export function task_until(predicate: Predicate, on_done?: Callback) {
     return (game: Game, entity: Entity) => {
         game.World.Signature[entity] |= Has.Task;
         game.World.Task[entity] = {
-            Kind: TaskKind.Proximity,
+            Kind: TaskKind.Until,
+            Predicate: predicate,
             OnDone: on_done,
-            Target: target,
         };
     };
 }
@@ -39,8 +39,8 @@ export function task_timeout(duration: number, on_done?: Callback) {
         game.World.Signature[entity] |= Has.Task;
         game.World.Task[entity] = {
             Kind: TaskKind.Timeout,
-            OnDone: on_done,
             Remaining: duration,
+            OnDone: on_done,
         };
     };
 }
