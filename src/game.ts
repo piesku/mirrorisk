@@ -35,6 +35,7 @@ import {Picked, sys_pick} from "./systems/sys_pick.js";
 import {sys_poll} from "./systems/sys_poll.js";
 import {sys_render_depth} from "./systems/sys_render1_depth.js";
 import {sys_render_forward} from "./systems/sys_render1_forward.js";
+import {sys_rules_battle} from "./systems/sys_rules_battle.js";
 import {sys_rules_phase} from "./systems/sys_rules_phase.js";
 import {RulesTally, sys_rules_tally} from "./systems/sys_rules_tally.js";
 import {sys_select} from "./systems/sys_select.js";
@@ -232,6 +233,7 @@ export class Game implements RulesTally {
 
         // Game rules.
         sys_rules_tally(this, delta);
+        sys_rules_battle(this, delta);
         sys_rules_phase(this, delta);
 
         // Game logic.

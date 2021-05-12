@@ -1,5 +1,4 @@
 import {Quat} from "../../common/math.js";
-import {Action, dispatch} from "../actions.js";
 import {initial_sun_rotation} from "../blueprints/blu_sun.js";
 import {task_timeout} from "../components/com_task.js";
 import {ContinentBonus, Game, PlayerType, TurnPhase} from "../game.js";
@@ -23,10 +22,8 @@ export function sys_rules_phase(game: Game, delta: number) {
                 break;
             }
             case TurnPhase.Move: {
-                requestAnimationFrame(() => {
-                    dispatch(game, Action.SetupBattles, null);
-                });
-                break;
+                game.TurnPhase = TurnPhase.Battle;
+                return;
             }
         }
     }
