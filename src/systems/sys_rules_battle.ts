@@ -1,8 +1,9 @@
 import {play_buffer} from "../../common/audio.js";
 import {element, float, integer} from "../../common/random.js";
+import {children} from "../components/com_children.js";
 import {task_timeout} from "../components/com_task.js";
 import {Entity, Game, PlayerType, TurnPhase} from "../game.js";
-import {destroy_entity, instantiate} from "../impl.js";
+import {Blueprint, destroy_entity, instantiate} from "../impl.js";
 import {Logger} from "../ui/App.js";
 import * as msg from "../ui/messages.js";
 import {Has} from "../world.js";
@@ -121,18 +122,36 @@ function update(game: Game, entity: Entity) {
                         winner = i;
                     }
 
+                    let defeated_units = [];
+
                     if (typeof loser !== undefined) {
-                        remove_defeated_units(game, territory.Id, loser);
+                        let units_to_remove = remove_defeated_units(game, territory.Id, loser);
+                        defeated_units.push(...units_to_remove);
                     }
 
                     if (typeof winner !== undefined) {
                         console.log({winner, winner_units_lost});
-                        remove_defeated_units(game, territory.Id, winner, winner_units_lost);
+                        let units_to_remove = remove_defeated_units(
+                            game,
+                            territory.Id,
+                            winner,
+                            winner_units_lost
+                        );
+                        defeated_units.push(...units_to_remove);
                     }
 
-                    // Wait for the defeated units to sink.
+                    let defeated_unit_tasks: Array<Blueprint> = defeated_units.map(
+                        (unit_entity) => [
+                            task_timeout(1, () => {
+                                destroy_entity(game.World, unit_entity);
+                            }),
+                        ]
+                    );
+
+                    // Wait for all the defeated units to sink below the board.
                     instantiate(game, [
-                        task_timeout(1, () => {
+                        children(...defeated_unit_tasks),
+                        task_timeout(0, () => {
                             game.CurrentlyFoughtOverTerritory = null;
                         }),
                     ]);
@@ -198,12 +217,7 @@ function fight(
     }
 }
 
-export function remove_defeated_units(
-    game: Game,
-    territory_id: number,
-    team_id: number,
-    qty?: number
-) {
+function* remove_defeated_units(game: Game, territory_id: number, team_id: number, qty?: number) {
     let QUERY = Has.Team | Has.NavAgent;
     for (let i = 0; i < game.World.Signature.length; i++) {
         if (
@@ -230,9 +244,8 @@ export function remove_defeated_units(
                 translation[1] - 7,
                 translation[2],
             ];
-            setTimeout(() => {
-                destroy_entity(game.World, i);
-            }, 1000);
+
+            yield i;
         }
     }
 }

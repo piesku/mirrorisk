@@ -17,8 +17,18 @@ export function sys_poll(game: Game, delta: number) {
 }
 
 function update(game: Game, entity: Entity, delta: number) {
-    let task = game.World.Task[entity];
+    // Does this task have dependencies that block it?
+    if (game.World.Signature[entity] & Has.Children) {
+        let children = game.World.Children[entity];
+        for (let child of children.Children) {
+            if (game.World.Signature[child] & Has.Task) {
+                // A pending child means that the task cannot proceed right now.
+                return;
+            }
+        }
+    }
 
+    let task = game.World.Task[entity];
     switch (task.Kind) {
         case TaskKind.Proximity: {
             let transform = game.World.Transform[entity];
