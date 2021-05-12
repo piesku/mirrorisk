@@ -1,10 +1,6 @@
 import {Entity, Game, TurnPhase} from "../game.js";
 import {Has} from "../world.js";
 
-export interface RulesTally {
-    UnitsByTeamTerritory: Record<number, Map<number, Array<Entity>>>;
-}
-
 const QUERY = Has.Team;
 
 export function sys_rules_tally(game: Game, delta: number) {

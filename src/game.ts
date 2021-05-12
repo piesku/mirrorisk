@@ -37,7 +37,7 @@ import {sys_render_depth} from "./systems/sys_render1_depth.js";
 import {sys_render_forward} from "./systems/sys_render1_forward.js";
 import {sys_rules_battle} from "./systems/sys_rules_battle.js";
 import {sys_rules_phase} from "./systems/sys_rules_phase.js";
-import {RulesTally, sys_rules_tally} from "./systems/sys_rules_tally.js";
+import {sys_rules_tally} from "./systems/sys_rules_tally.js";
 import {sys_select} from "./systems/sys_select.js";
 import {sys_transform} from "./systems/sys_transform.js";
 import {sys_ui} from "./systems/sys_ui.js";
@@ -80,7 +80,7 @@ export interface ContinentBonus {
     Name: string;
 }
 
-export class Game implements RulesTally {
+export class Game {
     World = new World();
 
     ViewportWidth = 0;
