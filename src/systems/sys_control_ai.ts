@@ -5,6 +5,7 @@ import {distance_squared} from "../../common/vec3.js";
 import {get_coord_by_territory_id} from "../blueprints/blu_territory.js";
 import {task_until} from "../components/com_task.js";
 import {Entity, Game, TurnPhase} from "../game.js";
+import {instantiate} from "../impl.js";
 import {Has} from "../world.js";
 
 const QUERY = Has.NavAgent | Has.Team;
@@ -64,17 +65,20 @@ function update(game: Game, entity: Entity) {
 
             // A non-null copy for the closure.
             let dest = world_destination;
-            task_until(
-                () => {
-                    let transform = game.World.Transform[entity];
-                    let world_position: Vec3 = [0, 0, 0];
-                    get_translation(world_position, transform.World);
-                    return distance_squared(world_position, dest) < CLOSE_ENOUGH_SQUARED;
-                },
-                () => {
-                    game.CurrentlyMovingAiUnit = null;
-                }
-            )(game, entity);
+
+            instantiate(game, [
+                task_until(
+                    () => {
+                        let transform = game.World.Transform[entity];
+                        let world_position: Vec3 = [0, 0, 0];
+                        get_translation(world_position, transform.World);
+                        return distance_squared(world_position, dest) < CLOSE_ENOUGH_SQUARED;
+                    },
+                    () => {
+                        game.CurrentlyMovingAiUnit = null;
+                    }
+                ),
+            ]);
         }
     }
 }
