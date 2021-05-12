@@ -57,7 +57,6 @@ export function sys_rules_phase(game: Game, delta: number) {
             let best_player = 0;
 
             game.IsAiTurn = game.Players[game.CurrentPlayer].Type === PlayerType.AI;
-            game.Battles = [];
 
             for (let i = 0; i < game.Players.length; i++) {
                 let territories = game.UnitsByTeamTerritory[i];

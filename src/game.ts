@@ -124,13 +124,10 @@ export class Game {
 
     ContinentBonus: Record<number, ContinentBonus> = [];
 
-    AiActiveUnits: Entity[] = [];
     CurrentlyMovingAiUnit: Entity | null = null;
     CurrentlyFoughtOverTerritory: Entity | null = null;
 
     IsAiTurn: boolean = false;
-
-    Battles: Array<BattleCallback> = [];
 
     TurnPhase: TurnPhase = TurnPhase.Deploy;
     UnitsToDeploy: number = 0;
