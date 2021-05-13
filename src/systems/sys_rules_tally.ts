@@ -43,14 +43,6 @@ function update_unit_actions(game: Game, entity: Entity) {
     let nav_agent = game.World.NavAgent[entity];
 
     switch (game.TurnPhase) {
-        case TurnPhase.Deploy: {
-            // XXX Should this happen in actions.ts? Or maybe explicitly once per turn?
-            if (team.Actions < 1) {
-                // Replenish this unit's actions.
-                team.Actions = 1;
-            }
-            break;
-        }
         case TurnPhase.Move: {
             let team_units = game.UnitsByTeamTerritory[team.Id];
             let territory_units = team_units.get(nav_agent.TerritoryId)!;

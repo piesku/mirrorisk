@@ -117,6 +117,15 @@ export function sys_rules_phase(game: Game, delta: number) {
             game.TurnPhase = TurnPhase.Deploy;
             game.UnitsDeployed = 0;
             game.UnitsToDeploy = units_to_deploy;
+
+            // Replenish the current team's actions for all units.
+            for (let units of current_team_units.values()) {
+                for (let unit of units) {
+                    let team = game.World.Team[unit];
+                    team.Actions = 1;
+                }
+            }
+
             break;
         }
     }
