@@ -15,20 +15,19 @@ export function sys_rules_phase(game: Game, delta: number) {
         }
     }
 
-    if (game.IsAiTurn) {
-        switch (game.TurnPhase) {
-            case TurnPhase.Deploy: {
-                game.TurnPhase = TurnPhase.Move;
-                break;
-            }
-            case TurnPhase.Move: {
-                game.TurnPhase = TurnPhase.Battle;
-                return;
-            }
-        }
-    }
-
     switch (game.TurnPhase) {
+        case TurnPhase.Deploy: {
+            if (game.IsAiTurn) {
+                game.TurnPhase = TurnPhase.Move;
+            }
+            break;
+        }
+        case TurnPhase.Move: {
+            if (game.IsAiTurn) {
+                game.TurnPhase = TurnPhase.Battle;
+            }
+            break;
+        }
         case TurnPhase.Battle: {
             if (game.CurrentlyFoughtOverTerritory === null) {
                 // We're done with battles.
