@@ -4,7 +4,7 @@ import {Vec3} from "../../common/math.js";
 import {element, float, integer} from "../../common/random.js";
 import {distance_squared} from "../../common/vec3.js";
 import {children} from "../components/com_children.js";
-import {task_timeout, task_until} from "../components/com_task.js";
+import {task_complete, task_timeout, task_until} from "../components/com_task.js";
 import {Entity, Game, PlayerType, TurnPhase} from "../game.js";
 import {Blueprint, destroy_entity, instantiate} from "../impl.js";
 import {Logger} from "../ui/App.js";
@@ -175,7 +175,7 @@ function update(game: Game, entity: Entity) {
                         // Wait for all the defeated units to sink below the board.
                         instantiate(game, [
                             children(...defeated_unit_tasks),
-                            task_timeout(0, () => {
+                            task_complete(() => {
                                 game.CurrentlyFoughtOverTerritory = null;
                             }),
                         ]);

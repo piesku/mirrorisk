@@ -17,6 +17,7 @@ export interface TaskUntil {
     OnDone?: Callback;
 }
 
+/** A task that completes when the predicate returns true. */
 export function task_until(predicate: Predicate, on_done?: Callback) {
     return (game: Game, entity: Entity) => {
         game.World.Signature[entity] |= Has.Task;
@@ -34,12 +35,25 @@ export interface TaskTimeout {
     OnDone?: Callback;
 }
 
+/** A task that completes after the specified duration (in seconds). */
 export function task_timeout(duration: number, on_done?: Callback) {
     return (game: Game, entity: Entity) => {
         game.World.Signature[entity] |= Has.Task;
         game.World.Task[entity] = {
             Kind: TaskKind.Timeout,
             Remaining: duration,
+            OnDone: on_done,
+        };
+    };
+}
+
+/** A task that completes as soon as possible. */
+export function task_complete(on_done: Callback) {
+    return (game: Game, entity: Entity) => {
+        game.World.Signature[entity] |= Has.Task;
+        game.World.Task[entity] = {
+            Kind: TaskKind.Timeout,
+            Remaining: 0,
             OnDone: on_done,
         };
     };
