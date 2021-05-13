@@ -29,15 +29,11 @@ export function sys_rules_phase(game: Game, delta: number) {
             break;
         }
         case TurnPhase.Battle: {
-            if (game.CurrentlyFoughtOverTerritory === null) {
-                // We're done with battles.
-                // TODO Use tasks for battles.
-                game.TurnPhase = TurnPhase.EndTurn;
+            game.TurnPhase = TurnPhase.EndTurn;
 
-                // Rotate the sun.
-                game.World.Signature[game.SunEntity] |= Has.ControlAlways;
-                instantiate(game, [task_timeout(1)]);
-            }
+            // Rotate the sun.
+            game.World.Signature[game.SunEntity] |= Has.ControlAlways;
+            instantiate(game, [task_timeout(1)]);
             break;
         }
         case TurnPhase.EndTurn: {
