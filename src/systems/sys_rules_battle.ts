@@ -1,7 +1,10 @@
 import {play_buffer} from "../../common/audio.js";
+import {get_translation} from "../../common/mat4.js";
+import {Vec3} from "../../common/math.js";
 import {element, float, integer} from "../../common/random.js";
+import {distance_squared} from "../../common/vec3.js";
 import {children} from "../components/com_children.js";
-import {task_timeout} from "../components/com_task.js";
+import {task_timeout, task_until} from "../components/com_task.js";
 import {Entity, Game, PlayerType, TurnPhase} from "../game.js";
 import {Blueprint, destroy_entity, instantiate} from "../impl.js";
 import {Logger} from "../ui/App.js";
@@ -9,6 +12,7 @@ import * as msg from "../ui/messages.js";
 import {Has} from "../world.js";
 
 const QUERY = Has.Territory;
+const CLOSE_ENOUGH_SQUARED = 1;
 
 export function sys_rules_battle(game: Game, delta: number) {
     if (game.TurnPhase !== TurnPhase.Battle) {
@@ -61,6 +65,12 @@ function update(game: Game, entity: Entity) {
 
             game.CurrentlyFoughtOverTerritory = entity;
 
+            let territory_children = game.World.Children[entity];
+            let anchor_entity = territory_children.Children[0];
+            let anchor_transform = game.World.Transform[anchor_entity];
+            let anchor_world_position: Vec3 = [0, 0, 0];
+            get_translation(anchor_world_position, anchor_transform.World);
+
             Logger(
                 game,
                 msg.LOG_TEAM_ATTACKS(
@@ -82,80 +92,95 @@ function update(game: Game, entity: Entity) {
 
             instantiate(game, [
                 // Wait for the camera to move over the territory.
-                // TOOD Replace this with task_proximity?
-                task_timeout(1, () => {
-                    // TODO Use spatial audio_source on the territory?
-                    play_buffer(game.Audio, undefined, game.Sounds[element(sfx)]);
+                task_until(
+                    () => {
+                        if (game.CameraRig == undefined) {
+                            return false;
+                        }
 
-                    let loser, winner;
-                    let winner_units_lost: number | undefined;
-                    if (battle_result.result === BattleResult.AttackWon) {
-                        winner_units_lost =
-                            current_team_units.get(territory.Id)!.length -
-                            battle_result.attacking_units;
-                        Logger(
-                            game,
-                            winner_units_lost === 0
-                                ? msg.LOG_BATTLE_RESULT_NO_LOSSES(current_team_name)
-                                : msg.LOG_BATTLE_RESULT_SOME_LOSSES(
-                                      current_team_name,
-                                      winner_units_lost
-                                  )
+                        // The camera rig is a top-level entity; its local space === world space.
+                        let camera_rig_transform = game.World.Transform[game.CameraRig];
+                        return (
+                            distance_squared(
+                                camera_rig_transform.Translation,
+                                anchor_world_position
+                            ) < CLOSE_ENOUGH_SQUARED
                         );
-                        loser = i;
-                        winner = game.CurrentPlayer;
-                    } else {
-                        winner_units_lost =
-                            enemy_team_units.get(territory.Id)!.length -
-                            battle_result.defending_units;
-                        Logger(
-                            game,
-                            winner_units_lost === 0
-                                ? msg.LOG_BATTLE_RESULT_NO_LOSSES(enemy_team_name)
-                                : msg.LOG_BATTLE_RESULT_SOME_LOSSES(
-                                      current_team_name,
-                                      winner_units_lost
-                                  )
+                    },
+                    () => {
+                        // TODO Use spatial audio_source on the territory?
+                        play_buffer(game.Audio, undefined, game.Sounds[element(sfx)]);
+
+                        let loser, winner;
+                        let winner_units_lost: number | undefined;
+                        if (battle_result.result === BattleResult.AttackWon) {
+                            winner_units_lost =
+                                current_team_units.get(territory.Id)!.length -
+                                battle_result.attacking_units;
+                            Logger(
+                                game,
+                                winner_units_lost === 0
+                                    ? msg.LOG_BATTLE_RESULT_NO_LOSSES(current_team_name)
+                                    : msg.LOG_BATTLE_RESULT_SOME_LOSSES(
+                                          current_team_name,
+                                          winner_units_lost
+                                      )
+                            );
+                            loser = i;
+                            winner = game.CurrentPlayer;
+                        } else {
+                            winner_units_lost =
+                                enemy_team_units.get(territory.Id)!.length -
+                                battle_result.defending_units;
+                            Logger(
+                                game,
+                                winner_units_lost === 0
+                                    ? msg.LOG_BATTLE_RESULT_NO_LOSSES(enemy_team_name)
+                                    : msg.LOG_BATTLE_RESULT_SOME_LOSSES(
+                                          current_team_name,
+                                          winner_units_lost
+                                      )
+                            );
+
+                            loser = game.CurrentPlayer;
+                            winner = i;
+                        }
+
+                        let defeated_units = [];
+
+                        if (typeof loser !== undefined) {
+                            let units_to_remove = remove_defeated_units(game, territory.Id, loser);
+                            defeated_units.push(...units_to_remove);
+                        }
+
+                        if (typeof winner !== undefined) {
+                            console.log({winner, winner_units_lost});
+                            let units_to_remove = remove_defeated_units(
+                                game,
+                                territory.Id,
+                                winner,
+                                winner_units_lost
+                            );
+                            defeated_units.push(...units_to_remove);
+                        }
+
+                        let defeated_unit_tasks: Array<Blueprint> = defeated_units.map(
+                            (unit_entity) => [
+                                task_timeout(1, () => {
+                                    destroy_entity(game.World, unit_entity);
+                                }),
+                            ]
                         );
 
-                        loser = game.CurrentPlayer;
-                        winner = i;
-                    }
-
-                    let defeated_units = [];
-
-                    if (typeof loser !== undefined) {
-                        let units_to_remove = remove_defeated_units(game, territory.Id, loser);
-                        defeated_units.push(...units_to_remove);
-                    }
-
-                    if (typeof winner !== undefined) {
-                        console.log({winner, winner_units_lost});
-                        let units_to_remove = remove_defeated_units(
-                            game,
-                            territory.Id,
-                            winner,
-                            winner_units_lost
-                        );
-                        defeated_units.push(...units_to_remove);
-                    }
-
-                    let defeated_unit_tasks: Array<Blueprint> = defeated_units.map(
-                        (unit_entity) => [
-                            task_timeout(1, () => {
-                                destroy_entity(game.World, unit_entity);
+                        // Wait for all the defeated units to sink below the board.
+                        instantiate(game, [
+                            children(...defeated_unit_tasks),
+                            task_timeout(0, () => {
+                                game.CurrentlyFoughtOverTerritory = null;
                             }),
-                        ]
-                    );
-
-                    // Wait for all the defeated units to sink below the board.
-                    instantiate(game, [
-                        children(...defeated_unit_tasks),
-                        task_timeout(0, () => {
-                            game.CurrentlyFoughtOverTerritory = null;
-                        }),
-                    ]);
-                }),
+                        ]);
+                    }
+                ),
             ]);
         }
     }
