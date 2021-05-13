@@ -43,44 +43,27 @@ export function sys_rules_phase(game: Game, delta: number) {
             sun_transform.Rotation = initial_sun_rotation.slice() as Quat;
             sun_transform.Dirty = true;
 
+            if (check_end_game(game)) {
+                game.TurnPhase = TurnPhase.Endgame;
+                return;
+            }
+
             // Start the next team's turn.
             let next_player = (game.Players.length + game.CurrentPlayer + 1) % game.Players.length;
             game.CurrentPlayer = next_player;
 
-            let game_over = false;
-            let most_territories = 0;
-            let best_player = 0;
-
-            game.IsAiTurn = game.Players[game.CurrentPlayer].Type === PlayerType.AI;
-
-            for (let i = 0; i < game.Players.length; i++) {
-                let territories = game.UnitsByTeamTerritory[i];
-                Logger(game, msg.LOG_TEAM_CONTROL_SUMMARY(game.Players[i].Name, territories.size));
-
-                if (most_territories < territories.size) {
-                    most_territories = territories.size;
-                    best_player = i;
-                }
-
-                if (territories.size === 0) {
-                    game_over = true;
-                }
-            }
-
-            if (game_over) {
-                Popup(
-                    game,
-                    msg.DIALOG_GAME_OVER_BODY(game.Players[best_player].Name),
-                    msg.DIALOG_GAME_OVER_TITLE()
-                );
-                game.TurnPhase = TurnPhase.Endgame;
-            }
-
             let current_player_name = game.Players[game.CurrentPlayer].Name;
             Logger(game, msg.LOG_TEAM_TURN_START(current_player_name));
-
             let current_team_units = game.UnitsByTeamTerritory[game.CurrentPlayer];
             game.CurrentPlayerTerritoryIds = [...current_team_units.keys()];
+
+            // Replenish the current team's actions for all units.
+            for (let units of current_team_units.values()) {
+                for (let unit of units) {
+                    let team = game.World.Team[unit];
+                    team.Actions = 1;
+                }
+            }
 
             let units_to_deploy = Math.max(~~(game.CurrentPlayerTerritoryIds.length / 3), 3);
             let bonus = 0;
@@ -99,8 +82,8 @@ export function sys_rules_phase(game: Game, delta: number) {
                 }
             }
 
+            game.IsAiTurn = game.Players[game.CurrentPlayer].Type === PlayerType.AI;
             if (!game.IsAiTurn) {
-                console.log("no elo cotam");
                 Alert(
                     game,
                     bonus > 0
@@ -114,19 +97,42 @@ export function sys_rules_phase(game: Game, delta: number) {
                 );
             }
 
-            game.TurnPhase = TurnPhase.Deploy;
             game.UnitsDeployed = 0;
             game.UnitsToDeploy = units_to_deploy;
-
-            // Replenish the current team's actions for all units.
-            for (let units of current_team_units.values()) {
-                for (let unit of units) {
-                    let team = game.World.Team[unit];
-                    team.Actions = 1;
-                }
-            }
-
+            game.TurnPhase = TurnPhase.Deploy;
             break;
         }
     }
+}
+
+function check_end_game(game: Game) {
+    let game_over = false;
+    let most_territories = 0;
+    let best_player = 0;
+
+    for (let i = 0; i < game.Players.length; i++) {
+        let territories = game.UnitsByTeamTerritory[i];
+        Logger(game, msg.LOG_TEAM_CONTROL_SUMMARY(game.Players[i].Name, territories.size));
+
+        if (most_territories < territories.size) {
+            most_territories = territories.size;
+            best_player = i;
+        }
+
+        if (territories.size === 0) {
+            game_over = true;
+        }
+    }
+
+    if (game_over) {
+        Popup(
+            game,
+            msg.DIALOG_GAME_OVER_BODY(game.Players[best_player].Name),
+            msg.DIALOG_GAME_OVER_TITLE()
+        );
+
+        return true;
+    }
+
+    return false;
 }
