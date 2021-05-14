@@ -1,7 +1,6 @@
 import {create_depth_target, DepthTarget} from "../common/framebuffer.js";
 import {Mesh} from "../common/material.js";
-import {Quat, Vec4} from "../common/math.js";
-import {from_euler} from "../common/quat.js";
+import {Vec4} from "../common/math.js";
 import {GL_CULL_FACE, GL_DEPTH_TEST} from "../common/webgl.js";
 import {mat1_colored_unlit_triangles} from "../materials/mat1_colored_unlit_triangles.js";
 import {mat1_depth} from "../materials/mat1_depth.js";
@@ -33,8 +32,12 @@ import {sys_mimic} from "./systems/sys_mimic.js";
 import {sys_move} from "./systems/sys_move.js";
 import {sys_nav} from "./systems/sys_nav.js";
 import {Picked, sys_pick} from "./systems/sys_pick.js";
+import {sys_poll} from "./systems/sys_poll.js";
 import {sys_render_depth} from "./systems/sys_render1_depth.js";
 import {sys_render_forward} from "./systems/sys_render1_forward.js";
+import {sys_rules_battle} from "./systems/sys_rules_battle.js";
+import {sys_rules_phase} from "./systems/sys_rules_phase.js";
+import {sys_rules_tally} from "./systems/sys_rules_tally.js";
 import {sys_select} from "./systems/sys_select.js";
 import {sys_transform} from "./systems/sys_transform.js";
 import {sys_ui} from "./systems/sys_ui.js";
@@ -62,7 +65,7 @@ export const enum TurnPhase {
     Deploy,
     Move,
     Battle,
-    Regroup,
+    EndTurn,
     Endgame,
 }
 
@@ -104,40 +107,6 @@ export class Game {
     // ints as ids. Chrome usually starts at 0, so id === index.
     InputTouches: Record<number, number> = {};
 
-    PlayState: PlayState = PlayState.Setup;
-    Logs: string = "";
-    AlertText: string | null = null;
-    Popup?: {Title: string; Content: string};
-    CurrentPlayer = 0;
-    Players: Player[] = [
-        {Name: "Yellow", Color: [1, 1, 0, 1], Type: PlayerType.Human},
-        {Name: "Red", Color: [1, 0, 0, 1], Type: PlayerType.AI},
-        {Name: "Green", Color: [0, 1, 0, 1], Type: PlayerType.AI},
-        {Name: "Magenta", Color: [1, 0, 1, 1], Type: PlayerType.AI},
-        {Name: "Cyan", Color: [0, 1, 1, 1], Type: PlayerType.AI},
-    ];
-    CurrentPlayerTerritoryIds: Array<number> = [];
-
-    InitialSunPosition: Quat = from_euler([0, 0, 0, 0], 0, 35, 0);
-
-    ContinentBonus: Record<number, ContinentBonus> = [];
-
-    AiActiveUnits: Entity[] = [];
-    CurrentlyMovingAiUnit: Entity | null = null;
-    CurrentlyFoughtOverTerritory: Entity | null = null;
-
-    IsAiTurn: boolean = false;
-
-    Battles: Array<BattleCallback> = [];
-
-    ForceHover: Entity | undefined;
-
-    TurnPhase: TurnPhase = TurnPhase.Deploy;
-    UnitsToDeploy: number = 0;
-    UnitsDeployed: number = 0;
-
-    SunEntity: Entity = 0;
-
     Ui = document.querySelector("main")!;
 
     CanvasScene = document.querySelector("canvas#scene")! as HTMLCanvasElement;
@@ -175,8 +144,40 @@ export class Game {
 
     Cameras: Array<Entity> = [];
     CameraZoom: number = 1;
+    CameraRig?: Entity;
     Picked?: Picked;
     Selected?: Entity;
+
+    Players: Player[] = [
+        {Name: "Yellow", Color: [1, 1, 0, 1], Type: PlayerType.Human},
+        {Name: "Red", Color: [1, 0, 0, 1], Type: PlayerType.AI},
+        {Name: "Green", Color: [0, 1, 0, 1], Type: PlayerType.AI},
+        {Name: "Magenta", Color: [1, 0, 1, 1], Type: PlayerType.AI},
+        {Name: "Cyan", Color: [0, 1, 1, 1], Type: PlayerType.AI},
+    ];
+
+    PlayState: PlayState = PlayState.Setup;
+    TurnPhase: TurnPhase = TurnPhase.EndTurn;
+    IsAiTurn: boolean = false;
+
+    // We start in the EndTurn phase which makes sys_rules_phase increment this to 0.
+    CurrentPlayer = -1;
+    CurrentPlayerTerritoryIds: Array<number> = [];
+    // Map teams to territories and units occupying them.
+    UnitsByTeamTerritory: Record<number, Map<number, Array<Entity>>> = {};
+
+    CurrentlyMovingAiUnit: Entity | null = null;
+    CurrentlyFoughtOverTerritory: Entity | null = null;
+
+    UnitsToDeploy: number = 0;
+    UnitsDeployed: number = 0;
+
+    ContinentBonus: Record<number, ContinentBonus> = [];
+    SunEntity: Entity = 0;
+
+    Logs: string = "";
+    AlertText: string | null = null;
+    Popup?: {Title: string; Content: string};
 
     constructor() {
         document.addEventListener("visibilitychange", () =>
@@ -193,6 +194,10 @@ export class Game {
 
         this.Gl.enable(GL_DEPTH_TEST);
         this.Gl.enable(GL_CULL_FACE);
+
+        for (let i = 0; i < this.Players.length; i++) {
+            this.UnitsByTeamTerritory[i] = new Map();
+        }
     }
 
     FrameSetup() {
@@ -206,6 +211,9 @@ export class Game {
 
     FrameUpdate(delta: number) {
         let now = performance.now();
+
+        // Event loop.
+        sys_poll(this, delta);
 
         // Camera controls and picking.
         sys_control_camera(this, delta);
@@ -221,6 +229,11 @@ export class Game {
         sys_deploy(this, delta);
         sys_select(this, delta);
         sys_highlight(this, delta);
+
+        // Game rules.
+        sys_rules_tally(this, delta);
+        sys_rules_battle(this, delta);
+        sys_rules_phase(this, delta);
 
         // Game logic.
         sys_nav(this, delta);

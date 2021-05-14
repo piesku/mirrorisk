@@ -95,7 +95,10 @@ export function map_earth(game: Game) {
     };
 
     // Camera.
-    instantiate(game, [...blueprint_camera(game), transform([0, 0, 0], [0, 1, 0, 0])]);
+    game.CameraRig = instantiate(game, [
+        ...blueprint_camera(game),
+        transform([0, 0, 0], [0, 1, 0, 0]),
+    ]);
 
     // The Sun and the Moon.
     instantiate(game, blueprint_sun(game));

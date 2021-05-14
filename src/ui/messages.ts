@@ -21,8 +21,9 @@ export const LOG_BATTLE_RESULT_SOME_LOSSES = (team: string, units_lost: number) 
         units_lost === 1 ? "1 army" : `${units_lost} armies`
     } but still manages to win the battle!`;
 
+export const LOG_ERROR_UNIT_ALREADY_MOVED = () => "This unit has already moved this turn.";
 export const LOG_ERROR_UNIT_CANNOT_LEAVE = () =>
-    "This unit cannot move because territories cannot be left empty.";
+    "This unit cannot move because territories cannot be left unoccupied.";
 
 export const DIALOG_GAME_OVER_TITLE = () => `Game over!`;
 export const DIALOG_GAME_OVER_BODY = (name: string) => `Game over! ${name} has won!`;
