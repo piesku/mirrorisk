@@ -18,6 +18,7 @@ import {sys_camera} from "./systems/sys_camera.js";
 import {sys_collide} from "./systems/sys_collide.js";
 import {sys_control_ai} from "./systems/sys_control_ai.js";
 import {sys_control_always} from "./systems/sys_control_always.js";
+import {sys_control_battle} from "./systems/sys_control_battle.js";
 import {sys_control_camera} from "./systems/sys_control_camera.js";
 import {sys_control_keyboard} from "./systems/sys_control_keyboard.js";
 import {sys_control_mouse} from "./systems/sys_control_mouse.js";
@@ -35,7 +36,6 @@ import {Picked, sys_pick} from "./systems/sys_pick.js";
 import {sys_poll} from "./systems/sys_poll.js";
 import {sys_render_depth} from "./systems/sys_render1_depth.js";
 import {sys_render_forward} from "./systems/sys_render1_forward.js";
-import {sys_rules_battle} from "./systems/sys_rules_battle.js";
 import {sys_rules_phase} from "./systems/sys_rules_phase.js";
 import {sys_rules_tally} from "./systems/sys_rules_tally.js";
 import {sys_select} from "./systems/sys_select.js";
@@ -222,17 +222,19 @@ export class Game {
         sys_control_touch(this, delta);
         sys_pick(this, delta);
 
-        // AI and player orders.
-        sys_control_always(this, delta);
-        sys_control_ai(this, delta);
+        // Player orders.
         sys_control_player(this, delta);
         sys_deploy(this, delta);
         sys_select(this, delta);
         sys_highlight(this, delta);
 
-        // Game rules.
+        // AI.
+        sys_control_ai(this, delta);
+        sys_control_battle(this, delta);
+        sys_control_always(this, delta);
+
+        // Turns and phases.
         sys_rules_tally(this, delta);
-        sys_rules_battle(this, delta);
         sys_rules_phase(this, delta);
 
         // Game logic.

@@ -14,7 +14,7 @@ import {Has} from "../world.js";
 const QUERY = Has.Territory;
 const CLOSE_ENOUGH_SQUARED = 1;
 
-export function sys_rules_battle(game: Game, delta: number) {
+export function sys_control_battle(game: Game, delta: number) {
     if (game.TurnPhase !== TurnPhase.Battle) {
         return;
     }
