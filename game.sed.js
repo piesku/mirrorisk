@@ -82720,146 +82720,6 @@ move.LocalRotations.push(control.Rotation.slice());
 }
 }
 
-const QUERY$h = 64 /* ControlCamera */;
-const INITIAL_CAMERA_Y = 40;
-function sys_control_camera(game, delta) {
-if (game.CurrentPlayer < 0) {
-return;
-}
-for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$h) === QUERY$h) {
-update$b(game, i);
-}
-}
-}
-function update$b(game, entity) {
-let control = game.World.ControlCamera[entity];
-let transform = game.World.Transform[entity];
-if (game.World.Signature[entity] & 512 /* Mimic */) {
-let mimic = game.World.Mimic[entity];
-let current_team_type = game.Players[game.CurrentPlayer].Type;
-switch (game.TurnPhase) {
-case 0 /* Deploy */:
-mimic.Target = null;
-case 1 /* Move */:
-if (current_team_type === 1 /* AI */) {
-mimic.Target = game.CurrentlyMovingAiUnit;
-}
-else {
-mimic.Target = null;
-}
-break;
-case 2 /* Battle */:
-let territory_entity = game.CurrentlyFoughtOverTerritory;
-if (territory_entity) {
-let territory_children = game.World.Children[territory_entity];
-mimic.Target = territory_children.Children[0];
-}
-else {
-mimic.Target = null;
-}
-}
-}
-if (control.Zoom) {
-game.CameraZoom = transform.Translation[1] / INITIAL_CAMERA_Y;
-}
-}
-
-const QUERY$g = 1024 /* Move */ | 64 /* ControlCamera */;
-function sys_control_keyboard(game, delta) {
-for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$g) === QUERY$g) {
-update$a(game, i);
-}
-}
-}
-function update$a(game, entity) {
-let control = game.World.ControlCamera[entity];
-if (control.Yaw) {
-
-
-let move = game.World.Move[entity];
-if (game.InputState["ArrowLeft"]) {
-
-move.LocalRotations.push([0, -1, 0, 0]);
-}
-if (game.InputState["ArrowRight"]) {
-
-move.LocalRotations.push([0, 1, 0, 0]);
-}
-}
-if (control.Pitch) {
-
-
-let move = game.World.Move[entity];
-if (game.InputState["ArrowUp"]) {
-
-move.SelfRotations.push([-1, 0, 0, 0]);
-}
-if (game.InputState["ArrowDown"]) {
-
-move.SelfRotations.push([1, 0, 0, 0]);
-}
-}
-}
-
-const QUERY$f = 1024 /* Move */ | 64 /* ControlCamera */ | 131072 /* Transform */;
-const MOUSE_SENSITIVITY = 0.1;
-const ZOOM_FACTOR$1 = 1.1;
-function sys_control_mouse(game, delta) {
-for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$f) === QUERY$f) {
-update$9(game, i);
-}
-}
-}
-const axis_x = [1, 0, 0];
-const axis_y = [0, 1, 0];
-const rotation = [0, 0, 0, 0];
-function update$9(game, entity) {
-let control = game.World.ControlCamera[entity];
-let move = game.World.Move[entity];
-if (control.Move && game.InputDistance["Mouse0"] > 10) {
-move.MoveSpeed = control.Move * game.CameraZoom ** ZOOM_FACTOR$1;
-if (game.InputDelta["MouseX"]) {
-let amount = game.InputDelta["MouseX"] * MOUSE_SENSITIVITY;
-move.Directions.push([amount, 0, 0]);
-}
-if (game.InputDelta["MouseY"]) {
-let amount = game.InputDelta["MouseY"] * MOUSE_SENSITIVITY;
-move.Directions.push([0, 0, amount]);
-}
-}
-if (control.Zoom && game.InputDelta["WheelY"]) {
-move.MoveSpeed = (control.Zoom * game.CameraZoom) ** ZOOM_FACTOR$1;
-move.Directions.push([0, 0, game.InputDelta["WheelY"]]);
-}
-if (control.Yaw && game.InputDistance["Mouse2"] > 10 && game.InputDelta["MouseX"]) {
-
-let amount = game.InputDelta["MouseX"] * control.Yaw;
-
-
-
-
-
-from_axis(rotation, axis_y, -amount * DEG_TO_RAD);
-let transform = game.World.Transform[entity];
-
-
-multiply(transform.Rotation, rotation, transform.Rotation);
-transform.Dirty = true;
-}
-if (control.Pitch && game.InputDistance["Mouse2"] > 10 && game.InputDelta["MouseY"]) {
-let amount = game.InputDelta["MouseY"] * control.Pitch;
-from_axis(rotation, axis_x, amount * DEG_TO_RAD);
-let transform = game.World.Transform[entity];
-
-
-multiply(transform.Rotation, transform.Rotation, rotation);
-transform.Dirty = true;
-}
-}
-
 let alertWidth$1 = 300;
 function AlertWindow(game) {
 if (!game.AlertText) {
@@ -83104,21 +82964,343 @@ const DIALOG_GAME_OVER_BODY = (name) => `Game over! ${name} has won!`;
 const DIALOG_NEW_TURN = (team, armies) => `It's ${team}'s turn now! Select territories to deploy ${armies} new armies.`;
 const DIALOG_NEW_TURN_WITH_BONUS = (team, armies, bonus, continents) => `It's ${team}'s turn now! You receive ${bonus} extra armies for controlling ${continents.join(", ")}. Select territories to deploy ${armies} new armies.`;
 
-const QUERY$e = 16384 /* Selectable */ | 2048 /* NavAgent */ | 262144 /* Team */;
-function sys_control_player(game, delta) {
+const QUERY$h = 65536 /* Territory */;
+const CLOSE_ENOUGH_SQUARED = 1;
+function sys_control_battle(game, delta) {
+if (game.TurnPhase !== 2 /* Battle */) {
+return;
+}
 for (let i = 0; i < game.World.Signature.length; i++) {
-let team = game.World.Team[i];
-let selectable = game.World.Selectable[i];
-if ((game.World.Signature[i] & QUERY$e) == QUERY$e &&
-game.Players[team.Id].Type === 0 /* Human */ &&
-team.Id === game.CurrentPlayer &&
-selectable.Selected) {
+if ((game.World.Signature[i] & QUERY$h) == QUERY$h) {
+update$b(game, i);
+}
+}
+}
+const sfx$1 = [
+"battle1.mp3",
+"battle2.mp3",
+"battle3.mp3",
+"battle4.mp3",
+"battle5.mp3",
+"battle6.mp3",
+];
+function update$b(game, entity) {
+if (game.CurrentlyFoughtOverTerritory) {
+
+return;
+}
+let territory = game.World.Territory[entity];
+let current_team_name = game.Players[game.CurrentPlayer].Name;
+let current_team_units = game.UnitsByTeamTerritory[game.CurrentPlayer];
+let current_team_territory_ids = [...current_team_units.keys()];
+if (!current_team_territory_ids.includes(territory.Id)) {
+
+return;
+}
+for (let i = 0; i < game.Players.length; i++) {
+if (i === game.CurrentPlayer) {
+continue;
+}
+let enemy_team_name = game.Players[i].Name;
+let enemy_team_units = game.UnitsByTeamTerritory[i];
+let enemy_team_territory_ids = [...enemy_team_units.keys()];
+if (enemy_team_territory_ids.includes(territory.Id)) {
+
+game.CurrentlyFoughtOverTerritory = entity;
+let territory_children = game.World.Children[entity];
+let anchor_entity = territory_children.Children[0];
+let anchor_transform = game.World.Transform[anchor_entity];
+let anchor_world_position = [0, 0, 0];
+get_translation(anchor_world_position, anchor_transform.World);
+Logger(game, LOG_TEAM_ATTACKS(territory.Name, current_team_name, current_team_units.get(territory.Id).length, enemy_team_name, enemy_team_units.get(territory.Id).length));
+let battle_result = fight(game, current_team_units.get(territory.Id).length, enemy_team_units.get(territory.Id).length, !game.IsAiTurn, game.Players[i].Type === 0 /* Human */);
+instantiate(game, [
+
+task_until(() => {
+if (game.CameraRig == undefined) {
+return false;
+}
+
+let camera_rig_transform = game.World.Transform[game.CameraRig];
+return (distance_squared(camera_rig_transform.Translation, anchor_world_position) < CLOSE_ENOUGH_SQUARED);
+}, () => {
+
+play_buffer(game.Audio, undefined, game.Sounds[element(sfx$1)]);
+let loser, winner;
+let winner_units_lost;
+if (battle_result.result === 0 /* AttackWon */) {
+winner_units_lost =
+current_team_units.get(territory.Id).length -
+battle_result.attacking_units;
+Logger(game, winner_units_lost === 0
+? LOG_BATTLE_RESULT_NO_LOSSES(current_team_name)
+: LOG_BATTLE_RESULT_SOME_LOSSES(current_team_name, winner_units_lost));
+loser = i;
+winner = game.CurrentPlayer;
+}
+else {
+winner_units_lost =
+enemy_team_units.get(territory.Id).length -
+battle_result.defending_units;
+Logger(game, winner_units_lost === 0
+? LOG_BATTLE_RESULT_NO_LOSSES(enemy_team_name)
+: LOG_BATTLE_RESULT_SOME_LOSSES(current_team_name, winner_units_lost));
+loser = game.CurrentPlayer;
+winner = i;
+}
+let defeated_units = [];
+if (typeof loser !== undefined) {
+let units_to_remove = remove_defeated_units(game, territory.Id, loser);
+defeated_units.push(...units_to_remove);
+}
+if (typeof winner !== undefined) {
+console.log({ winner, winner_units_lost });
+let units_to_remove = remove_defeated_units(game, territory.Id, winner, winner_units_lost);
+defeated_units.push(...units_to_remove);
+}
+let defeated_unit_tasks = defeated_units.map((unit_entity) => [
+task_timeout(1, () => {
+destroy_entity(game.World, unit_entity);
+}),
+]);
+
+instantiate(game, [
+children(...defeated_unit_tasks),
+task_complete(() => {
+game.CurrentlyFoughtOverTerritory = null;
+}),
+]);
+}),
+]);
+}
+}
+}
+function fight(game, attacking_units, defending_units, human_player_attacking, human_player_defending) {
+while (attacking_units && defending_units) {
+let attackers = [];
+let defenders = [];
+for (let i = 0; i < attacking_units; i++) {
+attackers.push(integer(1, 6));
+}
+for (let i = 0; i < defending_units; i++) {
+defenders.push(integer(1, 6));
+}
+let n_attackers = attackers.sort((a, b) => b - a).slice(0, Math.min(attacking_units, 3));
+let n_defenders = defenders.sort((a, b) => b - a).slice(0, Math.min(attacking_units, 2));
+for (let i = 0; i < Math.min(n_defenders.length, n_attackers.length); i++) {
+if (n_attackers[i] > n_defenders[i]) {
+defending_units--;
+}
+else if (n_attackers[i] < n_defenders[i]) {
+attacking_units--;
+}
+else {
+if (human_player_attacking) {
+defending_units--;
+}
+else {
+attacking_units--;
+}
+}
+}
+}
+if (attacking_units) {
+return {
+result: 0 /* AttackWon */,
+attacking_units,
+defending_units,
+};
+}
+else {
+return {
+result: 1 /* DefenceWon */,
+attacking_units,
+defending_units,
+};
+}
+}
+function* remove_defeated_units(game, territory_id, team_id, qty) {
+let QUERY = 262144 /* Team */ | 2048 /* NavAgent */;
+for (let i = 0; i < game.World.Signature.length; i++) {
+if ((game.World.Signature[i] & QUERY) === QUERY &&
+game.World.NavAgent[i].TerritoryId === territory_id &&
+game.World.Team[i].Id === team_id) {
+if (qty === 0) {
+return;
+}
+if (qty) {
+qty--;
+}
+let translation = game.World.Transform[i].Translation;
+game.World.Move[i].MoveSpeed += float(-5, 5);
+game.World.Signature[i] &= ~262144 /* Team */;
+delete game.World.Team[i];
+game.World.NavAgent[i].TerritoryId = 0;
+game.World.NavAgent[i].Destination = [
+translation[0],
+translation[1] - 7,
+translation[2],
+];
+yield i;
+}
+}
+}
+
+const QUERY$g = 64 /* ControlCamera */;
+const INITIAL_CAMERA_Y = 40;
+function sys_control_camera(game, delta) {
+if (game.CurrentPlayer < 0) {
+return;
+}
+for (let i = 0; i < game.World.Signature.length; i++) {
+if ((game.World.Signature[i] & QUERY$g) === QUERY$g) {
+update$a(game, i);
+}
+}
+}
+function update$a(game, entity) {
+let control = game.World.ControlCamera[entity];
+let transform = game.World.Transform[entity];
+if (game.World.Signature[entity] & 512 /* Mimic */) {
+let mimic = game.World.Mimic[entity];
+let current_team_type = game.Players[game.CurrentPlayer].Type;
+switch (game.TurnPhase) {
+case 0 /* Deploy */:
+mimic.Target = null;
+case 1 /* Move */:
+if (current_team_type === 1 /* AI */) {
+mimic.Target = game.CurrentlyMovingAiUnit;
+}
+else {
+mimic.Target = null;
+}
+break;
+case 2 /* Battle */:
+let territory_entity = game.CurrentlyFoughtOverTerritory;
+if (territory_entity) {
+let territory_children = game.World.Children[territory_entity];
+mimic.Target = territory_children.Children[0];
+}
+else {
+mimic.Target = null;
+}
+}
+}
+if (control.Zoom) {
+game.CameraZoom = transform.Translation[1] / INITIAL_CAMERA_Y;
+}
+}
+
+const QUERY$f = 1024 /* Move */ | 64 /* ControlCamera */;
+function sys_control_keyboard(game, delta) {
+for (let i = 0; i < game.World.Signature.length; i++) {
+if ((game.World.Signature[i] & QUERY$f) === QUERY$f) {
+update$9(game, i);
+}
+}
+}
+function update$9(game, entity) {
+let control = game.World.ControlCamera[entity];
+if (control.Yaw) {
+
+
+let move = game.World.Move[entity];
+if (game.InputState["ArrowLeft"]) {
+
+move.LocalRotations.push([0, -1, 0, 0]);
+}
+if (game.InputState["ArrowRight"]) {
+
+move.LocalRotations.push([0, 1, 0, 0]);
+}
+}
+if (control.Pitch) {
+
+
+let move = game.World.Move[entity];
+if (game.InputState["ArrowUp"]) {
+
+move.SelfRotations.push([-1, 0, 0, 0]);
+}
+if (game.InputState["ArrowDown"]) {
+
+move.SelfRotations.push([1, 0, 0, 0]);
+}
+}
+}
+
+const QUERY$e = 1024 /* Move */ | 64 /* ControlCamera */ | 131072 /* Transform */;
+const MOUSE_SENSITIVITY = 0.1;
+const ZOOM_FACTOR$1 = 1.1;
+function sys_control_mouse(game, delta) {
+for (let i = 0; i < game.World.Signature.length; i++) {
+if ((game.World.Signature[i] & QUERY$e) === QUERY$e) {
 update$8(game, i);
 }
 }
 }
-const sfx$1 = ["mhm1.mp3", "mhm2.mp3", "mhm3.mp3", "mhm4.mp3"];
+const axis_x = [1, 0, 0];
+const axis_y = [0, 1, 0];
+const rotation = [0, 0, 0, 0];
 function update$8(game, entity) {
+let control = game.World.ControlCamera[entity];
+let move = game.World.Move[entity];
+if (control.Move && game.InputDistance["Mouse0"] > 10) {
+move.MoveSpeed = control.Move * game.CameraZoom ** ZOOM_FACTOR$1;
+if (game.InputDelta["MouseX"]) {
+let amount = game.InputDelta["MouseX"] * MOUSE_SENSITIVITY;
+move.Directions.push([amount, 0, 0]);
+}
+if (game.InputDelta["MouseY"]) {
+let amount = game.InputDelta["MouseY"] * MOUSE_SENSITIVITY;
+move.Directions.push([0, 0, amount]);
+}
+}
+if (control.Zoom && game.InputDelta["WheelY"]) {
+move.MoveSpeed = (control.Zoom * game.CameraZoom) ** ZOOM_FACTOR$1;
+move.Directions.push([0, 0, game.InputDelta["WheelY"]]);
+}
+if (control.Yaw && game.InputDistance["Mouse2"] > 10 && game.InputDelta["MouseX"]) {
+
+let amount = game.InputDelta["MouseX"] * control.Yaw;
+
+
+
+
+
+from_axis(rotation, axis_y, -amount * DEG_TO_RAD);
+let transform = game.World.Transform[entity];
+
+
+multiply(transform.Rotation, rotation, transform.Rotation);
+transform.Dirty = true;
+}
+if (control.Pitch && game.InputDistance["Mouse2"] > 10 && game.InputDelta["MouseY"]) {
+let amount = game.InputDelta["MouseY"] * control.Pitch;
+from_axis(rotation, axis_x, amount * DEG_TO_RAD);
+let transform = game.World.Transform[entity];
+
+
+multiply(transform.Rotation, transform.Rotation, rotation);
+transform.Dirty = true;
+}
+}
+
+const QUERY$d = 16384 /* Selectable */ | 2048 /* NavAgent */ | 262144 /* Team */;
+function sys_control_player(game, delta) {
+for (let i = 0; i < game.World.Signature.length; i++) {
+let team = game.World.Team[i];
+let selectable = game.World.Selectable[i];
+if ((game.World.Signature[i] & QUERY$d) == QUERY$d &&
+game.Players[team.Id].Type === 0 /* Human */ &&
+team.Id === game.CurrentPlayer &&
+selectable.Selected) {
+update$7(game, i);
+}
+}
+}
+const sfx = ["mhm1.mp3", "mhm2.mp3", "mhm3.mp3", "mhm4.mp3"];
+function update$7(game, entity) {
 let agent = game.World.NavAgent[entity];
 let team = game.World.Team[entity];
 let transform = game.World.Transform[entity];
@@ -83169,22 +83351,22 @@ transform.Dirty = true;
 }
 agent.TerritoryId = territory.Id;
 agent.Destination = game.Picked.Point;
-audio_source.Trigger = game.Sounds[element(sfx$1)];
+audio_source.Trigger = game.Sounds[element(sfx)];
 }
 }
 }
 
-const QUERY$d = 1024 /* Move */ | 64 /* ControlCamera */ | 131072 /* Transform */;
+const QUERY$c = 1024 /* Move */ | 64 /* ControlCamera */ | 131072 /* Transform */;
 const TOUCH_SENSITIVITY = 0.1;
 const ZOOM_FACTOR = 0.9;
 function sys_control_touch(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$d) === QUERY$d) {
-update$7(game, i);
+if ((game.World.Signature[i] & QUERY$c) === QUERY$c) {
+update$6(game, i);
 }
 }
 }
-function update$7(game, entity) {
+function update$6(game, entity) {
 let control = game.World.ControlCamera[entity];
 let move = game.World.Move[entity];
 if (control.Move && game.InputDistance["Touch0"] > 10 && !game.InputState["Touch1"]) {
@@ -83262,7 +83444,7 @@ position[2],
 game.UnitsDeployed++;
 }
 
-const QUERY$c = 131072 /* Transform */ | 128 /* Draw */;
+const QUERY$b = 131072 /* Transform */ | 128 /* Draw */;
 function sys_draw(game, delta) {
 game.Context2D.resetTransform();
 game.Context2D.clearRect(0, 0, game.ViewportWidth, game.ViewportHeight);
@@ -83281,7 +83463,7 @@ if (!display_camera) {
 return;
 }
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$c) == QUERY$c) {
+if ((game.World.Signature[i] & QUERY$b) == QUERY$b) {
 
 get_translation(position, game.World.Transform[i].World);
 
@@ -83348,13 +83530,13 @@ out[3] = a[3] * b;
 return out;
 }
 
-const QUERY$b = 4096 /* Pickable */;
+const QUERY$a = 4096 /* Pickable */;
 function sys_highlight(game, delta) {
 if (game.CurrentPlayer < 0) {
 return;
 }
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$b) == QUERY$b) {
+if ((game.World.Signature[i] & QUERY$a) == QUERY$a) {
 let pickable = game.World.Pickable[i];
 switch (pickable.Kind) {
 case 0 /* Territory */: {
@@ -83458,19 +83640,19 @@ game.World.Signature[box_entity] &= ~128 /* Draw */;
 }
 }
 
-const QUERY$a = 131072 /* Transform */ | 256 /* Light */;
+const QUERY$9 = 131072 /* Transform */ | 256 /* Light */;
 function sys_light(game, delta) {
 game.LightPositions.fill(0);
 game.LightDetails.fill(0);
 let counter = 0;
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$a) === QUERY$a) {
-update$6(game, i, counter++);
+if ((game.World.Signature[i] & QUERY$9) === QUERY$9) {
+update$5(game, i, counter++);
 }
 }
 }
 let world_pos = [0, 0, 0];
-function update$6(game, entity, idx) {
+function update$5(game, entity, idx) {
 let light = game.World.Light[entity];
 let transform = game.World.Transform[entity];
 get_translation(world_pos, transform.World);
@@ -83489,15 +83671,15 @@ game.LightDetails[4 * idx + 2] = light.Color[2];
 game.LightDetails[4 * idx + 3] = light.Intensity;
 }
 
-const QUERY$9 = 131072 /* Transform */ | 512 /* Mimic */;
+const QUERY$8 = 131072 /* Transform */ | 512 /* Mimic */;
 function sys_mimic(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$9) === QUERY$9) {
-update$5(game, i);
+if ((game.World.Signature[i] & QUERY$8) === QUERY$8) {
+update$4(game, i);
 }
 }
 }
-function update$5(game, entity) {
+function update$4(game, entity) {
 let follower_transform = game.World.Transform[entity];
 let follower_mimic = game.World.Mimic[entity];
 if (follower_mimic.Target) {
@@ -83516,16 +83698,16 @@ follower_transform.Dirty = true;
 }
 }
 
-const QUERY$8 = 131072 /* Transform */ | 1024 /* Move */;
+const QUERY$7 = 131072 /* Transform */ | 1024 /* Move */;
 const NO_ROTATION = [0, 0, 0, 1];
 function sys_move(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$8) === QUERY$8) {
-update$4(game, i, delta);
+if ((game.World.Signature[i] & QUERY$7) === QUERY$7) {
+update$3(game, i, delta);
 }
 }
 }
-function update$4(game, entity, delta) {
+function update$3(game, entity, delta) {
 let transform = game.World.Transform[entity];
 let move = game.World.Move[entity];
 if (move.Directions.length) {
@@ -83578,15 +83760,15 @@ function multiply_rotations(acc, cur) {
 return multiply(acc, acc, cur);
 }
 
-const QUERY$7 = 131072 /* Transform */ | 2048 /* NavAgent */ | 1024 /* Move */;
+const QUERY$6 = 131072 /* Transform */ | 2048 /* NavAgent */ | 1024 /* Move */;
 function sys_nav(game, delta) {
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$7) == QUERY$7) {
-update$3(game, i);
+if ((game.World.Signature[i] & QUERY$6) == QUERY$6) {
+update$2(game, i);
 }
 }
 }
-function update$3(game, entity) {
+function update$2(game, entity) {
 let agent = game.World.NavAgent[entity];
 if (agent.Destination) {
 let transform = game.World.Transform[entity];
@@ -83740,20 +83922,20 @@ return { TriIndex: tri, Point: intersection };
 return null;
 }
 
-const QUERY$6 = 131072 /* Transform */ | 16 /* Collide */;
+const QUERY$5 = 131072 /* Transform */ | 16 /* Collide */;
 function sys_pick(game, delta) {
 let pickables = [];
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$6) == QUERY$6) {
+if ((game.World.Signature[i] & QUERY$5) == QUERY$5) {
 pickables.push(game.World.Collide[i]);
 }
 }
 game.Picked = undefined;
 if (game.Cameras.length > 0) {
-update$2(game, game.Cameras[0], pickables);
+update$1(game, game.Cameras[0], pickables);
 }
 }
-function update$2(game, entity, pickables) {
+function update$1(game, entity, pickables) {
 let transform = game.World.Transform[entity];
 let camera = game.World.Camera[entity];
 let pointer_position = input_pointer_position(game);
@@ -83812,14 +83994,14 @@ return;
 }
 }
 
-const QUERY$5 = 32768 /* Task */;
+const QUERY$4 = 32768 /* Task */;
 function sys_poll(game, delta) {
 
 
 
 let tasks_to_complete = [];
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$5) === QUERY$5) {
+if ((game.World.Signature[i] & QUERY$4) === QUERY$4) {
 if (has_blocking_dependencies(game.World, i)) {
 continue;
 }
@@ -83862,7 +84044,7 @@ return true;
 return false;
 }
 
-const QUERY$4 = 131072 /* Transform */ | 8192 /* Render */;
+const QUERY$3 = 131072 /* Transform */ | 8192 /* Render */;
 function sys_render_depth(game, delta) {
 for (let camera_entity of game.Cameras) {
 let camera = game.World.Camera[camera_entity];
@@ -83882,7 +84064,7 @@ game.Gl.useProgram(game.MaterialDepth.Program);
 game.Gl.uniformMatrix4fv(game.MaterialDepth.Locations.Pv, false, camera.Pv);
 let current_front_face = null;
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$4) === QUERY$4) {
+if ((game.World.Signature[i] & QUERY$3) === QUERY$3) {
 let transform = game.World.Transform[i];
 let render = game.World.Render[i];
 if (render.FrontFace !== current_front_face) {
@@ -83900,7 +84082,7 @@ game.Gl.drawElements(game.MaterialDepth.Mode, render.Mesh.IndexCount, GL_UNSIGNE
 game.ExtVao.bindVertexArrayOES(null);
 }
 
-const QUERY$3 = 131072 /* Transform */ | 8192 /* Render */;
+const QUERY$2 = 131072 /* Transform */ | 8192 /* Render */;
 function sys_render_forward(game, delta) {
 for (let camera_entity of game.Cameras) {
 let camera = game.World.Camera[camera_entity];
@@ -83920,7 +84102,7 @@ game.Gl.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 let current_material = null;
 let current_front_face = null;
 for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$3) === QUERY$3) {
+if ((game.World.Signature[i] & QUERY$2) === QUERY$2) {
 let transform = game.World.Transform[i];
 let render = game.World.Render[i];
 if (render.Material !== current_material) {
@@ -84113,188 +84295,6 @@ game.Gl.uniform1i(render.Material.Locations.RoughnessMap, 3);
 game.ExtVao.bindVertexArrayOES(render.Vao);
 game.Gl.drawElements(render.Material.Mode, render.Mesh.IndexCount, GL_UNSIGNED_SHORT, 0);
 game.ExtVao.bindVertexArrayOES(null);
-}
-
-const QUERY$2 = 65536 /* Territory */;
-const CLOSE_ENOUGH_SQUARED = 1;
-function sys_rules_battle(game, delta) {
-if (game.TurnPhase !== 2 /* Battle */) {
-return;
-}
-for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY$2) == QUERY$2) {
-update$1(game, i);
-}
-}
-}
-const sfx = [
-"battle1.mp3",
-"battle2.mp3",
-"battle3.mp3",
-"battle4.mp3",
-"battle5.mp3",
-"battle6.mp3",
-];
-function update$1(game, entity) {
-if (game.CurrentlyFoughtOverTerritory) {
-
-return;
-}
-let territory = game.World.Territory[entity];
-let current_team_name = game.Players[game.CurrentPlayer].Name;
-let current_team_units = game.UnitsByTeamTerritory[game.CurrentPlayer];
-let current_team_territory_ids = [...current_team_units.keys()];
-if (!current_team_territory_ids.includes(territory.Id)) {
-
-return;
-}
-for (let i = 0; i < game.Players.length; i++) {
-if (i === game.CurrentPlayer) {
-continue;
-}
-let enemy_team_name = game.Players[i].Name;
-let enemy_team_units = game.UnitsByTeamTerritory[i];
-let enemy_team_territory_ids = [...enemy_team_units.keys()];
-if (enemy_team_territory_ids.includes(territory.Id)) {
-
-game.CurrentlyFoughtOverTerritory = entity;
-let territory_children = game.World.Children[entity];
-let anchor_entity = territory_children.Children[0];
-let anchor_transform = game.World.Transform[anchor_entity];
-let anchor_world_position = [0, 0, 0];
-get_translation(anchor_world_position, anchor_transform.World);
-Logger(game, LOG_TEAM_ATTACKS(territory.Name, current_team_name, current_team_units.get(territory.Id).length, enemy_team_name, enemy_team_units.get(territory.Id).length));
-let battle_result = fight(game, current_team_units.get(territory.Id).length, enemy_team_units.get(territory.Id).length, !game.IsAiTurn, game.Players[i].Type === 0 /* Human */);
-instantiate(game, [
-
-task_until(() => {
-if (game.CameraRig == undefined) {
-return false;
-}
-
-let camera_rig_transform = game.World.Transform[game.CameraRig];
-return (distance_squared(camera_rig_transform.Translation, anchor_world_position) < CLOSE_ENOUGH_SQUARED);
-}, () => {
-
-play_buffer(game.Audio, undefined, game.Sounds[element(sfx)]);
-let loser, winner;
-let winner_units_lost;
-if (battle_result.result === 0 /* AttackWon */) {
-winner_units_lost =
-current_team_units.get(territory.Id).length -
-battle_result.attacking_units;
-Logger(game, winner_units_lost === 0
-? LOG_BATTLE_RESULT_NO_LOSSES(current_team_name)
-: LOG_BATTLE_RESULT_SOME_LOSSES(current_team_name, winner_units_lost));
-loser = i;
-winner = game.CurrentPlayer;
-}
-else {
-winner_units_lost =
-enemy_team_units.get(territory.Id).length -
-battle_result.defending_units;
-Logger(game, winner_units_lost === 0
-? LOG_BATTLE_RESULT_NO_LOSSES(enemy_team_name)
-: LOG_BATTLE_RESULT_SOME_LOSSES(current_team_name, winner_units_lost));
-loser = game.CurrentPlayer;
-winner = i;
-}
-let defeated_units = [];
-if (typeof loser !== undefined) {
-let units_to_remove = remove_defeated_units(game, territory.Id, loser);
-defeated_units.push(...units_to_remove);
-}
-if (typeof winner !== undefined) {
-console.log({ winner, winner_units_lost });
-let units_to_remove = remove_defeated_units(game, territory.Id, winner, winner_units_lost);
-defeated_units.push(...units_to_remove);
-}
-let defeated_unit_tasks = defeated_units.map((unit_entity) => [
-task_timeout(1, () => {
-destroy_entity(game.World, unit_entity);
-}),
-]);
-
-instantiate(game, [
-children(...defeated_unit_tasks),
-task_complete(() => {
-game.CurrentlyFoughtOverTerritory = null;
-}),
-]);
-}),
-]);
-}
-}
-}
-function fight(game, attacking_units, defending_units, human_player_attacking, human_player_defending) {
-while (attacking_units && defending_units) {
-let attackers = [];
-let defenders = [];
-for (let i = 0; i < attacking_units; i++) {
-attackers.push(integer(1, 6));
-}
-for (let i = 0; i < defending_units; i++) {
-defenders.push(integer(1, 6));
-}
-let n_attackers = attackers.sort((a, b) => b - a).slice(0, Math.min(attacking_units, 3));
-let n_defenders = defenders.sort((a, b) => b - a).slice(0, Math.min(attacking_units, 2));
-for (let i = 0; i < Math.min(n_defenders.length, n_attackers.length); i++) {
-if (n_attackers[i] > n_defenders[i]) {
-defending_units--;
-}
-else if (n_attackers[i] < n_defenders[i]) {
-attacking_units--;
-}
-else {
-if (human_player_attacking) {
-defending_units--;
-}
-else {
-attacking_units--;
-}
-}
-}
-}
-if (attacking_units) {
-return {
-result: 0 /* AttackWon */,
-attacking_units,
-defending_units,
-};
-}
-else {
-return {
-result: 1 /* DefenceWon */,
-attacking_units,
-defending_units,
-};
-}
-}
-function* remove_defeated_units(game, territory_id, team_id, qty) {
-let QUERY = 262144 /* Team */ | 2048 /* NavAgent */;
-for (let i = 0; i < game.World.Signature.length; i++) {
-if ((game.World.Signature[i] & QUERY) === QUERY &&
-game.World.NavAgent[i].TerritoryId === territory_id &&
-game.World.Team[i].Id === team_id) {
-if (qty === 0) {
-return;
-}
-if (qty) {
-qty--;
-}
-let translation = game.World.Transform[i].Translation;
-game.World.Move[i].MoveSpeed += float(-5, 5);
-game.World.Signature[i] &= ~262144 /* Team */;
-delete game.World.Team[i];
-game.World.NavAgent[i].TerritoryId = 0;
-game.World.NavAgent[i].Destination = [
-translation[0],
-translation[1] - 7,
-translation[2],
-];
-yield i;
-}
-}
 }
 
 function sys_rules_phase(game, delta) {
@@ -84596,15 +84596,16 @@ sys_control_mouse(this);
 sys_control_touch(this);
 sys_pick(this);
 
-sys_control_always(this);
-sys_control_ai(this);
 sys_control_player(this);
 sys_deploy(this);
 sys_select(this);
 sys_highlight(this);
 
+sys_control_ai(this);
+sys_control_battle(this);
+sys_control_always(this);
+
 sys_rules_tally(this);
-sys_rules_battle(this);
 sys_rules_phase(this);
 
 sys_nav(this);
